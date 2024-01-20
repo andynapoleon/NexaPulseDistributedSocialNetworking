@@ -23,5 +23,5 @@ Contributors:
 
     Andy Tran
     Peter Thai
-    Sheikh Safwan Hossain
+    Sheikh Safwan Hossain (sheikhsa)
     Viet Chu
