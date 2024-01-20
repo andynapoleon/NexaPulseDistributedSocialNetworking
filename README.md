@@ -22,6 +22,6 @@ All text is licensed under the CC-BY-SA 4.0 http://creativecommons.org/licenses/
 Contributors:
 
     Andy Tran (aqtran)
-    Peter Thai
+    Peter Thai (pwthai)
     Sheikh Safwan Hossain (sheikhsa)
     Viet Chu
