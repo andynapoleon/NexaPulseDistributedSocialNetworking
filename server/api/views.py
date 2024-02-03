@@ -17,6 +17,10 @@ def addItem(request):
     
     return Response(serializer.data)
 
+@api_view(['GET'])
+def testGet(request):
+    return Response("Hello, world. This is your first data fetching.")
+
 
 
 
