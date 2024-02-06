@@ -1,8 +1,10 @@
 <script>
   import { Router, Link, Route } from "svelte-routing";
-  import Home from "./routes/home/Index.svelte";
-  import Login from "./routes/login/Index.svelte";
-  import Profile from "./routes/profile/Index.svelte";
+  import Home from "./routes/Home/index.svelte";
+  import Login from "./routes/Login/index.svelte";
+  import Profile from "./routes/Profile/index.svelte";
+
+  import User_message from "./routes/Profile/user_message.svelte"
 
   let name = "NexaPulse";
   let login = "Login";
@@ -25,4 +27,10 @@
     </Route>
     <div />
   </div>
+</Router>
+
+<Router>
+  <Route path="/user_message/:id" let:params>
+    <User_message id={current_user_id} />
+  </Route>
 </Router>
