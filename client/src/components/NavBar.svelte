@@ -5,8 +5,11 @@
 </script>
 
 <nav>
-  <div><img src="../../logo.png" alt="" /></div>
-  <SearchBar />
+  <div>
+    <img src="../../logo.png" alt="" />
+    <h1 class="text-[2em] text-white font-bold text-[#d7efda]">NexaPulse</h1>
+  </div>
+  <div><SearchBar /></div>
   <div>
     <Icon.BellActiveSolid id="icon" />
     <Icon.MessageCaptionSolid id="icon" />

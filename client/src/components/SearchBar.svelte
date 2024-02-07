@@ -5,7 +5,7 @@
   <input
     type="text"
     placeholder="Search"
-    class="pl-12 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent w-full bg-white"
+    class="pl-12 pr-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent w-full text-base bg-gray-100"
   />
   <div
     class="absolute inset-y-0 left-0 pl-3 flex items-center justify-center h-full"
