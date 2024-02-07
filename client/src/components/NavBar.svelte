@@ -7,7 +7,7 @@
 <nav>
   <div>
     <img src="../../logo.png" alt="" />
-    <h1 class="text-[2em] text-white font-bold text-[#d7efda]">NexaPulse</h1>
+    <h1 class="text-[2em] font-bold text-[#d7efda]">NexaPulse</h1>
   </div>
   <div><SearchBar /></div>
   <div>
