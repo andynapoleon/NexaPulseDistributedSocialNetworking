@@ -12,10 +12,11 @@
   import { mode, userId, token } from "./stores/stores.js";
 
   let login = "Login";
+  let hasNotifications = true;
   $userId = "123";
 
   function clicked(){
-    alert('12312')
+    alert('12312') 
   }
 
   const menuItems = [
@@ -33,6 +34,7 @@
 <!-- Main Layout -->
 <SideBar items={menuItems} let:item>
   <div>
+    <!-- on:click Not Working, might need svelteKit -->
     <button on:click={clicked}>
       {#if item.label === "Home"}
         <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
@@ -44,6 +46,14 @@
         <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
       {:else if item.label === "Notifications"}
         <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+        <div class="relative">
+          <!-- If there are notifications, paint a dot -->
+          {#if hasNotifications}
+            <svg class="absolute top-[-30px] right-0" width="12" height="12" viewBox="0 0 10 10">
+              <circle cx="5" cy="5" r="5" fill="red"/>
+            </svg>
+          {/if}
+        </div>    
       {:else if item.label === "Settings"}
         <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
         {/if}
