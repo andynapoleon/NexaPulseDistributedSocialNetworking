@@ -291,3 +291,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
+# profile_images stores the image locally
+profile_images/
