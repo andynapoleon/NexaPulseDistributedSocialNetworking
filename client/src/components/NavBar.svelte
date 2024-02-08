@@ -1,5 +1,4 @@
 <script>
-  import { Link } from "svelte-routing";
   import * as Icon from "flowbite-svelte-icons";
   import SearchBar from "./SearchBar.svelte";
 </script>
@@ -14,12 +13,15 @@
     <Icon.BellActiveSolid id="icon" />
     <Icon.MessageCaptionSolid id="icon" />
     <Icon.ArrowUpOutline id="icon" />
+    <Icon.UserSettingsSolid id="icon" />
     <img src="../../fake_profile.png" alt="fake profile" />
   </div>
 </nav>
 
 <style>
   nav {
+    position: fixed;
+    width: 100%;
     background-color: teal;
     color: black;
     padding: 1em;

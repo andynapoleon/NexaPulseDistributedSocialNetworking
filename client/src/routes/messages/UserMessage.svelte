@@ -2,25 +2,33 @@
   export let id;
 
   let messDict = {
-    "Scammer": "wants to follow you",
-    "teacher": "wants to follow you"
-  }
+    Scammer: "wants to follow you",
+    teacher: "wants to follow you",
+  };
 
-  function responseButtonClicked(response){
-    alert(response)
+  function responseButtonClicked(response) {
+    alert(response);
   }
 </script>
 
 <main>
-  <h1>This is the {id}'s personal massage page!</h1>
-  {#each Object.entries(messDict) as [name, type] }
+  <h1 class="text-black text-center">
+    This is the {id}'s personal massage page!
+  </h1>
+  {#each Object.entries(messDict) as [name, type]}
     <div class="container">
       <div>
         <p class="custom-text">{name} {type}</p>
       </div>
       <div>
-        <button class="custom-button" on:click={() => responseButtonClicked('Yes')}>Yes</button>
-        <button class="custom-button" on:click={() => responseButtonClicked('No')}>No</button>
+        <button
+          class="custom-button"
+          on:click={() => responseButtonClicked("Yes")}>Yes</button
+        >
+        <button
+          class="custom-button"
+          on:click={() => responseButtonClicked("No")}>No</button
+        >
       </div>
     </div>
   {/each}
@@ -37,12 +45,13 @@
     justify-content: space-between; /* Distributes items evenly along the main-axis */
     align-items: center; /* Centers items vertically */
     margin: auto; /* Centers the container horizontally */
-    margin-top: 5%; 
+    margin-top: 5%;
   }
 
   .custom-text {
     flex: 1;
     font-size: 24px; /* Set the text size to 16 pixels */
+    color: black;
   }
 
   .custom-button {
