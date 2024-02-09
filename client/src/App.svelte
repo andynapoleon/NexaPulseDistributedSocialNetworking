@@ -4,10 +4,10 @@
   import * as Icon from "flowbite-svelte-icons";
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
-  import Home from "./routes/home/Index.svelte";
-  import Login from "./routes/login/Index.svelte";
-  import Profile from "./routes/profile/Index.svelte";
-  import UserMessage from "./routes/messages/UserMessage.svelte";
+  import Home from "./routes/Home/index.svelte";
+  import Login from "./routes/Login/index.svelte";
+  import Profile from "./routes/Profile/prolife.svelte";
+  import UserMessage from "./routes/Messages/userMessage.svelte";
   import Notifications from "./routes/Notifications/notifications.svelte";
   import { mode, userId, token } from "./stores/stores.js";
 

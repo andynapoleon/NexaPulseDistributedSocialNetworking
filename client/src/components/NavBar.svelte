@@ -1,6 +1,7 @@
 <script>
   import * as Icon from "flowbite-svelte-icons";
   import SearchBar from "./SearchBar.svelte";
+  let id = "123"
 </script>
 
 <nav>
@@ -14,7 +15,11 @@
     <Icon.MessageCaptionSolid id="icon" />
     <Icon.ArrowUpOutline id="icon" />
     <Icon.UserSettingsSolid id="icon" />
-    <img src="../../fake_profile.png" alt="fake profile" />
+    <div>
+      <a href="../profile/{id}">
+        <img src="../../fake_profile.png" alt="fake profile" />
+      </a>
+    </div>
   </div>
 </nav>
 
