@@ -4,21 +4,17 @@
   import * as Icon from "flowbite-svelte-icons";
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
-  import Home from "./routes/Home/index.svelte";
-  import Login from "./routes/Login/index.svelte";
-  import Profile from "./routes/Profile/prolife.svelte";
-  import UserMessage from "./routes/Messages/userMessage.svelte";
-  import Notifications from "./routes/Notifications/notifications.svelte";
-  import { mode, userId, token } from "./stores/stores.js";
+  import Home from "./routes/home/Index.svelte";
+  import Profile from "./routes/profile/Index.svelte";
+  import UserMessage from "./routes/messages/UserMessage.svelte";
+  import Notifications from "./routes/notifications/Index.svelte";
+  import { mode, userId, token, hasNotifications } from "./stores/stores.js";
 
-  let login = "Login";
-  let hasNotifications = true;
+  // Global variables
+  $hasNotifications = true;
   $userId = "123";
 
-  function clicked(){
-    alert('12312') 
-  }
-
+  // Sidebar menu items
   const menuItems = [
     { href: "/", label: "Home" },
     { href: `/messages/${$userId}`, label: "Messages" },
@@ -33,40 +29,36 @@
 
 <!-- Main Layout -->
 <SideBar items={menuItems} let:item>
-  <div>
-    <!-- on:click Not Working, might need svelteKit -->
-    <button on:click={clicked}>
-      {#if item.label === "Home"}
-        <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-      {:else if item.label === "Messages"}
-        <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-      {:else if item.label === "Create a post"}
-        <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-      {:else if item.label === "Friends"}
-        <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-      {:else if item.label === "Notifications"}
-        <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-        <div class="relative">
-          <!-- If there are notifications, paint a dot -->
-          {#if hasNotifications}
-            <svg class="absolute top-[-30px] right-0" width="12" height="12" viewBox="0 0 10 10">
-              <circle cx="5" cy="5" r="5" fill="red"/>
-            </svg>
-          {/if}
-        </div>    
-      {:else if item.label === "Settings"}
-        <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-        {/if}
-    </button>
-  </div>  
+  {#if item.label === "Home"}
+    <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+  {:else if item.label === "Messages"}
+    <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+  {:else if item.label === "Create a post"}
+    <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+  {:else if item.label === "Friends"}
+    <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+  {:else if item.label === "Notifications"}
+    <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    <!-- If there are notifications, paint a dot -->
+    {#if hasNotifications}
+      <svg class="mt-2" width="12" height="12" viewBox="0 0 10 10">
+        <circle cx="5" cy="5" r="5" fill="red" />
+      </svg>
+    {/if}
+  {:else if item.label === "Settings"}
+    <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+  {/if}
 </SideBar>
 <NavBar />
 
 <!-- Router -->
 <Router {url}>
   <div>
-    <Route path="/"><Home /></Route>
-    <Route path="/login"><Login propName={login} /></Route>
+    <Route path="/">
+      <div class="content">
+        <Home />
+      </div></Route
+    >
     <Route path="/profile/:id" let:params>
       <div class="content">
         <Profile id={params.id} />
@@ -74,20 +66,16 @@
     </Route>
     <Route path="/messages/:id" let:params>
       <div class="content">
-        <UserMessage/>
+        <UserMessage />
       </div>
     </Route>
     <Route path="/notifications/:id" let:params>
       <div class="content">
         <Notifications id={$userId} />
       </div>
-    </Route> 
+    </Route>
   </div>
 </Router>
 
 <style>
-  .content {
-    padding-top: 10%;
-    padding-left: 10%;
-  }
 </style>
