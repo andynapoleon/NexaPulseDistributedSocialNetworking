@@ -5,20 +5,22 @@
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
   import Home from "./routes/home/Index.svelte";
-  import Login from "./routes/login/Index.svelte";
   import Profile from "./routes/profile/Index.svelte";
   import UserMessage from "./routes/messages/UserMessage.svelte";
-  import { mode, userId, token } from "./stores/stores.js";
+  import Notifications from "./routes/notifications/Index.svelte";
+  import { mode, userId, token, hasNotifications } from "./stores/stores.js";
 
-  let login = "Login";
+  // Global variables
+  $hasNotifications = true;
   $userId = "123";
 
+  // Sidebar menu items
   const menuItems = [
     { href: "/", label: "Home" },
     { href: `/messages/${$userId}`, label: "Messages" },
     { href: "/makepost", label: "Create a post" },
     { href: "/friends", label: "Friends" },
-    { href: "/notifications", label: "Notifications" },
+    { href: `/notifications/${$userId}`, label: "Notifications" },
     { href: "/settings", label: "Settings" },
   ];
 
@@ -37,6 +39,12 @@
     <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
   {:else if item.label === "Notifications"}
     <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    <!-- If there are notifications, paint a dot -->
+    {#if hasNotifications}
+      <svg class="mt-2" width="12" height="12" viewBox="0 0 10 10">
+        <circle cx="5" cy="5" r="5" fill="red" />
+      </svg>
+    {/if}
   {:else if item.label === "Settings"}
     <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
   {/if}
@@ -46,8 +54,11 @@
 <!-- Router -->
 <Router {url}>
   <div>
-    <Route path="/"><Home /></Route>
-    <Route path="/login"><Login propName={login} /></Route>
+    <Route path="/">
+      <div class="content">
+        <Home />
+      </div></Route
+    >
     <Route path="/profile/:id" let:params>
       <div class="content">
         <Profile id={params.id} />
@@ -55,15 +66,16 @@
     </Route>
     <Route path="/messages/:id" let:params>
       <div class="content">
-        <UserMessage id={$userId} />
+        <UserMessage />
+      </div>
+    </Route>
+    <Route path="/notifications/:id" let:params>
+      <div class="content">
+        <Notifications id={$userId} />
       </div>
     </Route>
   </div>
 </Router>
 
 <style>
-  .content {
-    padding-top: 10%;
-    padding-left: 10%;
-  }
 </style>
