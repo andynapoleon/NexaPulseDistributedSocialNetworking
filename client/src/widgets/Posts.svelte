@@ -1,7 +1,7 @@
 <script>
   import Post from "./Post.svelte";
 
-  // Sample array of post objects
+  // Sample array of post objects - will do data fetching instead
   let posts = [
     {
       id: 1,
