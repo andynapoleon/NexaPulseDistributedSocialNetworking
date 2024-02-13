@@ -36,6 +36,12 @@
 </main>
 
 <style>
+  main {
+    padding-top: 10%;
+    padding-left: 20%;
+    padding-right: 7%;
+  }
+
   .container {
     border: 2px solid teal;
     border-radius: 4px; /* Rounded corners */

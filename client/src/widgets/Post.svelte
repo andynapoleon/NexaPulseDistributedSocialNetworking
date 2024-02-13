@@ -76,7 +76,7 @@
     cursor: pointer;
     background-color: transparent;
     border: none;
-    color: #007bff;
+    color: #008480;
     padding: 0;
     margin-right: 2%;
   }
