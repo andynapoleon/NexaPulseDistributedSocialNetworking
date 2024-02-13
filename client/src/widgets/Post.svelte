@@ -5,9 +5,22 @@
   export let content = "Here is some post content.";
   let likes = 5;
 
-  // Edit post function
-  function editPost() {
-    alert("I am editing a post");
+  // Local component state for editing
+  let isEditing = false;
+  let editedContent = content;
+
+  // Function to toggle edit mode
+  function toggleEditMode() {
+    isEditing = !isEditing;
+    // Revert to original content if editing is canceled
+    if (!isEditing) {
+      editedContent = content;
+    }
+  }
+  // Function to save edited content
+  function saveEdit() {
+    content = editedContent;
+    isEditing = false;
   }
 </script>
 
@@ -17,12 +30,21 @@
     <span>{postTime}</span>
   </div>
   <div class="post-content">
-    {content}
+    {#if isEditing}
+      <textarea class="edit-content" bind:value={editedContent}></textarea>
+    {:else}
+      {content}
+    {/if}
   </div>
   <div class="actions">
     <button>Like</button>
     <button>Share</button>
-    <button on:click={editPost}>Edit</button>
+    <button on:click={toggleEditMode}>
+      {isEditing ? "Cancel" : "Edit"}
+    </button>
+    {#if isEditing}
+      <button on:click={saveEdit}>Save</button>
+    {/if}
     <span>Likes: {likes}</span>
   </div>
 </div>
@@ -57,5 +79,9 @@
     color: #007bff;
     padding: 0;
     margin-right: 2%;
+  }
+  .edit-content {
+    width: 100%;
+    margin-bottom: 12px;
   }
 </style>
