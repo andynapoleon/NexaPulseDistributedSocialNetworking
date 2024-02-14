@@ -40,5 +40,5 @@
 </main>
 
 <style>
-  @import 'style.css';
+  @import 'notiStyle.css';
 </style>

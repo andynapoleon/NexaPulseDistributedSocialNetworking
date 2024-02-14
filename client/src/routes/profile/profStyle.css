@@ -2,8 +2,11 @@ main {
   display: flex;
   flex-direction: column; /* Stack items vertically */
   align-items: center; /* Center items horizontally */
-  color: black;
   text-align: center;
+}
+
+main .text-container .custom-text {
+  color: black; /* Override text color to black */
 }
 
 .sidebar {
@@ -62,10 +65,20 @@ main {
   text-align: center; /* Center text horizontally */
 }
 
+.top-custom-text {
+  font-size: 40px;
+  color: teal;
+  font-weight: bold;
+}
+
 .custom-text {
   font-size: 26px;
   color: rgb(0, 0, 0);
   font-weight: bold;
+}
+
+.button-container {
+  margin-top: 20px;
 }
 
 .custom-button {
@@ -78,4 +91,5 @@ main {
   font-size: 30px;
   color: rgb(255, 255, 255);
   font-weight: bold;
+  margin: 10px;
 }
