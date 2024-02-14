@@ -27,6 +27,7 @@
   nav {
     position: fixed;
     width: 100%;
+    height: 90px; /*Height set to 90px*/
     background-color: teal;
     color: black;
     padding: 1em;
