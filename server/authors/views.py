@@ -1,14 +1,13 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import Author
 
+# We will not use this. Everything will be deligated to API
+def detail(request, question_id):
+    return HttpResponse("You're looking at question %s." % question_id)
 
-def detail(request, user_id):
-    return HttpResponse("You're looking at user %s." % user_id)
+def results(request, question_id):
+    response = "You're looking at the results of question %s."
+    return HttpResponse(response % question_id)
 
-def results(request, user_id):
-    response = "You're looking at the results of user %s."
-    return HttpResponse(response % user_id)
-
-def vote(request, user_id):
-    return HttpResponse("You're voting on user %s." % user_id)
+def vote(request, question_id):
+    return HttpResponse("You're voting on question %s." % question_id)

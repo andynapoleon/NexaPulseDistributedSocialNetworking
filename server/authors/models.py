@@ -4,6 +4,7 @@ from django.db import models
 class Author(models.Model):
     name = models.CharField(max_length=100, default='')
 
+# TODO: Make user as author
 class User(models.Model):
     id = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=50, default='')
@@ -12,17 +13,29 @@ class User(models.Model):
     password = models.CharField(max_length=255, default='') # This will be encripted
     github = models.CharField(max_length=100, default='')
     profileImage = models.ImageField(upload_to='assets/profile_images/', null=True, blank=True) 
-    # for debugging:
-    # def __str__(self):
-    #     return f"{self.firstname} {self.lastname}"
+   
+    def __str__(self):
+        return f"{self.firstName} {self.lastName}"
+
+class Post(models.Model):
+    pid = models.AutoField(primary_key=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    public = models.BooleanField()
+    content = models.TextField()
+    # Add more fields as needed
+
 
 class Comment(models.Model):
     cid = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
 
 class Like(models.Model):
     lid = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+
 
 class FollowedBy(models.Model):
     id1 = models.ForeignKey(User, related_name='follows', on_delete=models.CASCADE)
@@ -35,14 +48,8 @@ class Follows(models.Model):
     follower = models.ForeignKey(User, related_name='follower_set', on_delete=models.CASCADE)
     followed = models.ForeignKey(User, related_name='followed_set', on_delete=models.CASCADE)
 
-    # class Meta:
-    #     unique_together = (('follower', 'followed'),)
-
-class Post(models.Model):
-    uid = models.ForeignKey(User, on_delete=models.CASCADE)
-    pid = models.CharField(primary_key=True, max_length=50)
-    public = models.BooleanField()
-    # Add more fields as needed
+    class Meta:
+        unique_together = (('follower', 'followed'),)
 
 class MakesPost(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
