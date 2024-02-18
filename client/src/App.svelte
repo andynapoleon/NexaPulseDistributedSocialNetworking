@@ -8,19 +8,24 @@
   import Profile from "./routes/profile/Index.svelte";
   import UserMessage from "./routes/messages/UserMessage.svelte";
   import Notifications from "./routes/notifications/Index.svelte";
-  import { mode, userId, token, hasNotifications } from "./stores/stores.js";
+  import {
+    mode,
+    currentUser,
+    token,
+    hasNotifications,
+  } from "./stores/stores.js";
 
   // Global variables
   $hasNotifications = true;
-  $userId = "123";
+  $currentUser.userId = "123";
 
   // Sidebar menu items
   const menuItems = [
     { href: "/", label: "Home" },
-    { href: `/messages/${$userId}`, label: "Messages" },
+    { href: `/messages/${$currentUser.userId}`, label: "Messages" },
     { href: "/makepost", label: "Create a post" },
     { href: "/friends", label: "Friends" },
-    { href: `/notifications/${$userId}`, label: "Notifications" },
+    { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
     { href: "/settings", label: "Settings" },
   ];
 
@@ -71,7 +76,7 @@
     </Route>
     <Route path="/notifications/:id" let:params>
       <div class="content">
-        <Notifications id={$userId} />
+        <Notifications id={$currentUser.userId} />
       </div>
     </Route>
   </div>

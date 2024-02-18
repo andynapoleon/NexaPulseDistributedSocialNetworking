@@ -1,44 +1,22 @@
 <script>
-  export let id;
-
-  import { Link } from "svelte-routing";
-
-  function followButtonClicked(follower) {
-    alert(follower + " clicked!");
-  }
-
-  let infoDict = {
-    "ID": 123312,
-    "LOCATION": "Mars, Solar System",
-    "FAV GAME": "Dota2, Slay the Spire"
-  };
+  import ProfileWidget from "./ProfileWidget.svelte";
+  export let id = null;
 </script>
 
-<main>
-  <div class="sidebar"/>
-  <div class="navbar"/>
-  <div class="main-content">
-    <div class="image-container">
-      <img src="../../../public/fake_profile.png" alt="used for profile" class="image">
-      <div class="circle"/>
-    </div>
-    <div class="text-container">
-      <p class="top-custom-text">Hello, this is the {id} profile page!</p>
-
-      {#each Object.entries(infoDict) as [key, value]}
-        <div class="custom-text">{key}: {value}</div>
-      {/each}
-      
-      <div class="button-container">
-        <button class="custom-button" on:click={() => followButtonClicked("Scammer")}>follow me</button>
-        <Link to="/messages/{id}">
-          <button class="custom-button">messages</button>
-        </Link>
-      </div>
-    </div>
-  </div>
+<main class="main">
+  <ProfileWidget
+    profileImageUrl="../../../fake_profile.png"
+    name="Jane Smith"
+    email="jane.smith@example.com"
+    favoriteGame="Final Fantasy VII"
+    userId={id}
+  />
 </main>
 
 <style>
-  @import 'profStyle.css';
+  .main {
+    padding-top: 10%;
+    padding-left: 20%;
+    padding-right: 7%;
+  }
 </style>

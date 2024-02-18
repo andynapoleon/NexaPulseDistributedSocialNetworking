@@ -36,8 +36,8 @@ main .text-container .custom-text {
 
 .circle {
   /* Styles for the larger circle container */
-  width: 230px; /* Adjust width as needed */
-  height: 230px; /* Adjust height as needed */
+  width: 100; /* Adjust width as needed */
+  height: 100px; /* Adjust height as needed */
   border-radius: 50%; /* Makes the container circular */
   background-color: teal; /* Color of the larger circle */
   position: absolute;
@@ -59,13 +59,13 @@ main .text-container .custom-text {
 }
 
 .top-custom-text {
-  font-size: 40px;
+  font-size: 2em;
   color: teal;
   font-weight: bold;
 }
 
 .custom-text {
-  font-size: 26px;
+  font-size: 0.5em;
   color: rgb(0, 0, 0);
   font-weight: bold;
 }
