@@ -12,8 +12,8 @@
 </script>
 
 <main {id}>
-  <div class="sidebar"/>
-  <div class="navbar"/>
+  <div class="sidebar" />
+  <div class="navbar" />
   <div class="main-content">
     {#each Object.entries(messDict) as [name, type]}
       <div class="container">
@@ -40,5 +40,5 @@
 </main>
 
 <style>
-  @import 'notiStyle.css';
+  @import "notiStyle.css";
 </style>
