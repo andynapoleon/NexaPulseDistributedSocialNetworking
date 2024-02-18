@@ -6,7 +6,6 @@
   export let profileImageUrl = "default-profile.png"; // A default image if none is provided
   export let name = "John Doe";
   export let email = "john.doe@example.com";
-  export let favoriteGame = "The Witcher 3";
   export let userId; // The user ID passed into the component
 
   // Get the current user's ID from the store
@@ -21,7 +20,6 @@
   <div class="profile-info">
     <div class="profile-name">{name}</div>
     <div class="profile-email">{email}</div>
-    <div class="favorite-game">Favorite Game: {favoriteGame}</div>
     {#if !isCurrentUser}
       <button class="follow-button">Follow</button>
       <button class="add-friend-button">Add Friend</button>
@@ -65,14 +63,6 @@
     font-size: 1em;
   }
 
-  .favorite-game {
-    background-color: #f0f0f0;
-    border-radius: 0.25rem;
-    margin-top: 0.5rem;
-    padding: 0.5rem;
-    font-size: 1em;
-  }
-
   .follow-button,
   .add-friend-button {
     padding: 0.5rem 1rem;
@@ -85,12 +75,12 @@
   }
 
   .follow-button {
-    background-color: #1da1f2; /* Twitter-like follow button color */
+    background-color: teal; /* Twitter-like follow button color */
     color: white;
   }
 
   .add-friend-button {
-    background-color: #4267b2; /* Facebook-like add friend button color */
+    background-color: teal; /* Facebook-like add friend button color */
     color: white;
   }
 

@@ -8,6 +8,7 @@
   import Profile from "./routes/profile/Index.svelte";
   import UserMessage from "./routes/messages/UserMessage.svelte";
   import Notifications from "./routes/notifications/Index.svelte";
+  import Login from "./routes/login/Index.svelte";
   import {
     mode,
     currentUser,
@@ -60,9 +61,10 @@
 <Router {url}>
   <div>
     <Route path="/">
-      <div class="content">
-        <Home />
-      </div></Route
+      <Home /></Route
+    >
+    <Route path="/login">
+      <Login /></Route
     >
     <Route path="/profile/:id" let:params>
       <div class="content">
