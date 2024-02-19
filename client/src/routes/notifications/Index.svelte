@@ -1,41 +1,36 @@
 <script>
   export let id;
+  import Notis from "./notis.svelte";
 
-  let messDict = {
-    Scammer: "wants to follow you",
-    teacher: "wants to follow you",
-  };
-
-  function responseButtonClicked(response) {
-    alert(response);
-  }
+  let posts = [
+    {
+      id: 1,
+      profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+      userName: "John Doe",
+      postTime: "1h ago",
+    },
+    {
+      id: 2,
+      profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+      userName: "Jane Smith",
+      postTime: "2h ago",
+    },
+    {
+      id: 3,
+      profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+      userName: "Dave Lee",
+      postTime: "3h ago",
+    },
+  ];
 </script>
 
-<main {id}>
-  <div class="sidebar" />
-  <div class="navbar" />
-  <div class="main-content">
-    {#each Object.entries(messDict) as [name, type]}
-      <div class="container">
-        <div>
-          <p class="custom-text">{name} {type}</p>
-        </div>
-        <div>
-          <button
-            class="custom-button-Yes"
-            on:click={() => responseButtonClicked("Yes")}
-          >
-            Yes
-          </button>
-          <button
-            class="custom-button-No"
-            on:click={() => responseButtonClicked("No")}
-          >
-            No
-          </button>
-        </div>
-      </div>
-    {/each}
+<main class="main" {id}>
+  <div class="profile-layout">
+    <div class="profile-widget">
+    </div>
+    <div class="posts">
+      <Notis {posts} />
+    </div>
   </div>
 </main>
 

@@ -1,6 +1,7 @@
 <script>
   import { currentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
+  import { writable } from 'svelte/store';
 
   // Props passed to the component
   export let profileImageUrl = "default-profile.png"; // A default image if none is provided
@@ -13,6 +14,14 @@
 
   // Check if the profile belongs to the current user
   $: isCurrentUser = userId === currentUserId;
+
+  // Initialize alreadyFollowed as a writable store
+  const alreadyFollowed = writable(false);
+
+  // Follow or unfollow the user
+  function followButtonClick() {
+    alreadyFollowed.update(value => !value);
+  }
 </script>
 
 <div class="profile-widget">
@@ -21,7 +30,11 @@
     <div class="profile-name">{name}</div>
     <div class="profile-email">{email}</div>
     {#if !isCurrentUser}
-      <button class="follow-button">Follow</button>
+      {#if !$alreadyFollowed}
+        <button class="follow-button" on:click={followButtonClick}>Follow</button>
+      {:else}
+        <button class="follow-button" on:click={followButtonClick}>Unfollow</button>
+      {/if}
       <button class="add-friend-button">Add Friend</button>
     {/if}
   </div>
