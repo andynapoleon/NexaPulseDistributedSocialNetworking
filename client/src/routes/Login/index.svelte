@@ -24,7 +24,8 @@
       }
 
       const data = await response.json();
-      $authToken.set(data.access); // Assuming the Django backend uses a 'access' token
+      console.log(data);
+      $authToken = data.access; // Assuming the Django backend uses a 'access' token
       navigate("/"); // Navigate to the dashboard or another page on successful login
     } catch (error) {
       errorMessage = error.message;
