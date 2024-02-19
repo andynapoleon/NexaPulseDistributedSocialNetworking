@@ -25,25 +25,25 @@ class User(models.Model):
         return self.password == client_password
 
 
-class Post(models.Model):
-    pid = models.AutoField(primary_key=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    public = models.BooleanField()
-    content = models.TextField()
-    # Add more fields as needed
+# class Post(models.Model):
+#     pid = models.AutoField(primary_key=True)
+#     author = models.ForeignKey(User, on_delete=models.CASCADE)
+#     public = models.BooleanField()
+#     content = models.TextField()
+#     # Add more fields as needed
 
 
-class Comment(models.Model):
-    cid = models.AutoField(primary_key=True)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    content = models.TextField()
+# class Comment(models.Model):
+#     cid = models.AutoField(primary_key=True)
+#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+#     author = models.ForeignKey(User, on_delete=models.CASCADE)
+#     content = models.TextField()
 
 
-class Like(models.Model):
-    lid = models.AutoField(primary_key=True)
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+# class Like(models.Model):
+#     lid = models.AutoField(primary_key=True)
+#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+#     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class FollowedBy(models.Model):
@@ -66,21 +66,21 @@ class Follows(models.Model):
         unique_together = (("follower", "followed"),)
 
 
-class MakesPost(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+# class MakesPost(models.Model):
+#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class HasComment(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    post = models.ForeignKey(MakesPost, on_delete=models.CASCADE)
+# class HasComment(models.Model):
+#     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+#     post = models.ForeignKey(MakesPost, on_delete=models.CASCADE)
 
 
-class OwnComment(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+# class OwnComment(models.Model):
+#     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class OwnLike(models.Model):
-    like = models.ForeignKey(Like, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+# class OwnLike(models.Model):
+#     like = models.ForeignKey(Like, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
