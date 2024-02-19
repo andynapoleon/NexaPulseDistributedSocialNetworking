@@ -1,7 +1,11 @@
 <script>
   import * as Icon from "flowbite-svelte-icons";
   import SearchBar from "./SearchBar.svelte";
-  let id = "123";
+  import { currentUser } from "../stores/stores.js";
+  import App from "../App.svelte";
+  import Counter from "./Counter.svelte";
+
+  let id = $currentUser.userId;
 </script>
 
 <nav>

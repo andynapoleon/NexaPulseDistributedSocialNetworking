@@ -12,7 +12,7 @@
   const currentUserId = get(currentUser).userId;
 
   // Check if the profile belongs to the current user
-  $: isCurrentUser = userId === currentUserId;
+  $: isCurrentUser = userId == currentUserId;
 </script>
 
 <div class="profile-widget">
