@@ -2,9 +2,9 @@ import { writable } from "svelte/store";
 
 export const mode = writable("light");
 export const currentUser = writable({
-  userId: null,
-  name: "",
-  email: "",
+  userId: 1714884,
+  name: "Andy Tran",
+  email: "aqtran@ualberta.ca",
 });
-export const token = writable(null);
+export const authToken = writable("");
 export const hasNotifications = writable(false);

@@ -12,13 +12,12 @@
   import {
     mode,
     currentUser,
-    token,
+    authToken,
     hasNotifications,
   } from "./stores/stores.js";
 
   // Global variables
   $hasNotifications = true;
-  $currentUser.userId = "123";
 
   // Sidebar menu items
   const menuItems = [
@@ -30,32 +29,38 @@
     { href: "/settings", label: "Settings" },
   ];
 
+  // Reactively set isLoginPage based on the current path
+  let path = location.pathname;
+  let isLoginPage = path === "/login";
+
   export const url = "";
 </script>
 
 <!-- Main Layout -->
-<SideBar items={menuItems} let:item>
-  {#if item.label === "Home"}
-    <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-  {:else if item.label === "Messages"}
-    <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-  {:else if item.label === "Create a post"}
-    <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-  {:else if item.label === "Friends"}
-    <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-  {:else if item.label === "Notifications"}
-    <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    <!-- If there are notifications, paint a dot -->
-    {#if hasNotifications}
-      <svg class="mt-2" width="12" height="12" viewBox="0 0 10 10">
-        <circle cx="5" cy="5" r="5" fill="red" />
-      </svg>
+{#if !isLoginPage}
+  <SideBar items={menuItems} let:item>
+    {#if item.label === "Home"}
+      <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "Messages"}
+      <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "Create a post"}
+      <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "Friends"}
+      <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "Notifications"}
+      <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+      <!-- If there are notifications, paint a dot -->
+      {#if hasNotifications}
+        <svg class="mt-2" width="12" height="12" viewBox="0 0 10 10">
+          <circle cx="5" cy="5" r="5" fill="red" />
+        </svg>
+      {/if}
+    {:else if item.label === "Settings"}
+      <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {/if}
-  {:else if item.label === "Settings"}
-    <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-  {/if}
-</SideBar>
-<NavBar />
+  </SideBar>
+  <NavBar />
+{/if}
 
 <!-- Router -->
 <Router {url}>

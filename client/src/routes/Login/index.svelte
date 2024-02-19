@@ -1,15 +1,42 @@
 <script>
+  import { authToken } from "../../stores/stores.js";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+
   let email = "";
   let password = "";
+  let errorMessage = ""; // To display login errors
 
-  const handleLogin = () => {
-    // Logic to handle user login goes here.
-    // Typically, you would call an API to authenticate the user.
-    console.log("Login attempt:", { email, password });
-  };
+  async function handleLogin() {
+    const loginEndpoint = "http://localhost:8000/api/token/"; // Adjust to your Django backend login URL
+    const credentials = { email, password };
+
+    try {
+      const response = await fetch(loginEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (!response.ok) {
+        throw new Error("Login failed"); // Handle non-2xx responses
+      }
+
+      const data = await response.json();
+      $authToken.set(data.access); // Assuming the Django backend uses a 'access' token
+      navigate("/"); // Navigate to the dashboard or another page on successful login
+    } catch (error) {
+      errorMessage = error.message;
+    }
+  }
 </script>
 
 <div class="login-container">
+  {#if errorMessage}
+    <p class="error-message">{errorMessage}</p>
+  {/if}
+  <h1 class="text-[5em] font-bold text-[teal]">NexaPulse</h1>
   <form class="login-form" on:submit|preventDefault={handleLogin}>
     <input
       type="email"
@@ -32,10 +59,12 @@
 <style>
   .login-container {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     height: 100vh;
     background-color: #e0f2f1; /* Light teal background */
+    color: black;
   }
 
   .login-form {
@@ -44,7 +73,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     background: #ffffff;
     width: 100%;
-    max-width: 320px;
+    max-width: 30%;
   }
 
   .login-input {
