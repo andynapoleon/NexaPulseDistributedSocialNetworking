@@ -46,7 +46,7 @@
   /* Optional: Adjust styling for better presentation */
   .left-column {
     width: 80px;
-    padding: 10px;
+    padding: 5px;
   }
 
   .right-column {
@@ -74,7 +74,7 @@
   }
   .profile-avatar {
     border-radius: 50%;
-    width: 50px;
-    height: 50px;
+    width: 65px;
+    height: 65px;
   }
 </style>
