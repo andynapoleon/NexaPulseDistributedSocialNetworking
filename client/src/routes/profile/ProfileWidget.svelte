@@ -29,18 +29,20 @@
   <div class="profile-info">
     <div class="profile-name">{name}</div>
     <div class="profile-email">{email}</div>
-    {#if !isCurrentUser}
-      {#if !$alreadyFollowed}
-        <button class="follow-button" on:click={followButtonClick}
-          >Follow</button
-        >
-      {:else}
-        <button class="follow-button" on:click={followButtonClick}
-          >Unfollow</button
-        >
+    <div class="flex justify-center">
+      {#if !isCurrentUser}
+        {#if !$alreadyFollowed}
+          <button class="follow-button" on:click={followButtonClick}
+            >Follow</button
+          >
+        {:else}
+          <button class="follow-button" on:click={followButtonClick}
+            >Unfollow</button
+          >
+        {/if}
+        <button class="add-friend-button">Add Friend</button>
       {/if}
-      <button class="add-friend-button">Add Friend</button>
-    {/if}
+    </div>
   </div>
 </div>
 
@@ -89,6 +91,7 @@
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    font-size: 0.9em;
   }
 
   .follow-button {
