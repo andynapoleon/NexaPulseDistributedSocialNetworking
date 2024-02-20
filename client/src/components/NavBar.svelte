@@ -1,6 +1,12 @@
 <script>
   import * as Icon from "flowbite-svelte-icons";
   import SearchBar from "./SearchBar.svelte";
+  import { currentUser } from "../stores/stores.js";
+  import App from "../App.svelte";
+  import Counter from "./Counter.svelte";
+  import { navigate } from "svelte-routing";
+
+  let id = $currentUser.userId;
 </script>
 
 <nav>
@@ -14,7 +20,11 @@
     <Icon.MessageCaptionSolid id="icon" />
     <Icon.ArrowUpOutline id="icon" />
     <Icon.UserSettingsSolid id="icon" />
-    <img src="../../fake_profile.png" alt="fake profile" />
+    <div>
+      <button on:click={() => navigate(`/profile/${id}`)}>
+        <img src="../../fake_profile.png" alt="fake profile" />
+      </button>
+    </div>
   </div>
 </nav>
 
