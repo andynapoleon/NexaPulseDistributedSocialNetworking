@@ -1,11 +1,21 @@
 <script>
-  import { beforeUpdate, getContext } from "svelte";
+  import { onMount, getContext } from "svelte";
   import { authToken } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   let email = "";
   let password = "";
   let errorMessage = ""; // To display login errors
+
+  let isAuthenticated = false;
+
+  onMount(() => {
+    isAuthenticated = $authToken !== "";
+    console.log(isAuthenticated);
+    if (isAuthenticated) {
+      navigate("/home");
+    }
+  });
 
   async function handleLogin() {
     const loginEndpoint = "http://localhost:8000/api/token/";
@@ -25,7 +35,6 @@
       }
 
       const data = await response.json();
-      console.log(data);
       $authToken = data.access; // Assuming the Django backend uses a 'access' token
       navigate("/home");
     } catch (error) {

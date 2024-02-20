@@ -6,10 +6,10 @@
   import SideBar from "./components/SideBar.svelte";
   import Home from "./routes/Home/index.svelte";
   import Profile from "./routes/profile/Index.svelte";
-  import UserMessage from "./routes/Messages/userMessage.svelte";
-  import Friends from "./routes/Friends/index.svelte"
+  import UserMessage from "./routes/messages/UserMessage.svelte";
   import Notifications from "./routes/notifications/Index.svelte";
   import Login from "./routes/Login/index.svelte";
+  import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import {
     mode,
     currentUser,
@@ -17,9 +17,6 @@
     hasNotifications,
     isLoginPage,
   } from "./stores/stores.js";
-
-  // Global variables
-  $hasNotifications = true;
 
   // Sidebar menu items
   const menuItems = [
@@ -31,6 +28,14 @@
     { href: "/settings", label: "Settings" },
     { href: "/", label: "Log Out" },
   ];
+
+  // Routes
+  const routes = {
+    "/home": Home,
+    "/profile/:id": Profile,
+    "/messages/:id": UserMessage,
+    "/notifications/:id": Notifications,
+  };
 
   // Reactively set isLoginPage based on the current path
   let path = location.pathname;
@@ -69,11 +74,18 @@
 
 <!-- Router -->
 <Router {url}>
-  <div>
-    <Route path="/">
-      <Login /></Route
-    >
-    <Route path="/home">
+  <Route path="/">
+    <Login /></Route
+  >
+  {#each Object.keys(routes) as route}
+    <Route path={route} let:params>
+      <AuthenticatedRoute>
+        <!-- Render the protected route component -->
+        <svelte:component this={routes[route]} {...params} />
+      </AuthenticatedRoute>
+    </Route>
+  {/each}
+  <!-- <Route path="/home">
       <Home /></Route
     >
     <Route path="/profile/:id" let:params>
@@ -95,8 +107,7 @@
       <div class="content">
         <Notifications id={$currentUser.userId} />
       </div>
-    </Route>
-  </div>
+    </Route> -->
 </Router>
 
 <style>
