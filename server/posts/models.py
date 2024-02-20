@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authors.models import User
+from authors.models import Authors
 
 class Post(models.Model):
     id = models.CharField(max_length=255, primary_key=True, default="")

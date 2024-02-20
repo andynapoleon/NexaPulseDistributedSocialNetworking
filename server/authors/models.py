@@ -2,12 +2,8 @@ from django.db import models
 
 
 # Create your models here.
-class Author(models.Model):
-    name = models.CharField(max_length=100, default="")
 
-
-# TODO: Make user as author
-class User(models.Model):
+class Authors(models.Model):
     id = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=50, default="")
     lastName = models.CharField(max_length=50, default="")
@@ -46,24 +42,24 @@ class User(models.Model):
 #     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-class FollowedBy(models.Model):
-    id1 = models.ForeignKey(User, related_name="follows", on_delete=models.CASCADE)
-    id2 = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
+# class FollowedBy(models.Model):
+#     id1 = models.ForeignKey(User, related_name="follows", on_delete=models.CASCADE)
+#     id2 = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
 
-    class Meta:
-        unique_together = ("id1", "id2")
+#     class Meta:
+#         unique_together = ("id1", "id2")
 
 
-class Follows(models.Model):
-    follower = models.ForeignKey(
-        User, related_name="follower_set", on_delete=models.CASCADE
-    )
-    followed = models.ForeignKey(
-        User, related_name="followed_set", on_delete=models.CASCADE
-    )
+# class Follows(models.Model):
+#     follower = models.ForeignKey(
+#         User, related_name="follower_set", on_delete=models.CASCADE
+#     )
+#     followed = models.ForeignKey(
+#         User, related_name="followed_set", on_delete=models.CASCADE
+#     )
 
-    class Meta:
-        unique_together = (("follower", "followed"),)
+#     class Meta:
+#         unique_together = (("follower", "followed"),)
 
 
 # class MakesPost(models.Model):
