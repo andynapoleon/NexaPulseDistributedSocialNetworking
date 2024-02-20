@@ -7,9 +7,9 @@ from .models import Post
 from .serializers import PostSerializer
 
 @api_view(['GET'])
-def get_posts(request):
+def get_post(request):
     posts = Post.objects.all()
-    serializer = PostSerializer(posts, many=True)
+    serializer = PostSerializer(posts, many=True) # Many serializations
     return Response(serializer.data)
 
 @api_view(['POST'])
