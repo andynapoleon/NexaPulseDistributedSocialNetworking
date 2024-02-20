@@ -5,9 +5,9 @@ from authors.models import Author
 
 class Post(models.Model):
     VISIBILITY_CHOICES = [
-        'PUBLIC',
-        'FRIENDS',
-        'UNLISTED',
+        ('PUBLIC', 'Public'),
+        ('FRIENDS', 'Friends'),
+        ('UNLISTED', 'Unlisted'),
     ]
 
     type = models.CharField(max_length=255, default="post")
@@ -39,7 +39,7 @@ class Post(models.Model):
     content = models.TextField(default="")
 
     # the author has an ID where by authors can be disambiguated
-    author = models.ForeignKey('authors.Author', on_delete=models.CASCADE)
+    # author = models.ForeignKey('authors.Author', on_delete=models.CASCADE)
     
     # total number of comments for this post
     count = models.IntegerField(default=0)

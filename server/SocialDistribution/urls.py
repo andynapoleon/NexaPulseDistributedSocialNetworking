@@ -24,9 +24,9 @@ router = routers.DefaultRouter()
 urlpatters = router.urls
 
 urlpatterns = [
-    path("authors/", include("authors.urls")),
+    # path("authors/", include("authors.urls")),
     path("admin/", admin.site.urls),
     path("", include("api.urls")),
     path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
-    path("",include('posts.urls')),  # Include the posts app URLs
+    
 ]

@@ -2,13 +2,16 @@ from rest_framework import serializers
 from .models import Author
 
 class AuthorSerializer(serializers.Serializer):
-    id = serializers.CharField()
-    firstName = serializers.CharField()
-    lastName = serializers.CharField()
-    email = serializers.EmailField()
-    password = serializers.CharField()  # This will be encripted
-    github = serializers.CharField()
-    profileImage = serializers.ImageField()
+    class Meta:
+        model = Author
+        fields = '__all__'
+    # id = serializers.CharField()
+    # firstName = serializers.CharField()
+    # lastName = serializers.CharField()
+    # email = serializers.EmailField()
+    # password = serializers.CharField()  # This will be encripted
+    # github = serializers.CharField()
+    # profileImage = serializers.ImageField()
 
     def create(self, validated_data):
         """
