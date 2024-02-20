@@ -6,6 +6,7 @@ export const currentUser = writable({
   name: "Andy Tran",
   email: "aqtran@ualberta.ca",
 });
-export const authToken = writable("");
+export const authToken = writable(localStorage.getItem("authToken") || "");
+authToken.subscribe((val) => localStorage.setItem("authToken", val));
 export const hasNotifications = writable(false);
 export const isLoginPage = writable(false);
