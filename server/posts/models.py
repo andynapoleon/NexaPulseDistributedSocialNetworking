@@ -39,7 +39,7 @@ class Post(models.Model):
     content = models.TextField(default="")
 
     # the author has an ID where by authors can be disambiguated
-    author = models.ForeignKey('authors.Author', on_delete=models.CASCADE)
+    # author = models.ForeignKey('authors.Author', on_delete=models.CASCADE)
     
     # total number of comments for this post
     count = models.IntegerField(default=0)
