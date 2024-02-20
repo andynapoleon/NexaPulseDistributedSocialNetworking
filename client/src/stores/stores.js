@@ -8,3 +8,4 @@ export const currentUser = writable({
 });
 export const authToken = writable("");
 export const hasNotifications = writable(false);
+export const isLoginPage = writable(false);

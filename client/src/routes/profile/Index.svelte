@@ -1,6 +1,9 @@
 <script>
   import Posts from "../../widgets/Posts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
+  import { authToken } from "../../stores/stores.js";
+  import { onMount } from "svelte";
+
   export let id = null;
 
   // Fetch names & posts with the userId passed in
@@ -24,6 +27,10 @@
       content: "Check out my new project.",
     },
   ];
+
+  onMount(() => {
+    console.log($authToken);
+  });
 </script>
 
 <main class="main">

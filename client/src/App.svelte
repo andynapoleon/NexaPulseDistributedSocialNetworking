@@ -14,6 +14,7 @@
     currentUser,
     authToken,
     hasNotifications,
+    isLoginPage,
   } from "./stores/stores.js";
 
   // Global variables
@@ -21,23 +22,24 @@
 
   // Sidebar menu items
   const menuItems = [
-    { href: "/", label: "Home" },
+    { href: "/home", label: "Home" },
     { href: `/messages/${$currentUser.userId}`, label: "Messages" },
     { href: "/makepost", label: "Create a post" },
     { href: "/friends", label: "Friends" },
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
     { href: "/settings", label: "Settings" },
+    { href: "/", label: "Log Out" },
   ];
 
   // Reactively set isLoginPage based on the current path
   let path = location.pathname;
-  let isLoginPage = path === "/login";
+  $isLoginPage = path === "/";
 
   export const url = "";
 </script>
 
 <!-- Main Layout -->
-{#if !isLoginPage}
+{#if !$isLoginPage}
   <SideBar items={menuItems} let:item>
     {#if item.label === "Home"}
       <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
@@ -57,6 +59,8 @@
       {/if}
     {:else if item.label === "Settings"}
       <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "Log Out"}
+      <Icon.LockOpenSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {/if}
   </SideBar>
   <NavBar />
@@ -66,10 +70,10 @@
 <Router {url}>
   <div>
     <Route path="/">
-      <Home /></Route
-    >
-    <Route path="/login">
       <Login /></Route
+    >
+    <Route path="/home">
+      <Home /></Route
     >
     <Route path="/profile/:id" let:params>
       <div class="content">
