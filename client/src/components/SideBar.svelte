@@ -1,6 +1,14 @@
 <script>
   export let items = []; // expects an array of items for the sidebar
-  import { Link } from "svelte-routing";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation\
+  import { authToken, isLoginPage } from "../stores/stores.js";
+
+  // Logout function
+  function handleLogout() {
+    $authToken = ""; // Clear the authentication token
+    $isLoginPage = true;
+    navigate("/"); // Redirect the user to the login page
+  }
 </script>
 
 <aside class="sidebar">
@@ -10,8 +18,13 @@
         <li>
           <div class="menu-item flex justify-right">
             <slot {item} />
-            <a href={item.href}>{item.label}</a>
-            <!-- <Link to={item.href}>{item.label}</Link> -->
+            {#if item.label === "Log Out"}
+              <button on:click={handleLogout}>{item.label}</button>
+            {:else}
+              <button on:click={() => navigate(`${item.href}`)}
+                >{item.label}</button
+              >
+            {/if}
           </div>
         </li>
       {/each}
@@ -39,7 +52,7 @@
     margin: 0;
   }
 
-  nav li a {
+  nav li button {
     padding: 14px 12px;
     text-decoration: none;
     color: white;

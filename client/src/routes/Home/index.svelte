@@ -1,6 +1,21 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Posts from "../../widgets/Posts.svelte";
+  import { onMount } from "svelte";
+  import { authToken, isLoginPage } from "../../stores/stores.js";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+
+  // let isAuthenticated = false;
+
+  onMount(() => {
+    $isLoginPage = false;
+    // isAuthenticated = $authToken !== "";
+    // console.log(isAuthenticated);
+    // if (!isAuthenticated) {
+    //   $isLoginPage = true;
+    //   navigate("/");
+    // }
+  });
 
   // Array to hold post objects
   let posts = [
@@ -47,7 +62,7 @@
 
 <style>
   .posts {
-    padding-top: 10%;
+    padding-top: 7%;
     padding-left: 20%;
     padding-right: 7%;
   }
