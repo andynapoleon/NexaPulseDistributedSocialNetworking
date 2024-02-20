@@ -1,0 +1,69 @@
+.sidebar {
+  width: 12%;
+  float: left;
+}
+
+.navbar {
+  height: 90px;
+}
+.main-content {
+  width: calc(100% - 12%);
+  /* Calculate remaining height after subtracting navbar height */
+  height: calc(100% - 90px);
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Center items horizontally */
+  justify-content: center; /* Center items vertically */
+
+  margin-top: 50px;
+  margin-left: 12%;
+}
+
+.button-layout {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 2rem;
+}
+
+.class-button {
+  display: flex;
+  justify-content: center; /* Center the text horizontally */
+  align-items: center; /* Center the text vertically */
+  color: white;
+  border-radius: 20px; /* Adjust the value as needed */
+  background-color: teal;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  height: auto;
+
+  width: 10rem;
+  height: 3rem;
+}
+
+.selected-class-button {
+  display: flex;
+  justify-content: center; /* Center the text horizontally */
+  align-items: center; /* Center the text vertically */
+  color: white;
+  border-radius: 20px; /* Adjust the value as needed */
+  background-color: rgb(3, 57, 57);
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  height: auto;
+
+  width: 10rem;
+  height: 3rem;
+}
+
+.profile-layout {
+  display: flex;
+  gap: 2rem; /* Adjust the gap as needed */
+  margin-bottom: 2rem;
+}
+
+.profile-widget {
+  flex: 1; /* Adjust the flex basis as needed */
+  max-width: 350px; /* Adjust the width as needed */
+}

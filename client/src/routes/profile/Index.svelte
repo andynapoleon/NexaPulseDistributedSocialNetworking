@@ -1,7 +1,22 @@
 <script>
   import Posts from "../../widgets/Posts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
+  import { onMount } from "svelte";
+  import { authToken, isLoginPage } from "../../stores/stores.js";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+
   export let id = null;
+
+  // let isAuthenticated = false;
+
+  // onMount(() => {
+  //   isAuthenticated = $authToken !== "";
+  //   console.log(isAuthenticated);
+  //   if (!isAuthenticated) {
+  //     $isLoginPage = true;
+  //     navigate("/");
+  //   }
+  // });
 
   // Fetch names & posts with the userId passed in
   let posts = [
