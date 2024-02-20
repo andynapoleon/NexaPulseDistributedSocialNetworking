@@ -4,6 +4,12 @@ from django.db import models
 from authors.models import Authors
 
 class Post(models.Model):
+    VISIBILITY_CHOICES = [
+        'PUBLIC',
+        'FRIENDS',
+        'UNLISTED',
+    ]
+
     type = models.CharField(max_length=255, default="post")
 
     # title of a post
@@ -33,7 +39,7 @@ class Post(models.Model):
     content = models.TextField(default="")
 
     # the author has an ID where by authors can be disambiguated
-    author_id = models.CharField(max_length=255, default="") # Author should be embedded (change later)
+    author = models.ForeignKey('authors.Author', on_delete=models.CASCADE)
     
     # total number of comments for this post
     count = models.IntegerField(default=0)
@@ -56,7 +62,7 @@ class Post(models.Model):
     published = models.DateTimeField(auto_now_add=True)
 
     # visibility ["PUBLIC","FRIENDS","UNLISTED"]
-    visibility = models.CharField(max_length=20, default="UNLISTED")
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default="UNLISTED")
     # for visibility PUBLIC means it is open to the wild web
     # FRIENDS means if we're friends I can see the post
     # FRIENDS should've already been sent the post so they don't need this
