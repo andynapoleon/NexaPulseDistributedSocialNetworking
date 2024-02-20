@@ -4,11 +4,12 @@
   import * as Icon from "flowbite-svelte-icons";
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
-  import Home from "./routes/home/Index.svelte";
+  import Home from "./routes/Home/index.svelte";
   import Profile from "./routes/profile/Index.svelte";
-  import UserMessage from "./routes/messages/UserMessage.svelte";
+  import UserMessage from "./routes/Messages/userMessage.svelte";
+  import Friends from "./routes/Friends/index.svelte"
   import Notifications from "./routes/notifications/Index.svelte";
-  import Login from "./routes/login/Index.svelte";
+  import Login from "./routes/Login/index.svelte";
   import {
     mode,
     currentUser,
@@ -24,7 +25,7 @@
     { href: "/", label: "Home" },
     { href: `/messages/${$currentUser.userId}`, label: "Messages" },
     { href: "/makepost", label: "Create a post" },
-    { href: "/friends", label: "Friends" },
+    { href: `/friends/${$currentUser.userId}`, label: "Friends" },
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
     { href: "/settings", label: "Settings" },
   ];
@@ -79,6 +80,11 @@
     <Route path="/messages/:id" let:params>
       <div class="content">
         <UserMessage />
+      </div>
+    </Route>
+    <Route path="/friends/:id" let:params>
+      <div class="content">
+        <Friends id={$currentUser.userId} />
       </div>
     </Route>
     <Route path="/notifications/:id" let:params>
