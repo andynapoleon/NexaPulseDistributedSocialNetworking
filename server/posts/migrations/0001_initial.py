@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('content', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
@@ -27,14 +27,14 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
             name='MakesPost',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
@@ -50,7 +50,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('comment', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='posts.comment')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('like', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='posts.like')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 ('public', models.BooleanField(default=False)),
                 ('content', models.TextField()),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.AddField(

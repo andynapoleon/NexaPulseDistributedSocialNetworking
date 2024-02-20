@@ -1,17 +1,17 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from authors.models import Authors
-from authors.serializers import AuthorsSerializer
+from authors.models import Author
+from authors.serializers import AuthorSerializer
 
 @api_view(['GET'])
 def getData(request):
-    authors = Authors.objects.all()
-    serializer = AuthorsSerializer(authors, many = True)
+    authors = Author.objects.all()
+    serializer = AuthorSerializer(authors, many = True)
     return Response(serializer.data)
 
 @api_view(['POST'])
 def addAuthor(request):
-    serializer = AuthorsSerializer(data = request.data)
+    serializer = AuthorSerializer(data = request.data)
     if serializer.is_valid():
         serializer.save()
     

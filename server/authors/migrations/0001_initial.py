@@ -70,7 +70,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('lid', models.AutoField(primary_key=True, serialize=False)),
                 ('post', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.post')),
-                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.AddField(
@@ -81,14 +81,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='post',
             name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author'),
         ),
         migrations.CreateModel(
             name='OwnLike',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('like', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.like')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.CreateModel(
@@ -96,25 +96,25 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('comment', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.comment')),
-                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user')),
+                ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author')),
             ],
         ),
         migrations.AddField(
             model_name='makespost',
             name='user',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author'),
         ),
         migrations.AddField(
             model_name='comment',
             name='author',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.user'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='authors.author'),
         ),
         migrations.CreateModel(
             name='Follows',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('followed', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='followed_set', to='authors.user')),
-                ('follower', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='follower_set', to='authors.user')),
+                ('followed', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='followed_set', to='authors.author')),
+                ('follower', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='follower_set', to='authors.author')),
             ],
             options={
                 'unique_together': {('follower', 'followed')},
@@ -124,8 +124,8 @@ class Migration(migrations.Migration):
             name='FollowedBy',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('id1', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='follows', to='authors.user')),
-                ('id2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='followers', to='authors.user')),
+                ('id1', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='follows', to='authors.author')),
+                ('id2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='followers', to='authors.author')),
             ],
             options={
                 'unique_together': {('id1', 'id2')},

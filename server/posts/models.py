@@ -1,7 +1,7 @@
 from django.db import models
 
 # Create your models here.
-from authors.models import Authors
+from authors.models import Author
 
 class Post(models.Model):
     type = models.CharField(max_length=255, default="post")

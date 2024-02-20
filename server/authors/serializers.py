@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from .models import Authors
+from .models import Author
 
-class AuthorsSerializer(serializers.Serializer):
+class AuthorSerializer(serializers.Serializer):
     id = serializers.CharField()
     firstName = serializers.CharField()
     lastName = serializers.CharField()
@@ -14,7 +14,7 @@ class AuthorsSerializer(serializers.Serializer):
         """
         Create and return a new `Authors` instance, given the validated data
         """
-        return Authors.object.create(**validated_data)
+        return Author.object.create(**validated_data)
 
     def update(self, instance, validated_data):
         """
