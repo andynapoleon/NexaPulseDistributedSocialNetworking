@@ -4,11 +4,12 @@
   import * as Icon from "flowbite-svelte-icons";
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
-  import Home from "./routes/Home/index.svelte";
+  import Home from "./routes/home/Index.svelte";
   import Profile from "./routes/profile/Index.svelte";
   import UserMessage from "./routes/messages/UserMessage.svelte";
   import Notifications from "./routes/notifications/Index.svelte";
-  import Login from "./routes/Login/index.svelte";
+  import Login from "./routes/login/Index.svelte";
+  import Friends from "./routes/friends/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import {
     mode,
@@ -35,6 +36,7 @@
     "/profile/:id": Profile,
     "/messages/:id": UserMessage,
     "/notifications/:id": Notifications,
+    "/friends/:id": Friends,
   };
 
   // Reactively set isLoginPage based on the current path
