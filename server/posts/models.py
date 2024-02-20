@@ -5,9 +5,9 @@ from authors.models import Author
 
 class Post(models.Model):
     VISIBILITY_CHOICES = [
-        'PUBLIC',
-        'FRIENDS',
-        'UNLISTED',
+        ('PUBLIC', 'Public'),
+        ('FRIENDS', 'Friends'),
+        ('UNLISTED', 'Unlisted'),
     ]
 
     type = models.CharField(max_length=255, default="post")
