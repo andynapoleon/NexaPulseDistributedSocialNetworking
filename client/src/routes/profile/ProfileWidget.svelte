@@ -7,6 +7,7 @@
   export let profileImageUrl = "default-profile.png"; // A default image if none is provided
   export let name = "John Doe";
   export let email = "john.doe@example.com";
+  export let github = "https://github.com/bigballs";
   export let userId; // The user ID passed into the component
 
   // Get the current user's ID from the store
@@ -29,6 +30,7 @@
   <div class="profile-info">
     <div class="profile-name">{name}</div>
     <div class="profile-email">{email}</div>
+    <div class="profile-github">{github}</div>
     <div class="flex justify-center">
       {#if !isCurrentUser}
         {#if !$alreadyFollowed}
@@ -78,6 +80,10 @@
   }
 
   .profile-email {
+    color: #555;
+    font-size: 1em;
+  }
+  .profile-github {
     color: #555;
     font-size: 1em;
   }
