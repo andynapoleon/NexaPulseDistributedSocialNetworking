@@ -22,24 +22,20 @@ def addAuthor(request):
 
 class Profile(APIView):
     permission_classes = [AllowAny]
-
-    @staticmethod
-    def get_user_from_access_token(access_token):
-        decoded_token = AccessToken(access_token)
-        user_id = decoded_token['user_id']
+    
+    def get_user_from_id(self, user_id):
         try:
             user = Author.objects.get(id=user_id)
             return user
-        except:
+        except Author.DoesNotExist:
             return None
     
-    def get(self, request):
-        access_token = self.request.headers.get('Authorization', '').split(' ')[1]
-        user = self.get_user_from_access_token(access_token)
-        print(user)
-        full_name = f"{user.firstName} {user.lastName}"
+    def get(self, request, user_id):
+        user = self.get_user_from_id(user_id)
+        if not user:
+            return Response({'error': 'User not found'}, status=404)
         
-        # Assuming the user's GitHub link is stored in a profile model or directly in the user model
+        full_name = f"{user.firstName} {user.lastName}"
         github = user.github
         email = user.email
 
@@ -49,8 +45,3 @@ class Profile(APIView):
             'email': email,
         }
         return Response(context)
-
-
-
-
-

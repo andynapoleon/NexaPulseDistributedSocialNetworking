@@ -1,6 +1,6 @@
 <script>
   import { onMount, getContext } from "svelte";
-  import { authToken } from "../../stores/stores.js";
+  import { currentUser, authToken } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   let email = "";
@@ -36,6 +36,13 @@
 
       const data = await response.json();
       $authToken = data.access; // Assuming the Django backend uses a 'access' token
+      currentUser.set({
+          userId: data.id,
+          name: data.name,
+          email: data.email,
+          github: data.github
+      });
+      
       navigate("/home");
     } catch (error) {
       errorMessage = error.message;

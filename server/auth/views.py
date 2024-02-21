@@ -9,7 +9,6 @@ from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
 
-
 class LoginView(APIView):
     permission_classes = [AllowAny]
 
@@ -25,6 +24,10 @@ class LoginView(APIView):
                 {
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
+                    "email": email,
+                    "name": user.firstName + " " + user.lastName,
+                    "github": user.github,
+                    "id": user.id
                 }
             )
         return Response(
