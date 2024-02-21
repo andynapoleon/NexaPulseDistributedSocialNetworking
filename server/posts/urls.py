@@ -8,5 +8,5 @@ urlpatterns = [
     path('service/api/authors/<str:author_id>/posts/', views.get_recent_posts, name='get_recent_posts'),
     path('service/api/authors/<str:author_id>/posts/', views.create_post, name='create_post'),
     path('service/api/authors/<str:author_id>/posts/<str:post_id>', views.update_post, name='update_post'),
-    path('service/api/authors/<str:author_id>/posts/<str:post_id>/', views.delete_post, name='delete_post'),
+    path('api/authors/posts/delete', views.delete_post, name='delete_post'),
 ]
