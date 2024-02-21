@@ -58,3 +58,15 @@ def update_post(request, author_id, post_id):
         serializer.save()
         return Response(serializer.data)
     return Response(status=400, data=serializer.errors)
+
+@api_view(['DELETE'])
+def delete_post(request, author_id, post_id):
+    """
+    Delete a specific post.
+    """
+    try:
+        post = Post.objects.get(id=post_id, author_id=author_id)
+        post.delete()
+        return Response(status=204)
+    except Post.DoesNotExist:
+        return Response(status=404)
