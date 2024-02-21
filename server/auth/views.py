@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-from authors.models import User
+from authors.models import Author
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework.response import Response
@@ -17,13 +17,17 @@ class LoginView(APIView):
         password = request.data.get("password")
         print(email)
         print(password)
-        user = User.objects.filter(email=email).first()
+        user = Author.objects.filter(email=email).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
             return Response(
                 {
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
+                    "email": email,
+                    "name": user.firstName + " " + user.lastName,
+                    "github": user.github,
+                    "id": user.id
                 }
             )
         return Response(
