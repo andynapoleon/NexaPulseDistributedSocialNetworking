@@ -1,6 +1,6 @@
 <script>
   import { onMount, getContext } from "svelte";
-  import { currentUser, authToken } from "../../stores/stores.js";
+  import { currentUser, authToken, server } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   let email = "";
@@ -18,7 +18,8 @@
   });
 
   async function handleLogin() {
-    const loginEndpoint = "http://localhost:8000/api/token/";
+    const loginEndpoint = server + "/api/token/";
+    console.log(loginEndpoint);
     const credentials = { email, password };
 
     try {

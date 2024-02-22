@@ -42,45 +42,9 @@ class Author(models.Model):
 #     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-# class FollowedBy(models.Model):
-#     id1 = models.ForeignKey(User, related_name="follows", on_delete=models.CASCADE)
-#     id2 = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
-
-#     class Meta:
-#         unique_together = ("id1", "id2")
-
-
-<<<<<<< HEAD
-class Follows(models.Model):
-    follower = models.ForeignKey(
-        Author, related_name="follower_set", on_delete=models.CASCADE
-    )
-    followed = models.ForeignKey(
-        Author, related_name="followed_set", on_delete=models.CASCADE
-    )
-=======
-# class Follows(models.Model):
-#     follower = models.ForeignKey(
-#         User, related_name="follower_set", on_delete=models.CASCADE
-#     )
-#     followed = models.ForeignKey(
-#         User, related_name="followed_set", on_delete=models.CASCADE
-#     )
->>>>>>> 865f621fce08b00fdd2be05ee2afa2a531194354
-
-#     class Meta:
-#         unique_together = (("follower", "followed"),)
-
-
-<<<<<<< HEAD
-class MakesPost(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-=======
 # class MakesPost(models.Model):
 #     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
->>>>>>> 865f621fce08b00fdd2be05ee2afa2a531194354
 
 
 # class HasComment(models.Model):
@@ -88,16 +52,6 @@ class MakesPost(models.Model):
 #     post = models.ForeignKey(MakesPost, on_delete=models.CASCADE)
 
 
-<<<<<<< HEAD
-class OwnComment(models.Model):
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-
-
-class OwnLike(models.Model):
-    like = models.ForeignKey(Like, on_delete=models.CASCADE)
-    author = models.ForeignKey(Author, on_delete=models.CASCADE)
-=======
 # class OwnComment(models.Model):
 #     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -106,4 +60,3 @@ class OwnLike(models.Model):
 # class OwnLike(models.Model):
 #     like = models.ForeignKey(Like, on_delete=models.CASCADE)
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
->>>>>>> 865f621fce08b00fdd2be05ee2afa2a531194354

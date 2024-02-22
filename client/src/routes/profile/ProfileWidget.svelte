@@ -1,13 +1,14 @@
 <script>
-  import { currentUser } from "../../stores/stores.js";
+    import { onMount } from "svelte";
+  import { currentUser, server } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
 
   // Props passed to the component
-  export let profileImageUrl = "default-profile.png"; // A default image if none is provided
-  export let name = "John Doe";
-  export let email = "john.doe@example.com";
-  export let github = "https://github.com/bigballs";
+  export let profileImageUrl; // A default image if none is provided
+  export let name;
+  export let email;
+  export let github;
   export let userId; // The user ID passed into the component
 
   // Get the current user's ID from the store
@@ -15,13 +16,62 @@
 
   // Check if the profile belongs to the current user
   $: isCurrentUser = userId == currentUserId;
+  const path = window.location.pathname;
+  const pathSegments = path.split('/');
+  userId = parseInt(pathSegments[pathSegments.length - 1]);    
 
   // Initialize alreadyFollowed as a writable store
   const alreadyFollowed = writable(false);
+  let alreadyFollowedValue;
+  alreadyFollowed.subscribe(value => {
+    alreadyFollowedValue = value;
+  });
+  
+  onMount(async () => {
+    // Check if the current user is already following the user
+    const followEndpoint = server + `/api/follow/?userId1=${currentUserId}&userId2=${userId}`;
+    
+    const response = await fetch(followEndpoint);
+    if (!response.ok) {
+      throw new Error("Failed to fetch follow status");
+    }
+    const data = await response.json();
+    console.log("Following", data.following);
+    alreadyFollowed.set(data.following);
+  });
 
-  // Follow or unfollow the user
-  function followButtonClick() {
+  // Follow or unfollow the user, also check for authentication
+  async function followButtonClick() {
+    const followRequest = {
+      userId1 : currentUserId,
+      userId2 : userId,
+    }; 
+    const followEndpoint = server + `/api/follow/`;
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    if (alreadyFollowedValue) {
+      const response = await fetch(followEndpoint, {
+        method: "DELETE",
+        headers: headers,
+        body: JSON.stringify(followRequest),
+      });
+      if (!response.ok) { 
+        throw new Error("Failed to follow user");
+      }
+    } else {
+      const response = await fetch(followEndpoint, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(followRequest),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to follow user");
+      }
+    }
+    
     alreadyFollowed.update((value) => !value);
+    console.log("follow", alreadyFollowedValue);
   }
 </script>
 
@@ -42,7 +92,6 @@
             >Unfollow</button
           >
         {/if}
-        <button class="add-friend-button">Add Friend</button>
       {/if}
     </div>
   </div>
@@ -88,8 +137,7 @@
     font-size: 1em;
   }
 
-  .follow-button,
-  .add-friend-button {
+  .follow-button {
     padding: 0.5rem 1rem;
     margin: 0.5rem;
     border: none;
@@ -105,19 +153,12 @@
     color: white;
   }
 
-  .add-friend-button {
-    background-color: teal; /* Facebook-like add friend button color */
-    color: white;
-  }
-
-  .follow-button:hover,
-  .add-friend-button:hover {
+  .follow-button:hover{
     filter: brightness(85%);
   }
 
   /* Optional: Add a focus style for accessibility */
-  .follow-button:focus,
-  .add-friend-button:focus {
+  .follow-button:focus{
     outline: 3px solid #bbb;
     outline-offset: 2px;
   }
