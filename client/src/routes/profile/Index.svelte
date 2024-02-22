@@ -2,13 +2,13 @@
   import Posts from "../../widgets/Posts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage } from "../../stores/stores.js";
+  import { authToken, isLoginPage, getCurrentUser } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
-  export let id = null;
   let fullName = "";
   let github = "";
   let email = "";
+  let userId = 0;
 
   let isAuthenticated = false;
 
@@ -19,21 +19,32 @@
       $isLoginPage = true;
       navigate("/");
     }
-    const profileEndpoint = "http://localhost:8000/api/profile/";
-    const response = await fetch(profileEndpoint, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${$authToken}`,
-      },
-    });
-    
-    if (!response.ok) {
-      throw new Error("Failed to fetch profile");
+    // get the id from the URL
+    const path = window.location.pathname;
+    const pathSegments = path.split('/');
+    userId = parseInt(pathSegments[pathSegments.length - 1]);
+    console.log(getCurrentUser().userId)
+    console.log(userId)
+    // if the user is looking at their on profile
+    if (userId == getCurrentUser().userId){
+      fullName = getCurrentUser().name;
+      github = getCurrentUser().github;
+      email = getCurrentUser().email;
+    } else {
+      const profileEndpoint = `http://localhost:8000/api/profile/${userId}`;
+      const response = await fetch(profileEndpoint, {
+        method: "GET"
+      });
+      
+      if (!response.ok) {
+        throw new Error("Failed to fetch profile");
+      }
+      const data = await response.json();
+      fullName = data.full_name;
+      github = data.github;
+      email = data.email;
     }
-    const data = await response.json();
-    fullName = data.full_name;
-    github = data.github;
-    email = data.email;
+    
   });
 
   // Fetch names & posts with the userId passed in
@@ -67,7 +78,7 @@
         name={fullName}
         email={email}
         github={github}
-        userId={id}
+        userId={userId}
       />
     </div>
     <div class="posts">
