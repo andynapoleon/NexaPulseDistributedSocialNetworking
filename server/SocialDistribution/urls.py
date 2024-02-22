@@ -17,11 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-from auth.views import LoginView
+from rest_framework import routers
+
+router = routers.DefaultRouter()
+urlpatters = router.urls
 
 urlpatterns = [
-    path("authors/", include("authors.urls")),
+    # path("authors/", include("authors.urls")),
     path("admin/", admin.site.urls),
-    path("", include("api.urls")),
-    path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
+    path("", include("api.urls"))
 ]

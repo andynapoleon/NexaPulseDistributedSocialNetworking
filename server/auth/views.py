@@ -17,13 +17,17 @@ class LoginView(APIView):
         password = request.data.get("password")
         print(email)
         print(password)
-        author = Author.objects.filter(email=email).first()
-        if author and author.check_password(password):
-            refresh = RefreshToken.for_user(author)
+        user = Author.objects.filter(email=email).first()
+        if user and user.check_password(password):
+            refresh = RefreshToken.for_user(user)
             return Response(
                 {
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
+                    "email": email,
+                    "name": user.firstName + " " + user.lastName,
+                    "github": user.github,
+                    "id": user.id
                 }
             )
         return Response(

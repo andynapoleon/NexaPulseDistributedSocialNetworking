@@ -298,3 +298,8 @@ profile_images/
 
 # ignore all sqlite files
 *.sqlite3
+
+
+
+server/authors/migrations
+server/posts/migrations
