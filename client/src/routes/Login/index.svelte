@@ -36,7 +36,7 @@
       }
 
       const data = await response.json();
-      $authToken = data.access; // Assuming the Django backend uses a 'access' token
+      authToken.update((value) => value = data.access);
       currentUser.set({
           userId: data.id,
           name: data.name,

@@ -7,7 +7,7 @@ from authors.models import Author
 from follow.models import Follows
 
 class FollowView(APIView):
-    permission_classes = [AllowAny] #[IsAuthenticated]
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
     def post(self, request):
         data = request.data

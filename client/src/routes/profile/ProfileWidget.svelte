@@ -1,6 +1,6 @@
 <script>
     import { onMount } from "svelte";
-  import { currentUser, server } from "../../stores/stores.js";
+  import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
 
@@ -31,7 +31,12 @@
     // Check if the current user is already following the user
     const followEndpoint = server + `/api/follow/?userId1=${currentUserId}&userId2=${userId}`;
     
-    const response = await fetch(followEndpoint);
+    const response = await fetch(followEndpoint, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
     if (!response.ok) {
       throw new Error("Failed to fetch follow status");
     }
@@ -48,6 +53,7 @@
     }; 
     const followEndpoint = server + `/api/follow/`;
     const headers = {
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
