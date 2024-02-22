@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, generics
 from .models import Author
 
 class AuthorSerializer(serializers.ModelSerializer):
@@ -24,3 +24,8 @@ class AuthorSerializer(serializers.ModelSerializer):
         instance.profileImage = validated_data.get('profileImage', instance.profileImage)
         instance.save()
         return instance
+
+class AuthorListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = '__all__'
