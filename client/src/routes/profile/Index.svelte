@@ -2,7 +2,7 @@
   import Posts from "../../widgets/Posts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage, getCurrentUser } from "../../stores/stores.js";
+  import { authToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   let fullName = "";
@@ -11,7 +11,7 @@
   let userId = 0;
 
   let isAuthenticated = false;
-
+  
   onMount(async () => {
     isAuthenticated = $authToken !== "";
     console.log(isAuthenticated);
@@ -22,16 +22,14 @@
     // get the id from the URL
     const path = window.location.pathname;
     const pathSegments = path.split('/');
-    userId = parseInt(pathSegments[pathSegments.length - 1]);
-    console.log(getCurrentUser().userId)
-    console.log(userId)
+    userId = parseInt(pathSegments[pathSegments.length - 1]);    
     // if the user is looking at their on profile
     if (userId == getCurrentUser().userId){
       fullName = getCurrentUser().name;
       github = getCurrentUser().github;
       email = getCurrentUser().email;
     } else {
-      const profileEndpoint = `http://localhost:8000/api/profile/${userId}`;
+      const profileEndpoint = server + `/api/profile/${userId}`;
       const response = await fetch(profileEndpoint, {
         method: "GET"
       });

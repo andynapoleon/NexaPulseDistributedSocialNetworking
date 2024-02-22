@@ -5,6 +5,4 @@ from .models import Author
 admin.site.register(Author)
 # admin.site.register(Comment)
 # admin.site.register(Like)
-# admin.site.register(FollowedBy)
-# admin.site.register(Follows)
 # admin.site.register(Post)

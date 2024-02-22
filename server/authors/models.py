@@ -42,26 +42,6 @@ class Author(models.Model):
 #     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
-# class FollowedBy(models.Model):
-#     id1 = models.ForeignKey(User, related_name="follows", on_delete=models.CASCADE)
-#     id2 = models.ForeignKey(User, related_name="followers", on_delete=models.CASCADE)
-
-#     class Meta:
-#         unique_together = ("id1", "id2")
-
-
-# class Follows(models.Model):
-#     follower = models.ForeignKey(
-#         User, related_name="follower_set", on_delete=models.CASCADE
-#     )
-#     followed = models.ForeignKey(
-#         User, related_name="followed_set", on_delete=models.CASCADE
-#     )
-
-#     class Meta:
-#         unique_together = (("follower", "followed"),)
-
-
 # class MakesPost(models.Model):
 #     post = models.ForeignKey(Post, on_delete=models.CASCADE)
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)

@@ -1,6 +1,7 @@
 from django.urls import path, include
 from . import views
 from auth.views import LoginView
+from follow.views import FollowView
 
 urlpatterns = [
     path('api/get/', views.getData),
@@ -9,4 +10,5 @@ urlpatterns = [
     path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
     path("api/",include('posts.urls')),  # Include the posts app URLs
     path("api/",include('authors.urls')),  # Include the author app URLs
+    path("api/follow/", FollowView.as_view()),
 ]
