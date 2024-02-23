@@ -2,11 +2,11 @@
   import Post from "./noti.svelte";
 
   // Sample array of post objects - will do data fetching instead
-  export let posts = [];
+  export let followRequests = [];
 </script>
 
 <div class="posts">
-  {#each posts as { id, profileImageUrl, userName, postTime, content } (id)}
+  {#each followRequests as { id, profileImageUrl, userName, postTime, content } (id)}
     <Post {profileImageUrl} {userName} {postTime} {content}/>
   {/each}
 </div>
