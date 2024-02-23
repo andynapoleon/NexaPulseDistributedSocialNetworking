@@ -9,6 +9,7 @@
   let followRequests = [];
 
   async function fetchFollowRequests() {
+    console.log("fetchFollowRequests()")
     const followRequestsEndpoint = server + `/api/follow/requests`;
 
     const response = await fetch(followRequestsEndpoint, {
@@ -23,7 +24,17 @@
     }
 
     const data = await response.json();
-    followRequests = data.followRequests; // Assuming the response contains an array of follow requests
+
+    // create an array from fetched requests
+    for (let i = 0; i < data.followRequests.length; i++) {
+      followRequests.push({
+        id: data.followRequests[i],
+        profileImageUrl:
+          "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+        userName: "John Doe",
+        postTime: "1h ago",
+      })
+    }
   }
 
   // Fetch follow requests on component mount
