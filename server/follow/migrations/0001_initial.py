@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('authors', '0001_initial'),
     ]
-
+    print("I'm in the follow migration")
     operations = [
         migrations.CreateModel(
             name='FollowedBy',
