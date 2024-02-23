@@ -76,8 +76,10 @@ class FollowView(APIView):
 
         # Check if the follow relationship exists
         follow_exists = Follows.objects.filter(follower=user1, followed=user2).exists()
+        followed_exists = Follows.objects.filter(follower=user2, followed=user1).exists()
 
-        return Response({'following': follow_exists}, status=status.HTTP_200_OK)
+        return Response({'following': follow_exists, "followed": followed_exists}, status=status.HTTP_200_OK)
+        
 
 
     def get_user_from_id(self, user_id):

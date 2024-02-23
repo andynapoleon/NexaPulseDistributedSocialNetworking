@@ -10,6 +10,7 @@
   import Notifications from "./routes/notifications/Index.svelte";
   import Login from "./routes/login/Index.svelte";
   import Friends from "./routes/friends/Index.svelte";
+  import Settings from "./routes/Settings/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import {
     mode,
@@ -37,6 +38,7 @@
     "/messages/:id": UserMessage,
     "/notifications/:id": Notifications,
     "/friends/:id": Friends,
+    "/settings": Settings,
   };
 
   // Reactively set isLoginPage based on the current path
