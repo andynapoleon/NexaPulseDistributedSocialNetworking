@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from authors.models import Author
 from authors.serializers import AuthorSerializer
 from rest_framework.permissions import AllowAny
-from rest_framework.views import APIView
+from rest_framework.views import APIView, status
 from rest_framework_simplejwt.tokens import AccessToken
 
 @api_view(['GET'])
@@ -46,6 +46,12 @@ class Profile(APIView):
         return Response(context)
     
     def put(self, request, user_id):
+        # Add permission check here
+        if not request.user.is_authenticated:
+            return Response({'error': 'Authentication credentials were not provided.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if request.user.id != user_id:
+            return Response({'error': 'You do not have permission to perform this action.'}, status=status.HTTP_403_FORBIDDEN)
+
         user = self.get_user_from_id(user_id)
         if not user:
             return Response({'error': 'User not found'}, status=404)
