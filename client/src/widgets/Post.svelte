@@ -3,11 +3,13 @@
   export let userName = "User Name";
   export let postTime = "Just now";
   export let content = "Here is some post content.";
+  export let title = "Post Title";
   let likes = 5;
 
   // Local component state for editing
   let isEditing = false;
   let editedContent = content;
+  let postTitle = title;
 
   // Function to toggle edit mode
   function toggleEditMode() {
@@ -26,9 +28,9 @@
 
 <div class="post">
   <div class="post-header">
-    <strong>{userName}</strong>
-    <span>{postTime}</span>
+    <strong>Posted by {userName} {postTime}</strong>
   </div>
+  <div class="post-title">{postTitle}</div>
   <div class="post-content">
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
@@ -62,8 +64,14 @@
   .post-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 12px;
-    color: black;
+    margin-bottom: 8px;
+    color: grey;
+    font-size: small;
+  }
+  .post-title {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 8px;
   }
   .post-content {
     margin-bottom: 12px;

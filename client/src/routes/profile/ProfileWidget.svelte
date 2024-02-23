@@ -1,6 +1,6 @@
 <script>
-    import { onMount } from "svelte";
-  import { currentUser, server, authToken } from "../../stores/stores.js";
+  import { onMount } from "svelte";
+  import { currentUser, server, authToken, refreshToken } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
 
@@ -10,9 +10,11 @@
   export let email;
   export let github;
   export let userId; // The user ID passed into the component
+  
 
   // Get the current user's ID from the store
-  const currentUserId = get(currentUser).userId;
+  const currentUserId = get(currentUser).userId; 
+  
 
   // Check if the profile belongs to the current user
   $: isCurrentUser = userId == currentUserId;
@@ -20,30 +22,94 @@
   const pathSegments = path.split('/');
   userId = parseInt(pathSegments[pathSegments.length - 1]);    
 
+
+  // Initialize edit mode as a writable store
+  const isEditMode = writable(false);
+    let isEditModeValue;
+    isEditMode.subscribe(value => {
+      isEditModeValue = value;
+    });
+
+  // Initialize form data as a writable store
+  const formData = writable({
+      name: name,
+      email: email,
+      github: github,
+    });
+    let formDataValue;
+    formData.subscribe(value => {
+      formDataValue = value;
+    });
+
   // Initialize alreadyFollowed as a writable store
   const alreadyFollowed = writable(false);
   let alreadyFollowedValue;
   alreadyFollowed.subscribe(value => {
     alreadyFollowedValue = value;
   });
+
+  async function fetchWithRefresh(url, options) {
+    const response = await fetch(url, options);
+
+    // If response status is 401 (Unauthorized), attempt to refresh the token
+    if (response.status === 401) {
+      try {
+        const tokenResponse = await fetch('/api/token/refresh', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${get(refreshToken)}`
+          }
+        });
+
+        if (tokenResponse.ok) {
+          const { access_token } = await tokenResponse.json();
+          // Update the authToken store with the new access token
+          authToken.set(access_token);
+
+          // Retry the original request with the new access token
+          const retryResponse = await fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              'Authorization': `Bearer ${access_token}`
+            }
+          });
+
+          return retryResponse;
+        } else {
+          throw new Error('Failed to refresh token');
+        }
+      } catch (refreshError) {
+        console.error('Error refreshing token:', refreshError);
+        throw refreshError;
+      }
+    }
+
+    // If response status is not 401, simply return the response
+    return response;
+  }
   
   onMount(async () => {
     // Check if the current user is already following the user
-    const followEndpoint = server + `/api/follow/?userId1=${currentUserId}&userId2=${userId}`;
+    if (currentUserId !== userId){
+      const followEndpoint = server + `/api/follow/?userId1=${currentUserId}&userId2=${userId}`;
     
-    const response = await fetch(followEndpoint, {
-      method: "GET",
-      headers: {
-        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      const response = await fetchWithRefresh(followEndpoint, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        }
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch follow status");
       }
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch follow status");
+      const data = await response.json();
+
+      alreadyFollowed.set(data.following);
     }
-    const data = await response.json();
-    console.log("Following", data.following);
-    alreadyFollowed.set(data.following);
   });
+
 
   // Follow or unfollow the user, also check for authentication
   async function followButtonClick() {
@@ -79,27 +145,92 @@
     alreadyFollowed.update((value) => !value);
     console.log("follow", alreadyFollowedValue);
   }
+  async function saveProfile() {
+    
+    const updateEndpoint = server + `/api/profile/${userId}`;
+
+    const response = await fetch(updateEndpoint, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formDataValue),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to update profile");
+    }
+
+    // Update the profile widget with the new data
+    name = formDataValue.name;
+    email = formDataValue.email;
+    github = formDataValue.github;
+
+    isEditMode.set(false); // Close edit mode
+    currentUser.update((value) => {
+      return {
+        ...value,
+        name: formDataValue.name,
+        email: formDataValue.email,
+        github: formDataValue.github,
+      };
+    });
+  }
+
+  function cancelEdit() {
+    isEditMode.set(false);
+  }
 </script>
+
 
 <div class="profile-widget">
   <img class="profile-image" src={profileImageUrl} alt="Profile Avatar" />
   <div class="profile-info">
-    <div class="profile-name">{name}</div>
-    <div class="profile-email">{email}</div>
-    <div class="profile-github">{github}</div>
-    <div class="flex justify-center">
-      {#if !isCurrentUser}
-        {#if !$alreadyFollowed}
-          <button class="follow-button" on:click={followButtonClick}
-            >Follow</button
-          >
-        {:else}
-          <button class="follow-button" on:click={followButtonClick}
-            >Unfollow</button
-          >
-        {/if}
+    {#if !isCurrentUser}
+      <div class="profile-name">{name}</div>
+      <div class="profile-email">{email}</div>
+      <div class="profile-github">{github}</div>
+      {#if !$alreadyFollowed}
+        <button class="follow-button" on:click={followButtonClick}
+          >Follow</button
+        >
+      {:else}
+        <button class="follow-button" on:click={followButtonClick}
+          >Unfollow</button
+        >
       {/if}
-    </div>
+      
+    {:else}
+      {#if !isEditModeValue}
+      <div class="profile-name">{name}</div>
+      <div class="profile-email">{email}</div>
+      <div class="profile-github">{github}</div>
+
+      <div class="flex justify-center">
+        <button class="edit-button" on:click={() => 
+        {
+          formData.set({
+            name: name,
+            email: email,
+            github: github,
+          });
+          isEditMode.set(true)
+        }
+      }>Edit Profile</button>
+      </div>
+      {:else if isEditModeValue && isCurrentUser}
+      <form on:submit|preventDefault={saveProfile}>
+        <input type="text" class="profile-input" bind:value={formDataValue.name} placeholder="Name" pattern="^\S+\s+\S+$" title="Please enter your first and last name" required />
+        <input type="email" class="profile-input" bind:value={formDataValue.email} placeholder="Email" required />
+        <input type="text" class="profile-input" bind:value={formDataValue.github} placeholder="Github" required />
+        <div class="flex justify-center">
+          <button class="save-button">Save Changes</button>
+          <button type="button" class="cancel-button" on:click={cancelEdit}>Cancel</button>
+        </div>
+      </form>
+      {/if}
+    {/if}
   </div>
 </div>
 
@@ -143,7 +274,17 @@
     font-size: 1em;
   }
 
-  .follow-button {
+  .profile-input {
+    width: 100%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .follow-button, .edit-button, .save-button, .cancel-button{
     padding: 0.5rem 1rem;
     margin: 0.5rem;
     border: none;
@@ -152,19 +293,16 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 0.9em;
-  }
-
-  .follow-button {
     background-color: teal; /* Twitter-like follow button color */
     color: white;
   }
 
-  .follow-button:hover{
+  .follow-button:hover, .edit-button:hover, .save-button:hover, .cancel-button:hover{
     filter: brightness(85%);
   }
 
   /* Optional: Add a focus style for accessibility */
-  .follow-button:focus{
+  .follow-button:focus, .edit-button:focus, .save-button:focus, .cancel-button:focus{
     outline: 3px solid #bbb;
     outline-offset: 2px;
   }
