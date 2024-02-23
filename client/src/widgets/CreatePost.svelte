@@ -2,7 +2,7 @@
   import { createEventDispatcher } from "svelte";
 
   const dispatch = createEventDispatcher();
-
+  let postTitle = "";
   let postContent = "";
 
   // Function to handle form submission
@@ -12,15 +12,18 @@
       console.error("Post content cannot be empty");
       return;
     }
-    dispatch("createpost", { content: postContent });
+    dispatch("createpost", { title: postTitle, content: postContent });
     postContent = ""; // Reset input field after submission
+    postTitle = ""; // Reset input field after submission
   }
+
 </script>
 
 <div class="create-post">
-  <textarea placeholder="What's on your mind?" bind:value={postContent}
-  ></textarea>
-  <button on:click={submitPost}>Post</button>
+  <input type="text" class="post-title" placeholder="Title" bind:value={postTitle}>
+  <textarea class="post-content" placeholder="What's on your mind?" bind:value={postContent}></textarea>
+  <input type="file" class="post-image" accept="image/*">
+  <button class="post-button" on:click={submitPost}>Post</button>
 </div>
 
 <style>
@@ -30,14 +33,15 @@
     justify-content: right;
     margin-bottom: 20px;
   }
-  textarea {
+  .post-title,
+  .post-content,
+  .post-image {
     color: black;
     width: 100%;
     margin-bottom: 10px;
     padding: 8px;
     border-radius: 4px;
     border: 1px solid #ccc;
-    resize: vertical; /* Allows the user to vertically resize the textarea */
   }
   button {
     padding: 8px 16px;

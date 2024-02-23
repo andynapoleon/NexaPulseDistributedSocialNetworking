@@ -2,7 +2,7 @@
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Posts from "../../widgets/Posts.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage } from "../../stores/stores.js";
+  import { authToken, isLoginPage, getCurrentUser } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   // let isAuthenticated = false;
@@ -23,18 +23,21 @@
       id: 1,
       userName: "John Doe",
       postTime: "1h ago",
+      title: "First Post",
       content: "This is my first post!",
     },
     {
       id: 2,
       userName: "Jane Smith",
       postTime: "2h ago",
+      title: "Svelte",
       content: "Svelte is awesome!",
     },
     {
       id: 3,
       userName: "Dave Lee",
       postTime: "3h ago",
+      title: "New Project",
       content: "Check out my new project.",
     },
   ];
@@ -43,8 +46,9 @@
   function handleCreatePost(event) {
     const newPost = {
       id: posts.length + 1, // Simple ID assignment; consider a more robust ID generation strategy
-      userName: "Current User", // Placeholder; use actual user data in a real app
+      userName: getCurrentUser().name, // Placeholder; use actual user data in a real app
       postTime: "Just now",
+      title: event.detail.title,
       content: event.detail.content,
     };
     posts = [newPost, ...posts]; // Add the new post to the beginning of the posts array

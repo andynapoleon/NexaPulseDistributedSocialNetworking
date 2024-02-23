@@ -6,8 +6,8 @@
 </script>
 
 <div class="posts">
-  {#each posts as { id, userName, postTime, content } (id)}
-    <Post {userName} {postTime} {content} />
+  {#each posts as { id, userName, postTime, title, content } (id)}
+    <Post {userName} {postTime} {title} {content} />
   {/each}
 </div>
 
