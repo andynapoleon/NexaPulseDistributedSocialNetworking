@@ -5,20 +5,21 @@ from authors.models import Author
 
 class Post(models.Model):
 
-    type = models.CharField(max_length=255, default="post")
+    type = models.CharField(max_length=20, default="post")
 
     VISIBILITY_CHOICES = [
         ('PUBLIC', 'Public'),
         ('FRIENDS', 'Friends'),
         ('UNLISTED', 'Unlisted'),
     ]
-    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default="UNLISTED")
+    
+    visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default=('PUBLIC', 'Public'))
     # for visibility PUBLIC means it is open to the wild web
     # FRIENDS means if we're friends I can see the post
     # FRIENDS should've already been sent the post so they don't need this
 
     # id of the post
-    id = models.CharField(max_length=255, primary_key=True, default="")
+    id = models.AutoField(primary_key=True)
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # title of a post
@@ -26,15 +27,6 @@ class Post(models.Model):
 
     # ISO 8601 TIMESTAMP
     published = models.DateTimeField(auto_now_add=True)
-
-    # where did you get this post from?
-    source = models.URLField(default="")
-
-    # where is it actually from
-    origin = models.URLField(default="")
-
-    #a brief description of the post
-    description = models.TextField(default="")
 
     # The content type of the post assume either
         # text/markdown -- common mark
@@ -48,10 +40,10 @@ class Post(models.Model):
     content = models.TextField(default="")
     
     # total number of comments for this post
-    count = models.IntegerField(default=0)
+    # count = models.IntegerField(default=0)
 
     # the first page of comments
-    comments = models.CharField(max_length=255, default="")
+    # comments = models.CharField(max_length=255, default="")
 
     # OPTIONAL
     # commentsSrc is OPTIONAL and can be missing

@@ -2,9 +2,9 @@
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Posts from "../../widgets/Posts.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage, getCurrentUser } from "../../stores/stores.js";
-  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
-
+  import { authToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
+  import { fetchWithRefresh } from "../../utils/apiUtils.js";
+  import { get } from "svelte/store";
   // let isAuthenticated = false;
 
   onMount(() => {
@@ -25,6 +25,7 @@
       postTime: "1h ago",
       title: "First Post",
       content: "This is my first post!",
+      visibility: "Public",
     },
     {
       id: 2,
@@ -32,6 +33,7 @@
       postTime: "2h ago",
       title: "Svelte",
       content: "Svelte is awesome!",
+      visibility: "Public",
     },
     {
       id: 3,
@@ -39,19 +41,35 @@
       postTime: "3h ago",
       title: "New Project",
       content: "Check out my new project.",
+      visibility: "Public",
     },
   ];
 
   // Function to handle the creation of a new post
-  function handleCreatePost(event) {
-    const newPost = {
-      id: posts.length + 1, // Simple ID assignment; consider a more robust ID generation strategy
+  async function handleCreatePost(event) {
+    let newPost = {
+      id: null,
       userName: getCurrentUser().name, // Placeholder; use actual user data in a real app
       postTime: "Just now",
       title: event.detail.title,
       content: event.detail.content,
+      visibility: event.detail.visibility,
     };
-    posts = [newPost, ...posts]; // Add the new post to the beginning of the posts array
+    // fetch api here 
+    const createPostEndpoint = server + `service/api/authors/${getCurrentUser().userId}/posts/`;
+    const response = await fetchWithRefresh(createPostEndpoint, {
+        method: "POST",
+        headers: {
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Content-Type': 'application/json'
+    },
+      body: JSON.stringify(newPost),
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch follow status");
+    }
+    const post = await response.json();
+    posts = [post, ...posts]; // Add the new post to the beginning of the posts array
   }
 </script>
 
