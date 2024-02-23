@@ -67,7 +67,7 @@
 
       alreadyFollowed.set(data.following);
     }
-  });
+  );
 
 
   // Follow or unfollow the user, also check for authentication
