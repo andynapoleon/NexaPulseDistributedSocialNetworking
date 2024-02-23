@@ -12,6 +12,7 @@ class Post(models.Model):
         ('FRIENDS', 'Friends'),
         ('UNLISTED', 'Unlisted'),
     ]
+    
     visibility = models.CharField(max_length=20, choices=VISIBILITY_CHOICES, default="UNLISTED")
     # for visibility PUBLIC means it is open to the wild web
     # FRIENDS means if we're friends I can see the post
