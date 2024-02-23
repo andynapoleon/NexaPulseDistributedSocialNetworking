@@ -19,8 +19,10 @@ export function getCurrentUser() {
 }
 
 export const authToken = writable(localStorage.getItem("authToken") || "");
+export const refreshToken = writable(localStorage.getItem("refreshToken") || "");
 
 authToken.subscribe((val) => localStorage.setItem("authToken", val));
+refreshToken.subscribe((val) => localStorage.setItem("refreshToken", val));
 // Subscribe to changes in currentUser and update localStorage
 currentUser.subscribe(value => {
   localStorage.setItem('userData', JSON.stringify(value));
