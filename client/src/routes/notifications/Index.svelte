@@ -1,6 +1,33 @@
 <script>
   export let id;
   import Notis from "./notis.svelte";
+  import { onMount } from "svelte";
+  import { server, authToken } from "../../stores/stores.js";
+  import { get } from "svelte/store";
+
+  // Define an array to store follow requests
+  let followRequests = [];
+
+  async function fetchFollowRequests() {
+    const followRequestsEndpoint = server + `/api/follow/requests`;
+
+    const response = await fetch(followRequestsEndpoint, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch follow requests");
+    }
+
+    const data = await response.json();
+    followRequests = data.followRequests; // Assuming the response contains an array of follow requests
+  }
+
+  // Fetch follow requests on component mount
+  onMount(fetchFollowRequests);
 
   let posts = [
     {
@@ -31,7 +58,7 @@
   <div class="profile-layout">
     <div class="profile-widget"></div>
     <div class="posts">
-      <Notis {posts} />
+      <Notis {followRequests} />
     </div>
   </div>
 </main>
