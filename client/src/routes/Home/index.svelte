@@ -48,6 +48,7 @@
   // Function to handle the creation of a new post
   async function handleCreatePost(event) {
     let newPost = {
+      id: null,
       userName: getCurrentUser().name, // Placeholder; use actual user data in a real app
       postTime: "Just now",
       title: event.detail.title,
