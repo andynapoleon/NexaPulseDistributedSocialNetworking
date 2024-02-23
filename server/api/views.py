@@ -38,10 +38,34 @@ class Profile(APIView):
         full_name = f"{user.firstName} {user.lastName}"
         github = user.github
         email = user.email
-
         context = {
             'full_name': full_name,
             'github': github,
             'email': email,
         }
         return Response(context)
+    
+    def put(self, request, user_id):
+        user = self.get_user_from_id(user_id)
+        if not user:
+            return Response({'error': 'User not found'}, status=404)
+        
+        # Assuming the request contains data to update the user profile
+        # Extract the data from request.data and update the user object
+        full_name = request.data.get('name', '')
+        github = request.data.get('github', '')
+        email = request.data.get('email', '')
+
+        # Update user object
+        user.firstName, user.lastName = full_name.split() # Split full name into first and last name
+        user.github = github
+        user.email = email
+        user.save()
+
+        # Return updated user data
+        updated_data = {
+            'full_name': full_name,
+            'github': github,
+            'email': email,
+        }
+        return Response(updated_data)
