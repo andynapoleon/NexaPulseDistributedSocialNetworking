@@ -1,8 +1,9 @@
 <script>
   import { onMount } from "svelte";
-  import { currentUser, server, authToken, refreshToken } from "../../stores/stores.js";
+  import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
+  import { fetchWithRefresh } from "../../utils/apiUtils.js";
 
   // Props passed to the component
   export let profileImageUrl; // A default image if none is provided
@@ -47,48 +48,6 @@
   alreadyFollowed.subscribe(value => {
     alreadyFollowedValue = value;
   });
-
-  async function fetchWithRefresh(url, options) {
-    const response = await fetch(url, options);
-
-    // If response status is 401 (Unauthorized), attempt to refresh the token
-    if (response.status === 401) {
-      try {
-        const tokenResponse = await fetch('/api/token/refresh', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${get(refreshToken)}`
-          }
-        });
-
-        if (tokenResponse.ok) {
-          const { access_token } = await tokenResponse.json();
-          // Update the authToken store with the new access token
-          authToken.set(access_token);
-
-          // Retry the original request with the new access token
-          const retryResponse = await fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-              'Authorization': `Bearer ${access_token}`
-            }
-          });
-
-          return retryResponse;
-        } else {
-          throw new Error('Failed to refresh token');
-        }
-      } catch (refreshError) {
-        console.error('Error refreshing token:', refreshError);
-        throw refreshError;
-      }
-    }
-
-    // If response status is not 401, simply return the response
-    return response;
-  }
   
   onMount(async () => {
     // Check if the current user is already following the user
@@ -123,7 +82,7 @@
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
-      const response = await fetch(followEndpoint, {
+      const response = await fetchWithRefresh(followEndpoint, {
         method: "DELETE",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -132,7 +91,7 @@
         throw new Error("Failed to follow user");
       }
     } else {
-      const response = await fetch(followEndpoint, {
+      const response = await fetchWithRefresh(followEndpoint, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -148,8 +107,8 @@
   async function saveProfile() {
     
     const updateEndpoint = server + `/api/profile/${userId}`;
-
-    const response = await fetch(updateEndpoint, {
+    
+    const response = await fetchWithRefresh(updateEndpoint, {
       method: "PUT",
       headers: {
         "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
