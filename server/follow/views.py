@@ -5,17 +5,17 @@ from rest_framework.response import Response
 from rest_framework import status
 from authors.models import Author
 from follow.models import Follows
+from rest_framework.decorators import api_view
 
 class FollowView(APIView):
     permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
-    def post(self, request):
-        data = request.data
-        userId1 = data.get('userId1')
-        userId2 = data.get('userId2')
+    def post(self, request, user_id):
+        userId1 = user_id
+        userId2 = request.data.get('userId2')
 
-        if not (userId1 and userId2):
-            return Response({'error': 'Both userId1 and userId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if not (userId2):
+            return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         user1 = self.get_user_from_id(userId1)
         user2 = self.get_user_from_id(userId2)
@@ -36,13 +36,12 @@ class FollowView(APIView):
             follow.save()
             return Response({'success': 'Now following userId2'}, status=status.HTTP_200_OK)
 
-    def delete(self, request):
-        data = request.data
-        userId1 = data.get('userId1')
-        userId2 = data.get('userId2')
+    def delete(self, request,user_id):
+        userId1 = user_id
+        userId2 = request.data.get('userId2')
 
         if not (userId1 and userId2):
-            return Response({'error': 'Both userId1 and userId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         user1 = self.get_user_from_id(userId1)
         user2 = self.get_user_from_id(userId2)
@@ -60,26 +59,26 @@ class FollowView(APIView):
         else:
             return Response({'error': 'Follow relationship does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
-    def get(self, request):
-        userId1 = request.query_params.get('userId1')
-        userId2 = request.query_params.get('userId2')
+    def get(self, request, user_id):
+        # userId1 is the follower
+        userId1 = user_id
+        # userId2 is being followed
+        target_user_id  = request.query_params.get('userId2')
 
-        if not (userId1 and userId2):
-            return Response({'error': 'Both userId1 and userId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
+        if not (target_user_id ):
+            return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         user1 = self.get_user_from_id(userId1)
-        user2 = self.get_user_from_id(userId2)
+        user2 = self.get_user_from_id(target_user_id)
 
-        if not (user1 and user2):
+        if not (user2):
             return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check if the follow relationship exists
         follow_exists = Follows.objects.filter(follower=user1, followed=user2).exists()
 
-        if follow_exists:
-            return Response({'following': True}, status=status.HTTP_200_OK)
-        else:
-            return Response({'following': False}, status=status.HTTP_200_OK)
+        return Response({'following': follow_exists}, status=status.HTTP_200_OK)
+
 
     def get_user_from_id(self, user_id):
         try:
@@ -87,3 +86,10 @@ class FollowView(APIView):
             return user
         except Author.DoesNotExist:
             return None
+        
+class FollowAllView(APIView):
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
+
+    def get(self, request, user_id):
+        followers = Follows.objects.filter(followed_id=user_id)
+        return Response(followers)

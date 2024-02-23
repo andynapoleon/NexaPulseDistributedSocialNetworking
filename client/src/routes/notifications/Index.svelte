@@ -2,16 +2,14 @@
   export let id;
   import Notis from "./notis.svelte";
   import { onMount } from "svelte";
-  import { server, authToken } from "../../stores/stores.js";
+  import { server, authToken, getCurrentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
 
   // Define an array to store follow requests
   let followRequests = [];
 
-  async function fetchFollowRequests() {
-    console.log("fetchFollowRequests()")
-    const followRequestsEndpoint = server + `/api/follow/requests`;
-
+  onMount(async () => {
+    const followRequestsEndpoint = server + `/api/follow/${getCurrentUser().userId}/all/`;
     const response = await fetch(followRequestsEndpoint, {
       method: "GET",
       headers: {
@@ -24,21 +22,19 @@
     }
 
     const data = await response.json();
+    console.log(data)
 
     // create an array from fetched requests
     for (let i = 0; i < data.followRequests.length; i++) {
       followRequests.push({
-        id: data.followRequests[i],
+        id: data.followRequests[i].id,
         profileImageUrl:
           "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
         userName: "John Doe",
         postTime: "1h ago",
       })
     }
-  }
-
-  // Fetch follow requests on component mount
-  onMount(fetchFollowRequests);
+  });
 
   let posts = [
     {
