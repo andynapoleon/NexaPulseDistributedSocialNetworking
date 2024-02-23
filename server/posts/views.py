@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Post
 from .serializers import PostSerializer
 
@@ -56,15 +56,14 @@ class AuthorPosts(APIView):
 class DeletePost(APIView):
     permission_classes = [IsAuthenticated]
 
-    def delete_post(self, request, post_id):
+    def delete(self, request, author_id, post_id):
         # Retrieve the post object
         try:
             post = Post.objects.get(pk=post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
         # Check if the current user has permission to delete the post (you can customize this logic)
-        if request.user == post.author:
+        if (request.user.id == author_id):
             # Delete the post
             post.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
