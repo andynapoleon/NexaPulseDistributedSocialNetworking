@@ -50,25 +50,15 @@
   });
   
   onMount(async () => {
-    // Check if the current user is already following the user
-    // NOT WORKING!!!
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
-<<<<<<< HEAD
-    
-      const response = await fetch(followEndpoint, {
-=======
-
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      // GETS 404
-      // NEED HELP
-      const response = await fetchWithRefresh(followEndpoint, {
->>>>>>> 4d0bbd404959734f037501703e75599a01a3ee44
+      const response = await fetch(followEndpoint, {
         method: "GET",
         headers: {
-          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+          'Authorization': `Bearer ${$authToken}`, // Include the token in the request headers
         }
       });
       if (!response.ok) {
@@ -96,7 +86,7 @@
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "DELETE",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -105,7 +95,7 @@
         throw new Error("Failed to follow user");
       }
     } else {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -122,7 +112,7 @@
     
     const updateEndpoint = server + `/api/profile/${userId}`;
     
-    const response = await fetchWithRefresh(updateEndpoint, {
+    const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
         "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers

@@ -14,7 +14,7 @@
   
   onMount(async () => {
     isAuthenticated = $authToken !== "";
-    console.log(isAuthenticated);
+    console.log($authToken);
     if (!isAuthenticated) {
       $isLoginPage = true;
       navigate("/");
