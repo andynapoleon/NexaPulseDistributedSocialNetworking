@@ -3,16 +3,16 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
 
-  let authorId = $currentUser.userId;
-  let postId = '1';
-
+  
   // Props passed to the component
   export let post;
-
+  
   let userName = ""; // Initialize userName variable for the author's name
   let postTime = post.published;
   let content = post.content;
   let title = post.title;
+  let authorId = $currentUser.userId;
+  let postId = post.id;
   let likes = 0;
 
   // Local component state for editing
