@@ -10,7 +10,7 @@
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch(server + `/api/authors/${authorId}/`);
+      const response = await fetch(server + `/api/authors/posts/${authorId}/`);
       if (response.ok) {
         const data = await response.json();
         profilePosts = data;

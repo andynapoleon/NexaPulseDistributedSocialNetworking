@@ -20,7 +20,7 @@ class ProfilePost(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(authorId=author_id)
+            posts = Post.objects.filter(authorId=author_id).order_by("-published")
 
             # Serialize the queryset to JSON
             serializer = PostSerializer(posts, many=True)
@@ -88,11 +88,12 @@ class AuthorPosts(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class PublicPosts(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
-        posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
+        posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)

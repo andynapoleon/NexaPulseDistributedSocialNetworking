@@ -19,7 +19,7 @@ urlpatterns = [
         name="get_author_posts/create_post",
     ),
     path(
-        "authors/<str:author_id>/",
+        "authors/posts/<str:author_id>/",
         views.ProfilePost.as_view(),
         name="get_profile_post",
     ),
