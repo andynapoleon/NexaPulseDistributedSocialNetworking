@@ -49,8 +49,8 @@
   onMount(async () => {
     // Check if the current user is already following the user
 
-    //   const followEndpoint =
-    //     server + `/api/follow/${currentUserId}?userId2=${userId}`;
+    const followEndpoint =
+      server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
     //   console.log("currentUserId", currentUserId);
     //   console.log("userId", userId);
@@ -119,7 +119,7 @@
     const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
-        //"Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
+        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formDataValue),

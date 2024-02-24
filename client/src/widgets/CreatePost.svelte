@@ -9,7 +9,7 @@
   let visibility = "Public";
   let content_type = "text/markdown";
 
-  let id = $currentUser.userId 
+  let id = $currentUser.userId;
 
   // Function to handle form submission
   async function submitPost() {
@@ -21,45 +21,56 @@
 
     const postData = {
       authorId: id,
-      type: 'post',
+      type: "post",
       title: postTitle,
       content: postContent,
       content_type: content_type,
-      visibility: visibility.toUpperCase()
+      visibility: visibility.toUpperCase(),
     };
 
     console.log("Data to be sent:", postData);
 
     try {
-        const response = await fetchWithRefresh(server+`/api/authors/${id}/posts/`, {
-          method: 'POST',
+      const response = await fetchWithRefresh(
+        server + `/api/authors/${id}/posts/`,
+        {
+          method: "POST",
           headers: {
-            'Authorization': `Bearer ${get(authToken)}`,
-            'Content-Type': 'application/json'
+            Authorization: `Bearer ${get(authToken)}`,
+            "Content-Type": "application/json",
           },
-          body: JSON.stringify(postData)
-        });
-
-        if (response.ok) {
-          console.log('Post created successfully!');
-          // Reset input fields after successful submission
-          postContent = "";
-          postTitle = "";
-          visibility = "Public";
-        } else {
-          console.error('Failed to create post');
+          body: JSON.stringify(postData),
         }
-      } catch (error) {
-        console.error('Error:', error);
-      }
-  }
+      );
 
+      if (response.ok) {
+        console.log("Post created successfully!");
+        // Reset input fields after successful submission
+        postContent = "";
+        postTitle = "";
+        visibility = "Public";
+      } else {
+        console.error("Failed to create post");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 </script>
 
 <div class="create-post">
-  <input type="text" class="post-title" placeholder="Title" bind:value={postTitle}>
-  <textarea class="post-content" placeholder="What's on your mind?" bind:value={postContent}></textarea>
-  <input type="file" class="post-image" accept="image/*">
+  <input
+    type="text"
+    class="post-title"
+    placeholder="Title"
+    bind:value={postTitle}
+  />
+  <textarea
+    class="post-content"
+    placeholder="What's on your mind?"
+    bind:value={postContent}
+  ></textarea>
+  <input type="file" class="post-image" accept="image/*" />
   <select class="visibility-select" bind:value={visibility}>
     <option value="Public">Public</option>
     <option value="Unlisted">Unlisted</option>
@@ -97,6 +108,7 @@
     font-size: 16px;
     margin-bottom: 0;
     margin-top: 0;
+    text-align: center;
   }
   button {
     padding: 8px 16px;

@@ -1,5 +1,5 @@
 <script>
-  import Posts from "../../widgets/Posts.svelte";
+  import ProfilePosts from "../../widgets/ProfilePosts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
   import { onMount } from "svelte";
   import {
@@ -18,6 +18,7 @@
   let userId = 0;
 
   let isAuthenticated = false;
+  export let params;
 
   onMount(async () => {
     isAuthenticated = $authToken !== "";
@@ -85,7 +86,7 @@
       />
     </div>
     <div class="posts">
-      <Posts {posts} />
+      <ProfilePosts authorId={params.id} />
     </div>
   </div>
 </main>
