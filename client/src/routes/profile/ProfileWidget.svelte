@@ -54,7 +54,7 @@
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "GET",
         headers: {
           'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
