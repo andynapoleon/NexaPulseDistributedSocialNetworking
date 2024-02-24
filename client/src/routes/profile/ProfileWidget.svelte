@@ -51,8 +51,8 @@
   
   onMount(async () => {
     // Check if the current user is already following the user
-    if (currentUserId !== userId){
-      const followEndpoint = server + `/api/follow/?userId1=${currentUserId}&userId2=${userId}`;
+
+    const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
     
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
@@ -67,16 +67,17 @@
 
       alreadyFollowed.set(data.following);
     }
-  });
+  );
 
 
   // Follow or unfollow the user, also check for authentication
   async function followButtonClick() {
+    console.log("clicked")
     const followRequest = {
       userId1 : currentUserId,
       userId2 : userId,
     }; 
-    const followEndpoint = server + `/api/follow/`;
+    const followEndpoint = server + `/api/follow/${currentUserId}`;
     const headers = {
       'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
@@ -102,7 +103,7 @@
     }
     
     alreadyFollowed.update((value) => !value);
-    console.log("follow", alreadyFollowedValue);
+    console.log("follow:", alreadyFollowedValue);
   }
   async function saveProfile() {
     
