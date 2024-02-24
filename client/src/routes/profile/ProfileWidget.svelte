@@ -51,12 +51,15 @@
   
   onMount(async () => {
     // Check if the current user is already following the user
+    // NOT WORKING!!!
 
     const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
 
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
-    
+
+      // GETS 404
+      // NEED HELP
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
         headers: {

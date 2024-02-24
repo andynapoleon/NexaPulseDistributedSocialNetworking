@@ -52,6 +52,7 @@ class FollowView(APIView):
         Follows.objects.filter(follower=user1, followed=user2).delete()
         return Response({'success': 'Unfollowed userId2'}, status=status.HTTP_204_NO_CONTENT)
 
+    # gets 404 with no idea why
     def get(self, request, user_id):
         return Response({'following': True}, status=status.HTTP_200_OK)
 
