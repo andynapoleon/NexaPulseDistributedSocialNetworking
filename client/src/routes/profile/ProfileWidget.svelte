@@ -79,7 +79,7 @@
       userId2 : userId, //target user
     }; 
     const headers = {
-      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
@@ -112,7 +112,7 @@
     const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
-        //"Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
+        "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formDataValue),
