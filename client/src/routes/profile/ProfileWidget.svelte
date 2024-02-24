@@ -53,7 +53,7 @@
     // Check if the current user is already following the user
     // NOT WORKING!!!
 
-    const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
+    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)

@@ -59,7 +59,7 @@ class DeletePost(APIView):
     def delete_post(self, request, post_id):
         # Retrieve the post object
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(pk=post_id, sorted_by='-published')
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         
