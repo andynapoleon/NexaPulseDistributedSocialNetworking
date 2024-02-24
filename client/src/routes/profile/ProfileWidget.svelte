@@ -60,7 +60,7 @@
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
         headers: {
-          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+          //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
         }
       });
       if (!response.ok) {
@@ -69,6 +69,7 @@
       const data = await response.json();
 
       alreadyFollowed.set(data.following);
+      console.log(currentUserId, "is", data.following, "following", userId)
     }
   );
 
@@ -79,22 +80,21 @@
       userId1 : currentUserId,
       userId2 : userId, //target user
     }; 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetchWithRefresh(server + `/api/follow/${userId}?userId2=${currentUserId}`, {
         method: "DELETE",
         headers: headers,
         body: JSON.stringify(followRequest),
       });
       if (!response.ok) { 
-        throw new Error("Failed to follow user");
+        throw new Error("Failed to unfollow user");
       }
     } else {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetchWithRefresh(server + `/api/follow/${currentUserId}?userId2=${userId}`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -104,7 +104,7 @@
       }
     }
     alreadyFollowed.update((value) => !value);
-    console.log("follow:", alreadyFollowedValue);
+    console.log("after clicking follow/unfollow, follow=", alreadyFollowedValue);
   }
 
   async function saveProfile() {
@@ -114,7 +114,7 @@
     const response = await fetchWithRefresh(updateEndpoint, {
       method: "PUT",
       headers: {
-        "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
+        //"Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formDataValue),

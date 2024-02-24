@@ -14,7 +14,7 @@
     const response = await fetch(followRequestsEndpoint, {
       method: "GET",
       headers: {
-        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       }
     });
     if (!response.ok) {
@@ -22,8 +22,6 @@
     }
 
     const data = await response.json();
-    console.log("HEYYYY")
-    console.log(data)
 
     // Update followRequests array
     followRequests = data.map(item => ({
