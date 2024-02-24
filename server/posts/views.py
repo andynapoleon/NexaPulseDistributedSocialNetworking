@@ -66,3 +66,12 @@ class AuthorPosts(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class PublicPosts(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        # Filter posts by authorId and visibility='PUBLIC'
+        posts = Post.objects.filter(visibility='PUBLIC').order_by('-published')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
