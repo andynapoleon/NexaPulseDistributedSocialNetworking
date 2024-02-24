@@ -60,7 +60,7 @@
 
       // GETS 404
       // NEED HELP
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "GET",
         headers: {
           'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
@@ -91,7 +91,7 @@
       'Content-Type': 'application/json'
     };
     if (alreadyFollowedValue) {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "DELETE",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -100,7 +100,7 @@
         throw new Error("Failed to follow user");
       }
     } else {
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(followRequest),
@@ -117,7 +117,7 @@
     
     const updateEndpoint = server + `/api/profile/${userId}`;
     
-    const response = await fetchWithRefresh(updateEndpoint, {
+    const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
         "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
