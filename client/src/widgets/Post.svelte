@@ -1,8 +1,15 @@
-<!-- <script>
-  
+<script>
+  import { currentUser, server, authToken } from '../stores/stores.js';
+  import { fetchWithRefresh } from "../utils/apiUtils";
+  import { get } from "svelte/store";
+
+  let authorId = $currentUser.userId;
+  let postId = '1';
+
   // Props passed to the component
-  export let post
-  let userName = post.authorId;
+  export let post;
+
+  let userName = ""; // Initialize userName variable for the author's name
   let postTime = post.published;
   let content = post.content;
   let title = post.title;
@@ -13,6 +20,21 @@
   let editedContent = post.content;
   let postTitle = title;
 
+  // Fetch author's information based on authorId
+  async function fetchAuthor() {
+    try {
+      const response = await fetch(`${server}/api/authors/${post.authorId}`);
+      if (response.ok) {
+        const authorData = await response.json();
+        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+      } else {
+        console.error('Failed to fetch author information:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching author information:', error.message);
+    }
+  }
+
   // Function to toggle edit mode
   function toggleEditMode() {
     isEditing = !isEditing;
@@ -21,11 +43,33 @@
       post.content = editedContent;
     }
   }
+
   // Function to save edited content
-  function saveEdit() {
-    content = editedContent;
-    isEditing = false;
+  async function saveEdit() {
+    const editPostEndpoint = server + `/api/authors/${authorId}/posts/${postId}/`;
+    const response = await fetchWithRefresh(editPostEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: postTitle, content: editedContent })
+    });
+
+    if (response.ok) {
+      // Update the component state with edited content
+      content = editedContent;
+      title = postTitle;
+      isEditing = false;
+    } else {
+      console.error('Failed to save edited post');
+    }
+    // content = editedContent;
+    // isEditing = false;
   }
+
+  // Fetch author's information when the component is mounted
+  fetchAuthor();
 </script>
 
 <div class="post">
@@ -100,5 +144,4 @@
     width: 100%;
     margin-bottom: 12px;
   }
-  
 </style>
