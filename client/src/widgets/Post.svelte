@@ -93,11 +93,13 @@
   <div class="actions">
     <button>Like</button>
     <button>Share</button>
-    <button on:click={toggleEditMode}>
-      {isEditing ? "Cancel" : "Edit"}
-    </button>
-    {#if isEditing}
-      <button on:click={saveEdit}>Save</button>
+    {#if post.authorId == authorId}
+      <button on:click={toggleEditMode}>
+        {isEditing ? "Cancel" : "Edit"}
+      </button>
+      {#if isEditing}
+        <button on:click={saveEdit}>Save</button>
+      {/if}
     {/if}
     <span>Likes: {likes}</span>
   </div>
