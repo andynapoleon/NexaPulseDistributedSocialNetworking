@@ -85,7 +85,7 @@
       userId1 : currentUserId,
       userId2 : userId, //target user
     }; 
-    const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
+    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
       'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'

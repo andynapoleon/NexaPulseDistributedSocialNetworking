@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { server, authToken, currentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
+  import {fetchWithRefresh} from "../../utils/apiUtils.js";
 
   // Define an array to store follow requests
   let followRequests = [];
@@ -11,7 +12,7 @@
 
   onMount(async () => {
     const followRequestsEndpoint = server + `/api/follow/all/${get(currentUser).userId}`;
-    const response = await fetch(followRequestsEndpoint, {
+    const response = await fetchWithRefresh(followRequestsEndpoint, {
       method: "GET",
       headers: {
         'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
