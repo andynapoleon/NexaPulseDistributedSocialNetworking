@@ -9,7 +9,7 @@ class Post(models.Model):
 
     VISIBILITY_CHOICES = [
         ('PUBLIC', 'Public'),
-        ('FRIENDS', 'Friends'),
+        ('FRIENDS', 'Friends'), 
         ('UNLISTED', 'Unlisted'),
     ]
     
@@ -18,6 +18,8 @@ class Post(models.Model):
     # FRIENDS means if we're friends I can see the post
     # FRIENDS should've already been sent the post so they don't need this
 
+    # id of the post
+    # id = models.AutoField(primary_key=True)
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # title of a post
