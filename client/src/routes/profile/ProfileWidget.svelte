@@ -50,20 +50,16 @@
   });
   
   onMount(async () => {
-    // Check if the current user is already following the user
-    // NOT WORKING!!!
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      // GETS 404
-      // NEED HELP
       const response = await fetch(followEndpoint, {
         method: "GET",
         headers: {
-          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+          'Authorization': `Bearer ${$authToken}`, // Include the token in the request headers
         }
       });
       if (!response.ok) {
