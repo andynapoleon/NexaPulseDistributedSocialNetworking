@@ -1,14 +1,16 @@
-<script>
+<!-- <script>
+  
   // Props passed to the component
-  export let userName = "User Name";
-  export let postTime = "Just now";
-  export let content = "Here is some post content.";
-  export let title = "Post Title";
-  let likes = 5;
+  export let post
+  let userName = post.authorId;
+  let postTime = post.published;
+  let content = post.content;
+  let title = post.title;
+  let likes = 0;
 
   // Local component state for editing
   let isEditing = false;
-  let editedContent = content;
+  let editedContent = post.content;
   let postTitle = title;
 
   // Function to toggle edit mode
@@ -16,7 +18,7 @@
     isEditing = !isEditing;
     // Revert to original content if editing is canceled
     if (!isEditing) {
-      editedContent = content;
+      post.content = editedContent;
     }
   }
   // Function to save edited content
@@ -24,6 +26,56 @@
     content = editedContent;
     isEditing = false;
   }
+</script> -->
+
+<script>
+  import { server } from '../stores/stores.js';
+  // Props passed to the component
+  export let post;
+
+  let userName = ""; // Initialize userName variable for the author's name
+  let postTime = post.published;
+  let content = post.content;
+  let title = post.title;
+  let likes = 0;
+
+  // Local component state for editing
+  let isEditing = false;
+  let editedContent = post.content;
+  let postTitle = title;
+
+  // Fetch author's information based on authorId
+  async function fetchAuthor() {
+    try {
+      const response = await fetch(`${server}/api/authors/${post.authorId}`);
+      if (response.ok) {
+        const authorData = await response.json();
+        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+      } else {
+        console.error('Failed to fetch author information:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error fetching author information:', error.message);
+    }
+  }
+
+  // Function to toggle edit mode
+  function toggleEditMode() {
+    isEditing = !isEditing;
+    // Revert to original content if editing is canceled
+    if (!isEditing) {
+      post.content = editedContent;
+    }
+  }
+
+  // Function to save edited content
+  function saveEdit() {
+    content = editedContent;
+    isEditing = false;
+  }
+
+  // Fetch author's information when the component is mounted
+  fetchAuthor();
 </script>
 
 <div class="post">
