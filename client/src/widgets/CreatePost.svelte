@@ -10,11 +10,6 @@
   let content_type = "text/markdown";
 
   let id = $currentUser.userId 
-  const visibilityTuple = {
-    'Public': ['PUBLIC', 'Public'],
-    'Friends': ['FRIENDS', 'Friends'],
-    'Unlisted': ['UNLISTED', 'Unlisted']
-  }[visibility];
 
   // Function to handle form submission
   async function submitPost() {
@@ -30,7 +25,7 @@
       title: postTitle,
       content: postContent,
       content_type: content_type,
-      visibility: `(${visibilityTuple[0]}, ${visibilityTuple[1]})`
+      visibility: visibility.toUpperCase()
     };
 
     console.log("Data to be sent:", postData);
