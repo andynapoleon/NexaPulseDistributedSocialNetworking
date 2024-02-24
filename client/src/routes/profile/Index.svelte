@@ -2,8 +2,9 @@
   import Posts from "../../widgets/Posts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
+  import { authToken, refreshToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+  import { get } from "svelte/store";
 
   let fullName = "";
   let github = "";
@@ -22,7 +23,10 @@
     // get the id from the URL
     const path = window.location.pathname;
     const pathSegments = path.split('/');
-    userId = parseInt(pathSegments[pathSegments.length - 1]);    
+    userId = parseInt(pathSegments[pathSegments.length - 1]);  
+    console.log(getCurrentUser());  
+    console.log(get(authToken));
+    console.log(get(refreshToken));
     // if the user is looking at their on profile
     if (userId == getCurrentUser().userId){
       fullName = getCurrentUser().name;
