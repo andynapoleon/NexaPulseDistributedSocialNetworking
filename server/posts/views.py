@@ -38,28 +38,10 @@ class PostDetail(APIView):
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-class AuthorPosts(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, author_id):
-        posts = Post.objects.filter(author_id=author_id).order_by('-published')
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
-
-    def post(self, request, author_id):
-        serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class DeletePost(APIView):
-    permission_classes = [IsAuthenticated]
-
     def delete(self, request, author_id, post_id):
         # Retrieve the post object
         try:
-            post = Post.objects.get(pk=post_id)
+            post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
         # Check if the current user has permission to delete the post (you can customize this logic)
@@ -69,3 +51,19 @@ class DeletePost(APIView):
             return Response(status=status.HTTP_204_NO_CONTENT)
         
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+class AuthorPosts(APIView):
+    " Only gets posts of a Author"
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, author_id):
+        posts = Post.objects.filter(authorId=author_id).order_by('-published')
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, author_id):
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
