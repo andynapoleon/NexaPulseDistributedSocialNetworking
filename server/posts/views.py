@@ -43,9 +43,8 @@ class PostDetail(APIView):
             post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        
         # Check if the current user has permission to delete the post (you can customize this logic)
-        if request.user == post.author:
+        if (request.user.id == author_id):
             # Delete the post
             post.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -62,6 +61,7 @@ class AuthorPosts(APIView):
 
     def post(self, request, author_id):
         serializer = PostSerializer(data=request.data)
+        print(serializer.initial_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
