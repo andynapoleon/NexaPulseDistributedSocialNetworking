@@ -20,6 +20,8 @@ class LoginView(APIView):
         user = Author.objects.filter(email=email).first()
         if user and user.check_password(password):
             refresh = RefreshToken.for_user(user)
+            print(user)
+            print(str(refresh.access_token))
             return Response(
                 {
                     "refresh": str(refresh),
