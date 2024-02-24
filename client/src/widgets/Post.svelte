@@ -1,4 +1,11 @@
 <script>
+  import { fetchWithRefresh } from "../utils/apiUtils";
+  import { currentUser, server, authToken } from "../stores/stores.js";
+  import { get } from "svelte/store";
+
+  let authorId = $currentUser.userId;
+  let postId = '1';
+
   // Props passed to the component
   export let userName = "User Name";
   export let postTime = "Just now";
@@ -17,12 +24,31 @@
     // Revert to original content if editing is canceled
     if (!isEditing) {
       editedContent = content;
+      postTitle = title;
     }
   }
   // Function to save edited content
-  function saveEdit() {
-    content = editedContent;
-    isEditing = false;
+  async function saveEdit() {
+    const editPostEndpoint = server + `/api/authors/${authorId}/posts/${postId}/`;
+    const response = await fetchWithRefresh(editPostEndpoint, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: postTitle, content: editedContent })
+    });
+
+    if (response.ok) {
+      // Update the component state with edited content
+      content = editedContent;
+      title = postTitle;
+      isEditing = false;
+    } else {
+      console.error('Failed to save edited post');
+    }
+    // content = editedContent;
+    // isEditing = false;
   }
 </script>
 
@@ -30,7 +56,13 @@
   <div class="post-header">
     <strong>Posted by {userName} {postTime}</strong>
   </div>
-  <div class="post-title">{postTitle}</div>
+  <div class="post-title">
+    {#if isEditing}
+      <input type="text" bind:value={postTitle} />
+    {:else}
+      {title}
+    {/if}
+  </div>
   <div class="post-content">
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
@@ -89,6 +121,10 @@
     margin-right: 2%;
   }
   .edit-content {
+    width: 100%;
+    margin-bottom: 12px;
+  }
+  .edit-title {
     width: 100%;
     margin-bottom: 12px;
   }
