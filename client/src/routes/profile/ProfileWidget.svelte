@@ -51,9 +51,15 @@
   
   onMount(async () => {
     // Check if the current user is already following the user
+    // NOT WORKING!!!
 
-    const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
-    
+    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+
+    console.log("currentUserId", currentUserId)
+    console.log("userId", userId)
+
+      // GETS 404
+      // NEED HELP
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
         headers: {
@@ -66,18 +72,20 @@
       const data = await response.json();
 
       alreadyFollowed.set(data.following);
+
+      console.log("hello world")
+      console.log("alreadyFollowed", alreadyFollowed)
     }
   );
-
 
   // Follow or unfollow the user, also check for authentication
   async function followButtonClick() {
     console.log("clicked")
     const followRequest = {
       userId1 : currentUserId,
-      userId2 : userId,
+      userId2 : userId, //target user
     }; 
-    const followEndpoint = server + `/api/follow/${currentUserId}`;
+    const followEndpoint = server + `/api/follow/${currentUserId}/?userId2=${userId}`;
     const headers = {
       'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
@@ -101,10 +109,10 @@
         throw new Error("Failed to follow user");
       }
     }
-    
     alreadyFollowed.update((value) => !value);
     console.log("follow:", alreadyFollowedValue);
   }
+
   async function saveProfile() {
     
     const updateEndpoint = server + `/api/profile/${userId}`;
