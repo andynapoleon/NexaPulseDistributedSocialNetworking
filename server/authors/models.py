@@ -4,7 +4,7 @@ from django.db import models
 # Create your models here.
 
 class Author(models.Model):
-    id = models.AutoField(primary_key=True)
+    # id = models.AutoField(primary_key=True)
     firstName = models.CharField(max_length=50, default="")
     lastName = models.CharField(max_length=50, default="")
     email = models.EmailField(default="unknown@example.com", unique=True)
