@@ -6,8 +6,8 @@
 </script>
 
 <div class="posts">
-  {#each followRequests as { id, profileImageUrl, userName, postTime, content } (id)}
-    <Post {profileImageUrl} {userName} {postTime} {content}/>
+  {#each followRequests as { id, userId, profileImageUrl, userName, postTime, content } (id)}
+    <Post {userId} {profileImageUrl} {userName} {postTime} {content}/>
   {/each}
 </div>
 

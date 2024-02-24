@@ -15,7 +15,7 @@
     const response = await fetchWithRefresh(followRequestsEndpoint, {
       method: "GET",
       headers: {
-        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       }
     });
     if (!response.ok) {
@@ -23,12 +23,11 @@
     }
 
     const data = await response.json();
-    console.log("HEYYYY")
-    console.log(data)
 
     // Update followRequests array
     followRequests = data.map(item => ({
       id: item.follower,
+      userId: item.follower,
       profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
       userName: item.follower,
       postTime: "1h ago",
