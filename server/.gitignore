@@ -301,5 +301,9 @@ profile_images/
 
 
 
-server/authors/migrations
-server/posts/migrations
+authors/migrations
+posts/migrations
+comments/migrations
+likes/migrations
+auth/migrations
+follow/migrations
