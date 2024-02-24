@@ -36,16 +36,18 @@ class FollowView(APIView):
         return Response({'success': 'Now following userId2'}, status=status.HTTP_200_OK)
 
     def delete(self, request,user_id):
+        # userId1 is the follower
         userId1 = user_id
-        userId2 = request.data.get('userId2')
+        # userId2 is being followed
+        target_user_id  = request.query_params.get('userId2')
 
-        if not (userId1 and userId2):
+        if not (target_user_id):
             return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
 
         user1 = self.get_user_from_id(userId1)
-        user2 = self.get_user_from_id(userId2)
+        user2 = self.get_user_from_id(target_user_id)
 
-        if not (user1 and user2):
+        if not (user2):
             return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Unfollow: Remove the existing follow relationship
@@ -54,8 +56,6 @@ class FollowView(APIView):
 
     # gets 404 with no idea why
     def get(self, request, user_id):
-        return Response({'following': True}, status=status.HTTP_200_OK)
-
         # userId1 is the follower
         userId1 = user_id
         # userId2 is being followed

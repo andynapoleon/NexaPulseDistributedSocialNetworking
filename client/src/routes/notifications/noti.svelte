@@ -23,7 +23,7 @@
       </div>
       <div class="actions">
         <button on:click={() => responseButtonClicked("Accept")}>Accept</button>
-        <button on:click={() => responseButtonClicked("Accept")}>Reject</button>
+        <button on:click={() => responseButtonClicked("Reject")}>Reject</button>
       </div>
     </div>
   </div>
