@@ -50,17 +50,15 @@
   });
   
   onMount(async () => {
-    // Check if the current user is already following the user
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
-
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      const response = await fetchWithRefresh(followEndpoint, {
+      const response = await fetch(followEndpoint, {
         method: "GET",
         headers: {
-          //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+          'Authorization': `Bearer ${$authToken}`, // Include the token in the request headers
         }
       });
       if (!response.ok) {
@@ -111,7 +109,7 @@
     
     const updateEndpoint = server + `/api/profile/${userId}`;
     
-    const response = await fetchWithRefresh(updateEndpoint, {
+    const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
         //"Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers

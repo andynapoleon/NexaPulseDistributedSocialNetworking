@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView, status
 from rest_framework_simplejwt.tokens import AccessToken
 
+
 @api_view(['GET'])
 def getData(request):
     authors = Author.objects.all()
