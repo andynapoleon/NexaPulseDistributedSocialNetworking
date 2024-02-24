@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import Post from "./Post.svelte";
+  import { server } from "../stores/stores.js";
 
   // Sample array of post objects - will do data fetching instead
   let posts = [];
@@ -8,9 +9,10 @@
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch('/api/posts/');
+      const response = await fetch(server+'/api/posts/');
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched posts:', data); // Log the fetched data
         posts = data;
       } else {
         console.error('Failed to fetch posts:', response.statusText);
