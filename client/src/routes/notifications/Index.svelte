@@ -2,7 +2,7 @@
   export let id;
   import Notis from "./notis.svelte";
   import { onMount } from "svelte";
-  import { server, authToken, getCurrentUser } from "../../stores/stores.js";
+  import { server, authToken, currentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
 
   // Define an array to store follow requests
@@ -10,7 +10,7 @@
   let isLoading = true; // Add a loading state
 
   onMount(async () => {
-    const followRequestsEndpoint = server + `/api/follow/all`;
+    const followRequestsEndpoint = server + `/api/follow/all/${get(currentUser).userId}`;
     const response = await fetch(followRequestsEndpoint, {
       method: "GET",
       headers: {
@@ -23,15 +23,13 @@
 
     const data = await response.json();
     console.log("HEYYYY")
-    console.log(typeof data)
-    console.log(typeof data[0])
-    console.log(typeof data[0].follower)
+    console.log(data)
 
     // Update followRequests array
     followRequests = data.map(item => ({
       id: item.follower,
       profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
-      userName: "Jin Git",
+      userName: item.follower,
       postTime: "1h ago",
     }));
 

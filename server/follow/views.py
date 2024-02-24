@@ -53,6 +53,8 @@ class FollowView(APIView):
         return Response({'success': 'Unfollowed userId2'}, status=status.HTTP_204_NO_CONTENT)
 
     def get(self, request, user_id):
+        return Response({'following': True}, status=status.HTTP_200_OK)
+
         # userId1 is the follower
         userId1 = user_id
         # userId2 is being followed
@@ -64,8 +66,8 @@ class FollowView(APIView):
         user1 = self.get_user_from_id(userId1)
         user2 = self.get_user_from_id(target_user_id)
 
-        if not (user2):
-            return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
+        #if not (user2):
+        #    return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
         print("follower_id", user1)
         print("followed_id", user2)
@@ -84,7 +86,7 @@ class FollowView(APIView):
 class FollowAllView(APIView):
     permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
-    def get(self, request):
-        followers = Follows.objects.all()
+    def get(self, request, user_id):
+        followers = Follows.objects.filter(followed_id=user_id)
         serializer = FollowsSerializer(followers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
