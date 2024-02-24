@@ -17,5 +17,7 @@ class Follows(models.Model):
         Author, related_name="followed_set", on_delete=models.CASCADE
     )
 
+    acceptedRequest = models.BooleanField(default=False)  # Added boolean field
+
     class Meta:
         unique_together = (("follower", "followed"),)

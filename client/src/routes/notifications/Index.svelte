@@ -4,6 +4,7 @@
   import { onMount } from "svelte";
   import { server, authToken, currentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
+  import {fetchWithRefresh} from "../../utils/apiUtils.js";
 
   // Define an array to store follow requests
   let followRequests = [];
@@ -11,10 +12,10 @@
 
   onMount(async () => {
     const followRequestsEndpoint = server + `/api/follow/all/${get(currentUser).userId}`;
-    const response = await fetch(followRequestsEndpoint, {
+    const response = await fetchWithRefresh(followRequestsEndpoint, {
       method: "GET",
       headers: {
-        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       }
     });
     if (!response.ok) {
@@ -22,12 +23,11 @@
     }
 
     const data = await response.json();
-    console.log("HEYYYY")
-    console.log(data)
 
     // Update followRequests array
     followRequests = data.map(item => ({
       id: item.follower,
+      userId: item.follower,
       profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
       userName: item.follower,
       postTime: "1h ago",
