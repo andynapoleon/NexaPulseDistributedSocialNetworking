@@ -13,7 +13,7 @@ class PostList(generics.ListCreateAPIView):
     serializer_class = PostSerializer
 
 class PostDetail(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -52,7 +52,7 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class AuthorPosts(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         posts = Post.objects.filter(authorId=author_id).order_by('-published')
