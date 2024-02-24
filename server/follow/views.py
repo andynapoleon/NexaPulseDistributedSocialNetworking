@@ -6,6 +6,8 @@ from rest_framework import status
 from authors.models import Author
 from follow.models import Follows
 from rest_framework.decorators import api_view
+from .serializers import FollowsSerializer
+
 
 class FollowView(APIView):
     permission_classes = [IsAuthenticated] #[IsAuthenticated]
@@ -13,6 +15,8 @@ class FollowView(APIView):
     def post(self, request, user_id):
         userId1 = user_id
         userId2 = request.data.get('userId2')
+        if (userId1 == userId2):
+            return Response({'error': 'UserId2 and UserId1 must be unique'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not (userId2):
             return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
@@ -20,21 +24,16 @@ class FollowView(APIView):
         user1 = self.get_user_from_id(userId1)
         user2 = self.get_user_from_id(userId2)
 
+        if (user1 == user2):
+            return Response({'error': 'Two users must be unique'}, status=status.HTTP_400_BAD_REQUEST)
+
         if not (user1 and user2):
             return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if the follow relationship exists
-        follow_exists = Follows.objects.filter(follower=user1, followed=user2).exists()
-
-        if follow_exists:
-            # Unfollow: Remove the existing follow relationship
-            Follows.objects.filter(follower=user1, followed=user2).delete()
-            return Response({'success': 'Unfollowed userId2'}, status=status.HTTP_204_NO_CONTENT)
-        else:
-            # Follow: Create the follow relationship
-            follow = Follows(follower=user1, followed=user2)
-            follow.save()
-            return Response({'success': 'Now following userId2'}, status=status.HTTP_200_OK)
+        # Follow: Create the follow relationship
+        follow = Follows(follower=user1, followed=user2)
+        follow.save()
+        return Response({'success': 'Now following userId2'}, status=status.HTTP_200_OK)
 
     def delete(self, request,user_id):
         userId1 = user_id
@@ -49,15 +48,9 @@ class FollowView(APIView):
         if not (user1 and user2):
             return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Check if the follow relationship exists
-        follow_exists = Follows.objects.filter(follower=user1, followed=user2).exists()
-
-        if follow_exists:
-            # Unfollow: Remove the existing follow relationship
-            Follows.objects.filter(follower=user1, followed=user2).delete()
-            return Response({'success': 'Unfollowed userId2'}, status=status.HTTP_204_NO_CONTENT)
-        else:
-            return Response({'error': 'Follow relationship does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        # Unfollow: Remove the existing follow relationship
+        Follows.objects.filter(follower=user1, followed=user2).delete()
+        return Response({'success': 'Unfollowed userId2'}, status=status.HTTP_204_NO_CONTENT)
 
     def get(self, request, user_id):
         # userId1 is the follower
@@ -74,13 +67,12 @@ class FollowView(APIView):
         if not (user2):
             return Response({'error': 'One or both users not found'}, status=status.HTTP_404_NOT_FOUND)
 
+        print("follower_id", user1)
+        print("followed_id", user2)
         # Check if the follow relationship exists
-        follow_exists = Follows.objects.filter(follower=user1, followed=user2).exists()
-        followed_exists = Follows.objects.filter(follower=user2, followed=user1).exists()
+        follow_exists = Follows.objects.filter(follower_id=user_id, followed_id=target_user_id).exists()
 
-        return Response({'following': follow_exists, "followed": followed_exists}, status=status.HTTP_200_OK)
-        
-
+        return Response({'following': follow_exists}, status=status.HTTP_200_OK)
 
     def get_user_from_id(self, user_id):
         try:
@@ -92,6 +84,7 @@ class FollowView(APIView):
 class FollowAllView(APIView):
     permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
-    def get(self, request, user_id):
-        followers = Follows.objects.filter(followed_id=user_id)
-        return Response(followers)
+    def get(self, request):
+        followers = Follows.objects.all()
+        serializer = FollowsSerializer(followers, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

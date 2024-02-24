@@ -11,6 +11,8 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshAPIView.as_view(), name="token_refresh"),
     path("api/",include('posts.urls')),  # Include the posts app URLs
     path("api/",include('authors.urls')),  # Include the author app URLs
-    path("api/follow/<int:user_id>", FollowView.as_view()),
-    path("api/follow/<int:user_id>/all/", FollowAllView.as_view()),
+    path("api/follow/<int:user_id>", FollowView.as_view(), name="single"),
+    #path("api/follow/all/<int:user_id>", FollowAllView.as_view(), name="all"),
+
+    path("api/follow/all", FollowAllView.as_view(), name="all"),
 ]
