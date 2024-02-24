@@ -69,9 +69,6 @@
       const data = await response.json();
 
       alreadyFollowed.set(data.following);
-
-      console.log("hello world")
-      console.log("alreadyFollowed", alreadyFollowed)
     }
   );
 

@@ -1,14 +1,44 @@
 <script>
   // Props passed to the component
   export let profileImageUrl =  "default-profile.png";
+  import { currentUser, server, authToken } from "../../stores/stores.js";
+  import { get } from "svelte/store";
   export let userName = "HOHO HAHA";
   export let postTime = "1 min ago";
   export let content = "wanted to follow you."
+  import { fetchWithRefresh } from "../../utils/apiUtils.js";
 
-  function responseButtonClicked(response) {
-    alert(response);
+  export let userId; // The user ID passed into the component
+
+  const currentUserId = get(currentUser).userId; 
+
+  async function acceptResponseButtonClicked(){
+    alert("accepted")
   }
-
+  async function rejectResponseButtonClicked() {
+    console.log("reject clicked")
+    console.log("currentUserId", currentUserId)
+    console.log("userId", userId)
+    const followRequest = {
+      userId1 : currentUserId,
+      userId2 : userId, //target user
+    }; 
+    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+    const headers = {
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Content-Type': 'application/json'
+    };
+    const response = await fetchWithRefresh(followEndpoint, {
+      method: "DELETE",
+      headers: headers,
+      body: JSON.stringify(followRequest),
+    });
+    if (!response.ok) { 
+      throw new Error("Failed to delete follow request");
+    }
+    // Reload the page after successful deletion
+    location.reload();
+  }
 </script>
 
 <div class="post">
@@ -22,8 +52,8 @@
         <span>{postTime}</span>
       </div>
       <div class="actions">
-        <button on:click={() => responseButtonClicked("Accept")}>Accept</button>
-        <button on:click={() => responseButtonClicked("Reject")}>Reject</button>
+        <button on:click={() => acceptResponseButtonClicked()}>Accept</button>
+        <button on:click={() => rejectResponseButtonClicked()}>Reject</button>
       </div>
     </div>
   </div>

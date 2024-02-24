@@ -28,6 +28,7 @@
     // Update followRequests array
     followRequests = data.map(item => ({
       id: item.follower,
+      userId: item.follower,
       profileImageUrl: "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
       userName: item.follower,
       postTime: "1h ago",
