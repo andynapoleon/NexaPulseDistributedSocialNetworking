@@ -10,4 +10,4 @@ class PostSerializer(serializers.ModelSerializer):
         """
         Create and return a new `Post` instance, given the validated data
         """
-        return Post.object.create(**validated_data)
+        return Post.objects.create(**validated_data)

@@ -58,7 +58,7 @@
       visibility: event.detail.visibility,
     };
     // fetch api here 
-    const createPostEndpoint = server + `service/api/authors/${getCurrentUser().userId}/posts/`;
+    const createPostEndpoint = server + `api/authors/${getCurrentUser().userId}/posts/`;
     const response = await fetchWithRefresh(createPostEndpoint, {
         method: "POST",
         headers: {

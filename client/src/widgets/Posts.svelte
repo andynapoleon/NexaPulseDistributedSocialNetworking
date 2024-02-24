@@ -9,7 +9,7 @@
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch(server+'/api/posts/');
+      const response = await fetch(server+'/api/public-posts/');
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched posts:', data); // Log the fetched data
@@ -26,17 +26,12 @@
   onMount(() => {
     fetchPosts();
   });
+  // onMount(fetchPosts);
 </script>
-
-<!-- <div class="posts">
-  {#each posts as { id, userName, postTime, title, content } (id)}
-    <Post {userName} {postTime} {title} {content} />
-  {/each}
-</div> -->
 
 <div class="posts">
   {#each posts as post (post.id)}
-    <Post {...post} />
+    <Post {post} />
   {/each}
 </div>
 

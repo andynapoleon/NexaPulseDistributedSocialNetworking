@@ -12,5 +12,5 @@ urlpatterns = [
     path("api/",include('posts.urls')),  # Include the posts app URLs
     path("api/",include('authors.urls')),  # Include the author app URLs
     path("api/follow/<int:user_id>", FollowView.as_view()),
-    path("api/follow/<int:user_id>/all/", FollowAllView.as_view()),
+    path("api/follow/all/<int:user_id>", FollowAllView.as_view()),
 ]
