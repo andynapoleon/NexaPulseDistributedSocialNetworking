@@ -55,7 +55,7 @@
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      const response = await fetch(followEndpoint, {
+      const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
         headers: {
           'Authorization': `Bearer ${$authToken}`, // Include the token in the request headers
@@ -109,7 +109,7 @@
     
     const updateEndpoint = server + `/api/profile/${userId}`;
     
-    const response = await fetch(updateEndpoint, {
+    const response = await fetchWithRefresh(updateEndpoint, {
       method: "PUT",
       headers: {
         "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers

@@ -5,6 +5,7 @@
   import { authToken, refreshToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { get } from "svelte/store";
+  import { fetchWithRefresh } from "../../utils/fetchWithRefresh.js";
 
   let fullName = "";
   let github = "";
@@ -34,7 +35,7 @@
       email = getCurrentUser().email;
     } else {
       const profileEndpoint = server + `/api/profile/${userId}`;
-      const response = await fetch(profileEndpoint, {
+      const response = await fetchWithRefresh(profileEndpoint, {
         method: "GET"
       });
       
