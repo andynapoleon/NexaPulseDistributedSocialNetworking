@@ -1,22 +1,62 @@
 <script>
-  import { createEventDispatcher } from "svelte";
+  import { authToken, server } from "../stores/stores.js";
+  import { currentUser } from "../stores/stores.js";
+  import { get } from "svelte/store";
+  import { fetchWithRefresh } from "../utils/apiUtils.js";
 
-  const dispatch = createEventDispatcher();
   let postTitle = "";
   let postContent = "";
   let visibility = "Public";
+  let content_type = "text/markdown";
+
+  let id = $currentUser.userId 
+  const visibilityTuple = {
+    'Public': ['PUBLIC', 'Public'],
+    'Friends': ['FRIENDS', 'Friends'],
+    'Unlisted': ['UNLISTED', 'Unlisted']
+  }[visibility];
 
   // Function to handle form submission
-  function submitPost() {
+  async function submitPost() {
     if (postContent.trim() === "") {
       // Prevent submission of empty content
       console.error("Post content cannot be empty");
       return;
     }
-    dispatch("createpost", { title: postTitle, content: postContent, visibility: (visibility.toUpperCase(), visibility)});
-    postContent = ""; // Reset input field after submission
-    postTitle = ""; // Reset input field after submission
-    visibility = "Public"; // Reset input field after submission
+
+    const postData = {
+      authorId: id,
+      type: 'post',
+      title: postTitle,
+      content: postContent,
+      content_type: content_type,
+      visibility: `(${visibilityTuple[0]}, ${visibilityTuple[1]})`
+    };
+
+    console.log("Data to be sent:", postData);
+
+    try {
+        const response = await fetchWithRefresh(server+`/api/authors/${id}/posts/`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${get(authToken)}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(postData)
+        });
+
+        if (response.ok) {
+          console.log('Post created successfully!');
+          // Reset input fields after successful submission
+          postContent = "";
+          postTitle = "";
+          visibility = "Public";
+        } else {
+          console.error('Failed to create post');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
   }
 
 </script>

@@ -53,7 +53,6 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class AuthorPosts(APIView):
-    " Only gets posts of a Author"
     permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
@@ -63,6 +62,7 @@ class AuthorPosts(APIView):
 
     def post(self, request, author_id):
         serializer = PostSerializer(data=request.data)
+        print(serializer.initial_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
