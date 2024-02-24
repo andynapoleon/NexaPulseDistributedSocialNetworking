@@ -26,17 +26,12 @@
   onMount(() => {
     fetchPosts();
   });
+  // onMount(fetchPosts);
 </script>
-
-<!-- <div class="posts">
-  {#each posts as { id, userName, postTime, title, content } (id)}
-    <Post {userName} {postTime} {title} {content} />
-  {/each}
-</div> -->
 
 <div class="posts">
   {#each posts as post (post.id)}
-    <Post {...post} />
+    <Post {post} />
   {/each}
 </div>
 
