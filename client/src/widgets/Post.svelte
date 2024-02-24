@@ -1,21 +1,16 @@
-<script>
-  import { fetchWithRefresh } from "../utils/apiUtils";
-  import { currentUser, server, authToken } from "../stores/stores.js";
-  import { get } from "svelte/store";
-
-  let authorId = $currentUser.userId;
-  let postId = '1';
-
+<!-- <script>
+  
   // Props passed to the component
-  export let userName = "User Name";
-  export let postTime = "Just now";
-  export let content = "Here is some post content.";
-  export let title = "Post Title";
-  let likes = 5;
+  export let post
+  let userName = post.authorId;
+  let postTime = post.published;
+  let content = post.content;
+  let title = post.title;
+  let likes = 0;
 
   // Local component state for editing
   let isEditing = false;
-  let editedContent = content;
+  let editedContent = post.content;
   let postTitle = title;
 
   // Function to toggle edit mode
@@ -23,32 +18,13 @@
     isEditing = !isEditing;
     // Revert to original content if editing is canceled
     if (!isEditing) {
-      editedContent = content;
-      postTitle = title;
+      post.content = editedContent;
     }
   }
   // Function to save edited content
-  async function saveEdit() {
-    const editPostEndpoint = server + `/api/authors/${authorId}/posts/${postId}/`;
-    const response = await fetchWithRefresh(editPostEndpoint, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${get(authToken)}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ title: postTitle, content: editedContent })
-    });
-
-    if (response.ok) {
-      // Update the component state with edited content
-      content = editedContent;
-      title = postTitle;
-      isEditing = false;
-    } else {
-      console.error('Failed to save edited post');
-    }
-    // content = editedContent;
-    // isEditing = false;
+  function saveEdit() {
+    content = editedContent;
+    isEditing = false;
   }
 </script>
 
@@ -124,8 +100,5 @@
     width: 100%;
     margin-bottom: 12px;
   }
-  .edit-title {
-    width: 100%;
-    margin-bottom: 12px;
-  }
+  
 </style>
