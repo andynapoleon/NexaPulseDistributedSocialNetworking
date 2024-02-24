@@ -9,7 +9,7 @@
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch(server+'/api/posts/');
+      const response = await fetch(server+'/api/public-posts/');
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched posts:', data); // Log the fetched data

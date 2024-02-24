@@ -33,7 +33,7 @@
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",
         headers: {
-          //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
         }
       });
       if (!response.ok) {
@@ -55,7 +55,7 @@
     }; 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     const response = await fetchWithRefresh(followEndpoint, {
@@ -77,7 +77,7 @@
     }; 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     const response = await fetchWithRefresh(followEndpoint, {

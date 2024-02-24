@@ -10,7 +10,7 @@ from .serializers import FollowsSerializer
 from rest_framework.decorators import action
 
 class FollowView(APIView):
-    permission_classes = [AllowAny] #[IsAuthenticated]
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
     def put(self, request, user_id):
         userId1 = request.data.get('userId1')
@@ -110,7 +110,7 @@ class FollowView(APIView):
             return None
         
 class FollowAllView(APIView):
-    permission_classes = [AllowAny] #[IsAuthenticated]
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
 
     def get(self, request, user_id):
         followers = Follows.objects.filter(followed_id=user_id)

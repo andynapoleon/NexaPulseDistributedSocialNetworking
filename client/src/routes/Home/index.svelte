@@ -14,6 +14,8 @@
 
   onMount(() => {
     $isLoginPage = false;
+    console.log(getCurrentUser());
+    console.log(get(authToken));
     // isAuthenticated = $authToken !== "";
     // console.log(isAuthenticated);
     // if (!isAuthenticated) {
