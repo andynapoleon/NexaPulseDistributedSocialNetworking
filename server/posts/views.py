@@ -9,15 +9,14 @@ from .models import Post
 from .serializers import PostSerializer
 
 class PostList(generics.ListCreateAPIView):
-    queryset = Post.objects.all()
+    queryset = Post.objects.all().order_by('-published')
     serializer_class = PostSerializer
 
-# class PostDetail(generics.RetrieveAPIView):
-#     queryset = Post.objects.all()
-#     serializer_class = PostSerializer
-
 class PostDetail(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        return PostSerializer
 
     def get(self, request, author_id, post_id):
         try:
@@ -54,7 +53,7 @@ class PostDetail(APIView):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
 class AuthorPosts(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         posts = Post.objects.filter(authorId=author_id).order_by('-published')

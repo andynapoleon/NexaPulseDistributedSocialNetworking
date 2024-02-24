@@ -19,7 +19,7 @@ class Post(models.Model):
     # FRIENDS should've already been sent the post so they don't need this
 
     # id of the post
-    # id = models.AutoField(primary_key=True)
+    id = models.AutoField(primary_key=True)
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # title of a post
