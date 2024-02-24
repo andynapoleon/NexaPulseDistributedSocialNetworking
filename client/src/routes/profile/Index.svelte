@@ -1,8 +1,14 @@
 <script>
-  import Posts from "../../widgets/Posts.svelte";
+  import ProfilePosts from "../../widgets/ProfilePosts.svelte";
   import ProfileWidget from "./ProfileWidget.svelte";
   import { onMount } from "svelte";
-  import { authToken, refreshToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
+  import {
+    authToken,
+    isLoginPage,
+    getCurrentUser,
+    server,
+    refreshToken,
+  } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { get } from "svelte/store";
 
@@ -12,32 +18,29 @@
   let userId = 0;
 
   let isAuthenticated = false;
-  
+  export let params;
+
   onMount(async () => {
     isAuthenticated = $authToken !== "";
-    console.log($authToken);
     if (!isAuthenticated) {
       $isLoginPage = true;
       navigate("/");
     }
     // get the id from the URL
     const path = window.location.pathname;
-    const pathSegments = path.split('/');
-    userId = parseInt(pathSegments[pathSegments.length - 1]);  
-    console.log(getCurrentUser());  
-    console.log(get(authToken));
-    console.log(get(refreshToken));
+    const pathSegments = path.split("/");
+    userId = parseInt(pathSegments[pathSegments.length - 1]);
     // if the user is looking at their on profile
-    if (userId == getCurrentUser().userId){
+    if (userId == getCurrentUser().userId) {
       fullName = getCurrentUser().name;
       github = getCurrentUser().github;
       email = getCurrentUser().email;
     } else {
       const profileEndpoint = server + `/api/profile/${userId}`;
       const response = await fetch(profileEndpoint, {
-        method: "GET"
+        method: "GET",
       });
-      
+
       if (!response.ok) {
         throw new Error("Failed to fetch profile");
       }
@@ -46,7 +49,6 @@
       github = data.github;
       email = data.email;
     }
-    
   });
 
   // Fetch names & posts with the userId passed in
@@ -78,13 +80,13 @@
       <ProfileWidget
         profileImageUrl="../../../fake_profile.png"
         name={fullName}
-        email={email}
-        github={github}
-        userId={userId}
+        {email}
+        {github}
+        {userId}
       />
     </div>
     <div class="posts">
-      <Posts {posts} />
+      <ProfilePosts authorId={params.id} />
     </div>
   </div>
 </main>

@@ -85,7 +85,7 @@
     <Route path={route} let:params>
       <AuthenticatedRoute>
         <!-- Render the protected route component -->
-        <svelte:component this={routes[route]} {...params} />
+        <svelte:component this={routes[route]} {params} />
       </AuthenticatedRoute>
     </Route>
   {/each}

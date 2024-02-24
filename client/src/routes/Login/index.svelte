@@ -1,6 +1,11 @@
 <script>
   import { onMount, getContext } from "svelte";
-  import { currentUser, authToken, refreshToken, server } from "../../stores/stores.js";
+  import {
+    currentUser,
+    authToken,
+    refreshToken,
+    server,
+  } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
 
   let email = "";
@@ -36,16 +41,16 @@
       }
 
       const data = await response.json();
-      authToken.update((value) => value = data.access);
-      refreshToken.update((value) => value = data.refresh);
+      authToken.update((value) => (value = data.access));
+      refreshToken.update((value) => (value = data.refresh));
 
       currentUser.set({
-          userId: data.id,
-          name: data.name,
-          email: data.email,
-          github: data.github
+        userId: data.id,
+        name: data.name,
+        email: data.email,
+        github: data.github,
       });
-      
+      console.log("DATA ACCESS: " + data.access);
       navigate("/home");
     } catch (error) {
       errorMessage = error.message;
