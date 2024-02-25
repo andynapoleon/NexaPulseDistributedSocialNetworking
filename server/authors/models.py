@@ -1,62 +1,50 @@
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
+from rest_framework_simplejwt.tokens import RefreshToken
 
+class CustomUserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
 
-# Create your models here.
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
 
-class Author(models.Model):
-    id = models.AutoField(primary_key=True)
-    firstName = models.CharField(max_length=50, default="")
-    lastName = models.CharField(max_length=50, default="")
-    email = models.EmailField(default="unknown@example.com", unique=True)
-    password = models.CharField(max_length=255, default="")  # This will be encripted
-    github = models.CharField(max_length=100, default="")
-    profileImage = models.ImageField(
-        upload_to="assets/profile_images/", null=True, blank=True
-    )
+class Author(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(unique=True)
+    firstName = models.CharField(max_length=50, blank=True)
+    lastName = models.CharField(max_length=50, blank=True)
+    github = models.CharField(max_length=100, blank=True)
+    profileImage = models.ImageField(upload_to="assets/profile_images/", null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    
+    objects = CustomUserManager()
+    
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
     def __str__(self):
-        return f"{self.firstName} {self.lastName}"
+        return self.email
 
     def check_password(self, client_password):
         return self.password == client_password
 
+    @property
+    def token(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
 
-# class Post(models.Model):
-#     pid = models.AutoField(primary_key=True)
-#     author = models.ForeignKey(User, on_delete=models.CASCADE)
-#     public = models.BooleanField()
-#     content = models.TextField()
-#     # Add more fields as needed
-
-
-# class Comment(models.Model):
-#     cid = models.AutoField(primary_key=True)
-#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-#     author = models.ForeignKey(User, on_delete=models.CASCADE)
-#     content = models.TextField()
-
-
-# class Like(models.Model):
-#     lid = models.AutoField(primary_key=True)
-#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-#     author = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-# class MakesPost(models.Model):
-#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-# class HasComment(models.Model):
-#     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-#     post = models.ForeignKey(MakesPost, on_delete=models.CASCADE)
-
-
-# class OwnComment(models.Model):
-#     comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-# class OwnLike(models.Model):
-#     like = models.ForeignKey(Like, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+# Add related_name to avoid clashes
+Group.add_to_class('authors_group', models.ManyToManyField(Author, related_name='author_groups'))
+Permission.add_to_class('authors_permission', models.ManyToManyField(Author, related_name='author_permissions'))

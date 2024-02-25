@@ -1,24 +1,24 @@
 <script>
-  import { onMount } from 'svelte';
+  import { onMount } from "svelte";
   import Post from "./Post.svelte";
   import { server } from "../stores/stores.js";
 
   // Sample array of post objects - will do data fetching instead
-  let posts = [];
+  let profilePosts = [];
+  export let authorId;
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch(server+'/api/public-posts/');
+      const response = await fetch(server + `/api/authors/posts/${authorId}/`);
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched posts:', data); // Log the fetched data
-        posts = data;
+        profilePosts = data;
       } else {
-        console.error('Failed to fetch posts:', response.statusText);
+        console.error("Failed to fetch posts:", response.statusText);
       }
     } catch (error) {
-      console.error('Error fetching posts:', error.message);
+      console.error("Error fetching posts:", error.message);
     }
   }
 
@@ -30,7 +30,7 @@
 </script>
 
 <div class="posts">
-  {#each posts as post (post.id)}
+  {#each profilePosts as post (post.id)}
     <Post {post} />
   {/each}
 </div>

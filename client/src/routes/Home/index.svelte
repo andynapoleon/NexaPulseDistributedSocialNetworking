@@ -2,13 +2,20 @@
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Posts from "../../widgets/Posts.svelte";
   import { onMount } from "svelte";
-  import { authToken, isLoginPage, getCurrentUser, server } from "../../stores/stores.js";
+  import {
+    authToken,
+    isLoginPage,
+    getCurrentUser,
+    server,
+  } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
   // let isAuthenticated = false;
 
   onMount(() => {
     $isLoginPage = false;
+    console.log(getCurrentUser());
+    console.log(get(authToken));
     // isAuthenticated = $authToken !== "";
     // console.log(isAuthenticated);
     // if (!isAuthenticated) {
@@ -55,14 +62,15 @@
       content: event.detail.content,
       visibility: event.detail.visibility,
     };
-    // fetch api here 
-    const createPostEndpoint = server + `service/api/authors/${getCurrentUser().userId}/posts/`;
+    // fetch api here
+    const createPostEndpoint =
+      server + `api/authors/${getCurrentUser().userId}/posts/`;
     const response = await fetchWithRefresh(createPostEndpoint, {
-        method: "POST",
-        headers: {
-      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      'Content-Type': 'application/json'
-    },
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(newPost),
     });
     if (!response.ok) {

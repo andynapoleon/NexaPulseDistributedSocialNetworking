@@ -1,43 +1,40 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404, redirect
 
-from rest_framework.decorators import api_view
+# Create your views here.
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status, generics
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
-from .serializers import AuthorSerializer, AuthorListSerializer
-from rest_framework import generics
-
-class AuthorDetail(generics.RetrieveAPIView):
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+from .serializers import AuthorSerializer
 
 class AuthorList(generics.ListCreateAPIView):
     queryset = Author.objects.all()
-    serializer_class = AuthorListSerializer
+    serializer_class = AuthorSerializer
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-        data = {
-            "type": "authors",
-            "items": serializer.data
-        }
-        return Response(data)
+class AuthorDetail(generics.RetrieveAPIView):
+    permission_classes = [AllowAny]
 
-@api_view(['GET'])
-def get_authors(request):
-    """
-    Get the list of authors on our website
-    """
-    authors = Author.objects.all()
-    serializer = AuthorSerializer(authors, many=True)
-    return Response(serializer.data)
+    def get_serializer_class(self):
+        return AuthorSerializer
 
-@api_view(['POST'])
-def create_author(request):
-    serializer = AuthorSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=201)
-    return Response(serializer.errors, status=400)
+    def get(self, request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+            serializer = AuthorSerializer(author)
+            return Response(serializer.data)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def put(self, request, author_id):
+        try:
+            author = Author.objects.get(id=author_id)
+            serializer = AuthorSerializer(author, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=201)
+            return Response(serializer.errors, status=400)
+        except Author.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 

@@ -22,6 +22,20 @@
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
+    console.log("currentUserId", currentUserId)
+    console.log("userId", userId)
+
+      const response = await fetchWithRefresh(followEndpoint, {
+        method: "GET",
+        headers: {
+          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        }
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch follow status");
+      }
+      const data = await response.json();
+
     console.log("updateStatus")
 
     const response = await fetchWithRefresh(followEndpoint, {
@@ -58,7 +72,7 @@
     }; 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     const response = await fetchWithRefresh(followEndpoint, {
@@ -79,7 +93,7 @@
     }; 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       'Content-Type': 'application/json'
     };
     const response = await fetchWithRefresh(followEndpoint, {
