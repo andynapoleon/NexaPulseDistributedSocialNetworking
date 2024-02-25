@@ -38,17 +38,6 @@
 
     console.log("updateStatus")
 
-    const response = await fetchWithRefresh(followEndpoint, {
-      method: "GET",
-      headers: {
-        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      }
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch follow status");
-    }
-    const data = await response.json();
-
     console.log("/api/follow/", {currentUserId}, "?userId2=", {userId},":", data);
     console.log(typeof data.acceptedRequest)
 
