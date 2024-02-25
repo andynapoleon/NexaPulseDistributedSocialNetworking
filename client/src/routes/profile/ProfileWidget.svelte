@@ -52,10 +52,10 @@
   onMount(async () => {
     // Check if the current user is already following the user
 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+    const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
     console.log("currentUserId", currentUserId)
-    console.log("userId", userId)
+    console.log("target userId", userId)
 
       const response = await fetchWithRefresh(followEndpoint, {
         method: "GET",

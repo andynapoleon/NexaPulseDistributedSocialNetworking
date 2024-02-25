@@ -58,14 +58,12 @@ class FollowView(APIView):
 
         # Follow: Create the follow relationship
         follow = Follows(follower=user1, followed=user2)
-
         follow.save()
         return Response({'success': 'Now following userId2'}, status=status.HTTP_200_OK)
 
     def delete(self, request,user_id):
         # target_user_id is being followed
         user_being_follow_id  = request.query_params.get('userId2')
-        print("user_being_follow_id:", user_being_follow_id)
 
         if not (user_being_follow_id):
             return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
@@ -90,8 +88,8 @@ class FollowView(APIView):
         user2 = self.get_user_from_id(target_user_id)
 
         # Check if the follow relationship exists
-
-        requestObj = Follows.objects.filter(follower=user1, followed=user2).first()
+        ####
+        requestObj = Follows.objects.filter(followed=user1, follower=user2).first()
 
         if requestObj:
             follow_exists = True

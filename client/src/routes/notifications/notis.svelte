@@ -1,7 +1,5 @@
 <script>
   import Post from "./noti.svelte";
-
-  // Sample array of post objects - will do data fetching instead
   export let followRequests = [];
 </script>
 
