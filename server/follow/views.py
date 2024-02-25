@@ -94,8 +94,6 @@ class UserFollowingView(APIView):
         followings = Follows.objects.filter(follower_id=user_id, acceptedRequest=True)
         serializer = FollowsSerializer(followings, many=True)
 
-        print("followingUser serializer.data:", serializer.data)
-
         for followingUser in serializer.data:
 
             user = Author.objects.get(id=followingUser['followed'])
@@ -123,8 +121,6 @@ class UserFollowedView(APIView):
         followeds = Follows.objects.filter(followed_id=user_id, acceptedRequest=True)
         serializer = FollowsSerializer(followeds, many=True)
 
-        print("followedUser serializer.data:", serializer.data)
-
         for followedUser in serializer.data:
 
             user = Author.objects.get(id=followedUser['follower'])
@@ -149,8 +145,6 @@ class UserFriendsView(APIView):
 
     def get(self, request, user_id):
 
-        ######
-
         return_package = []
         friendIdList = []
         followeds = Follows.objects.filter(followed_id=user_id, acceptedRequest=True)
@@ -160,7 +154,6 @@ class UserFriendsView(APIView):
         followedsSerializer = FollowsSerializer(followeds, many=True)
         followingsSerializer = FollowsSerializer(followings, many=True)
 
-        print("followedsSerializer", followedsSerializer.data)
         # followedUser serializer.data: [OrderedDict([('id', 3), ('acceptedRequest', True), ('follower', 1), ('followed', 4)])]
 
         userIdInFollwed = []
@@ -169,8 +162,9 @@ class UserFriendsView(APIView):
 
         for followingRelation in followingsSerializer.data:
             if followingRelation['followed'] in userIdInFollwed:
-                friendIdList.append(user = Author.objects.get(id=followingRelation[id]))
+                friendIdList.append(followingRelation['followed'])
 
+        print(friendIdList)
         for friendId in friendIdList:
 
             user = Author.objects.get(id=friendId)

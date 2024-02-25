@@ -18,6 +18,8 @@
   let followed = [];
   let following = [];
 
+  let currentList = [];
+
   function switchMode(newMode) {
     mode.set(newMode);
     switch (newMode) {
@@ -38,7 +40,7 @@
     }
   }
 
-  onMount(async () => {
+  async function fetchData() {
     const friendsResponse = await fetch(server + `/api/friends/friends/${get(currentUser).userId}`, {
       method: "GET",
       headers: {
@@ -74,8 +76,9 @@
     }
     followed = await followedResponse.json();
     console.log("followed fetched:", followed)
-    
-  });
+
+    currentList = allFriends
+  };
 
   //
   //sample = {
@@ -84,8 +87,8 @@
   //  "profileImageUrl": 1,
   //  "email": 1,
   //
+  onMount(fetchData);
 
-  let currentList = allFriends;
   mode.set(1)
 </script>
 
