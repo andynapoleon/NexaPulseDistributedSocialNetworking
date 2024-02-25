@@ -23,11 +23,11 @@
   // Sidebar menu items
   const menuItems = [
     { href: "/home", label: "Home" },
-    { href: `/messages/${$currentUser.userId}`, label: "Messages" },
-    { href: "/makepost", label: "Create a post" },
+    // { href: `/messages/${$currentUser.userId}`, label: "Messages" },
+    // { href: "/makepost", label: "Create a post" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
-    { href: "/settings", label: "Settings" },
+    //{ href: "/settings", label: "Settings" },
     { href: "/", label: "Log Out" },
   ];
 
@@ -35,10 +35,10 @@
   const routes = {
     "/home": Home,
     "/profile/:id": Profile,
-    "/messages/:id": UserMessage,
+    //"/messages/:id": UserMessage,
     "/notifications/:id": Notifications,
     "/friends/:id": Friends,
-    "/settings": Settings,
+    //"/settings": Settings,
   };
 
   // Reactively set isLoginPage based on the current path

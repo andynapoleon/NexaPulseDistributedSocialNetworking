@@ -40,6 +40,9 @@
       const profileEndpoint = server + `/api/profile/${userId}`;
       const response = await fetch(profileEndpoint, {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+        },
       });
 
       if (!response.ok) {
