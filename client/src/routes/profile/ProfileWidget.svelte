@@ -11,108 +11,112 @@
   export let email;
   export let github;
   export let userId; // The user ID passed into the component
-  
 
   // Get the current user's ID from the store
-  const currentUserId = get(currentUser).userId; 
-  
+  const currentUserId = get(currentUser).userId;
 
   // Check if the profile belongs to the current user
   $: isCurrentUser = userId == currentUserId;
   const path = window.location.pathname;
-  const pathSegments = path.split('/');
-  userId = parseInt(pathSegments[pathSegments.length - 1]);    
-
+  const pathSegments = path.split("/");
+  userId = parseInt(pathSegments[pathSegments.length - 1]);
 
   // Initialize edit mode as a writable store
   const isEditMode = writable(false);
-    let isEditModeValue;
-    isEditMode.subscribe(value => {
-      isEditModeValue = value;
-    });
+  let isEditModeValue;
+  isEditMode.subscribe((value) => {
+    isEditModeValue = value;
+  });
 
   // Initialize form data as a writable store
   const formData = writable({
-      name: name,
-      email: email,
-      github: github,
-    });
-    let formDataValue;
-    formData.subscribe(value => {
-      formDataValue = value;
-    });
+    name: name,
+    email: email,
+    github: github,
+  });
+  let formDataValue;
+  formData.subscribe((value) => {
+    formDataValue = value;
+  });
 
   // Initialize alreadyFollowed as a writable store
   const alreadyFollowed = writable(false);
   let alreadyFollowedValue;
-  alreadyFollowed.subscribe(value => {
+  alreadyFollowed.subscribe((value) => {
     alreadyFollowedValue = value;
   });
-  
+
   onMount(async () => {
+    const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
     console.log("currentUserId", currentUserId)
-    console.log("userId", userId)
+    console.log("target userId", userId)
 
-      const response = await fetchWithRefresh(followEndpoint, {
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${$authToken}`, // Include the token in the request headers
-        }
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch follow status");
-      }
-      const data = await response.json();
-
-      alreadyFollowed.set(data.following);
-      console.log(currentUserId, "is", data.following, "following", userId)
+    const response = await fetchWithRefresh(followEndpoint, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${$authToken}`, // Include the token in the request headers
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch follow status");
     }
-  );
+    const data = await response.json();
+
+    alreadyFollowed.set(data.following);
+    console.log(currentUserId, "is", data.following, "following", userId);
+  });
 
   // Follow or unfollow the user, also check for authentication
   async function followButtonClick() {
-    console.log("clicked")
+    console.log("clicked");
     const followRequest = {
-      userId1 : currentUserId,
-      userId2 : userId, //target user
-    }; 
+      userId1: currentUserId,
+      userId2: userId, //target user
+    };
     const headers = {
-      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+      "Content-Type": "application/json",
     };
     if (alreadyFollowedValue) {
-      const response = await fetchWithRefresh(server + `/api/follow/${userId}?userId2=${currentUserId}`, {
-        method: "DELETE",
-        headers: headers,
-        body: JSON.stringify(followRequest),
-      });
-      if (!response.ok) { 
+      const response = await fetchWithRefresh(
+        server + `/api/follow/${userId}?userId2=${currentUserId}`,
+        {
+          method: "DELETE",
+          headers: headers,
+          body: JSON.stringify(followRequest),
+        }
+      );
+      if (!response.ok) {
         throw new Error("Failed to unfollow user");
       }
     } else {
-      const response = await fetchWithRefresh(server + `/api/follow/${currentUserId}?userId2=${userId}`, {
-        method: "POST",
-        headers: headers,
-        body: JSON.stringify(followRequest),
-      });
+      const response = await fetchWithRefresh(
+        server + `/api/follow/${currentUserId}?userId2=${userId}`,
+        {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify(followRequest),
+        }
+      );
       if (!response.ok) {
         throw new Error("Failed to follow user");
       }
     }
     alreadyFollowed.update((value) => !value);
-    console.log("after clicking follow/unfollow, follow=", alreadyFollowedValue);
+    console.log(
+      "after clicking follow/unfollow, follow=",
+      alreadyFollowedValue
+    );
   }
 
   async function saveProfile() {
-    
     const updateEndpoint = server + `/api/profile/${userId}`;
     
     const response = await fetchWithRefresh(updateEndpoint, {
       method: "PUT",
       headers: {
-        "Authorization": `Bearer ${get(authToken)}`, // Include the token in the request headers
+        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
         "Content-Type": "application/json",
       },
       body: JSON.stringify(formDataValue),
@@ -143,7 +147,6 @@
   }
 </script>
 
-
 <div class="profile-widget">
   <img class="profile-image" src={profileImageUrl} alt="Profile Avatar" />
   <div class="profile-info">
@@ -160,36 +163,56 @@
           >Unfollow</button
         >
       {/if}
-      
-    {:else}
-      {#if !isEditModeValue}
+    {:else if !isEditModeValue}
       <div class="profile-name">{name}</div>
       <div class="profile-email">{email}</div>
       <div class="profile-github">{github}</div>
 
       <div class="flex justify-center">
-        <button class="edit-button" on:click={() => 
-        {
-          formData.set({
-            name: name,
-            email: email,
-            github: github,
-          });
-          isEditMode.set(true)
-        }
-      }>Edit Profile</button>
+        <button
+          class="edit-button"
+          on:click={() => {
+            formData.set({
+              name: name,
+              email: email,
+              github: github,
+            });
+            isEditMode.set(true);
+          }}>Edit Profile</button
+        >
       </div>
-      {:else if isEditModeValue && isCurrentUser}
+    {:else if isEditModeValue && isCurrentUser}
       <form on:submit|preventDefault={saveProfile}>
-        <input type="text" class="profile-input" bind:value={formDataValue.name} placeholder="Name" pattern="^\S+\s+\S+$" title="Please enter your first and last name" required />
-        <input type="email" class="profile-input" bind:value={formDataValue.email} placeholder="Email" required />
-        <input type="text" class="profile-input" bind:value={formDataValue.github} placeholder="Github" required />
+        <input
+          type="text"
+          class="profile-input"
+          bind:value={formDataValue.name}
+          placeholder="Name"
+          pattern="^\S+\s+\S+$"
+          title="Please enter your first and last name"
+          required
+        />
+        <input
+          type="email"
+          class="profile-input"
+          bind:value={formDataValue.email}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="text"
+          class="profile-input"
+          bind:value={formDataValue.github}
+          placeholder="Github"
+          required
+        />
         <div class="flex justify-center">
           <button class="save-button">Save Changes</button>
-          <button type="button" class="cancel-button" on:click={cancelEdit}>Cancel</button>
+          <button type="button" class="cancel-button" on:click={cancelEdit}
+            >Cancel</button
+          >
         </div>
       </form>
-      {/if}
     {/if}
   </div>
 </div>
@@ -244,7 +267,10 @@
     transition: border-color 0.3s ease;
   }
 
-  .follow-button, .edit-button, .save-button, .cancel-button{
+  .follow-button,
+  .edit-button,
+  .save-button,
+  .cancel-button {
     padding: 0.5rem 1rem;
     margin: 0.5rem;
     border: none;
@@ -257,12 +283,18 @@
     color: white;
   }
 
-  .follow-button:hover, .edit-button:hover, .save-button:hover, .cancel-button:hover{
+  .follow-button:hover,
+  .edit-button:hover,
+  .save-button:hover,
+  .cancel-button:hover {
     filter: brightness(85%);
   }
 
   /* Optional: Add a focus style for accessibility */
-  .follow-button:focus, .edit-button:focus, .save-button:focus, .cancel-button:focus{
+  .follow-button:focus,
+  .edit-button:focus,
+  .save-button:focus,
+  .cancel-button:focus {
     outline: 3px solid #bbb;
     outline-offset: 2px;
   }

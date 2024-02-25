@@ -1,12 +1,11 @@
 <script>
-  import { currentUser, server, authToken } from '../stores/stores.js';
+  import { currentUser, server, authToken } from "../stores/stores.js";
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
 
-  
   // Props passed to the component
   export let post;
-  
+
   let userName = ""; // Initialize userName variable for the author's name
   let postTime = post.published;
   let content = post.content;
@@ -28,10 +27,13 @@
         const authorData = await response.json();
         userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
       } else {
-        console.error('Failed to fetch author information:', response.statusText);
+        console.error(
+          "Failed to fetch author information:",
+          response.statusText
+        );
       }
     } catch (error) {
-      console.error('Error fetching author information:', error.message);
+      console.error("Error fetching author information:", error.message);
     }
   }
 
@@ -46,14 +48,15 @@
 
   // Function to save edited content
   async function saveEdit() {
-    const editPostEndpoint = server + `/api/authors/${authorId}/posts/${postId}/`;
+    const editPostEndpoint =
+      server + `/api/authors/${authorId}/posts/${postId}/`;
     const response = await fetchWithRefresh(editPostEndpoint, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Authorization': `Bearer ${get(authToken)}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${get(authToken)}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent })
+      body: JSON.stringify({ title: postTitle, content: editedContent }),
     });
 
     if (response.ok) {
@@ -62,10 +65,28 @@
       title = postTitle;
       isEditing = false;
     } else {
-      console.error('Failed to save edited post');
+      console.error("Failed to save edited post");
     }
     // content = editedContent;
     // isEditing = false;
+  }
+
+  // Function to delete the post
+  async function deletePost() {
+    if (confirm("Are you sure you want to delete this post?")) {
+      const deletePostEndpoint = `${server}/api/authors/${authorId}/posts/${postId}/`;
+      const response = await fetchWithRefresh(deletePostEndpoint, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+        },
+      });
+
+      if (response.ok) {
+      } else {
+        console.error("Failed to delete post:", response.statusText);
+      }
+    }
   }
 
   // Fetch author's information when the component is mounted
@@ -100,6 +121,9 @@
       {#if isEditing}
         <button on:click={saveEdit}>Save</button>
       {/if}
+    {/if}
+    {#if post.authorId == authorId}
+      <button on:click={deletePost}>Delete</button>
     {/if}
     <span>Likes: {likes}</span>
   </div>

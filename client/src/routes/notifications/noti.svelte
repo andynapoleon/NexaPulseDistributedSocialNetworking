@@ -3,10 +3,9 @@
 
   export let profileImageUrl =  "default-profile.png";
   import { currentUser, server, authToken } from "../../stores/stores.js";
-  import { get } from "svelte/store";
-  
+  import { get, writable } from "svelte/store";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
-  import { writable } from "svelte/store";
+  import { TruckSolid } from "flowbite-svelte-icons"
 
   export let userId; // The user ID passed into the component
   export let userName = "HOHO HAHA";
@@ -16,13 +15,9 @@
   const currentUserId = get(currentUser).userId;
 
   // Initialize alreadyFollowed as a writable store
-  const alreadyFriended = writable(false);
-  let alreadyFollowedValue;
-  alreadyFriended.subscribe(value => {
-    alreadyFollowedValue = value;
-  });
+  let alreadyFriended = Boolean(false);
   
-  onMount(async () => {
+  async function updateStatus (){
     // Check if the current user has already accepted the follow request
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
@@ -30,25 +25,36 @@
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      const response = await fetchWithRefresh(followEndpoint, {
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-        }
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch follow status");
-      }
-      const data = await response.json();
+    console.log("updateStatus")
 
-      alreadyFriended.set(data.acceptedRequest);
+    const response = await fetchWithRefresh(followEndpoint, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
+    if (!response.ok) {
+      throw new Error("Failed to fetch follow status");
     }
-  );
+    const data = await response.json();
+
+    console.log("/api/follow/", {currentUserId}, "?userId2=", {userId},":", data);
+    console.log(typeof data.acceptedRequest)
+
+    // Convert data.acceptedRequest to a boolean value
+    const acceptedRequestBoolean = Boolean(data.acceptedRequest);
+
+    // Set alreadyFriended to the boolean value
+    alreadyFriended=(acceptedRequestBoolean);
+
+    console.log("alreadyFriended:", alreadyFriended)
+  }
+ 
+  onMount(async () => {
+    await updateStatus(); // Wait for updateStatus to finish
+  });
 
   async function acceptResponseButtonClicked(){
-    console.log("accept clicked")
-    console.log("currentUserId", currentUserId)
-    console.log("userId", userId)
     const followRequest = {
       userId1 : userId,
       userId2 : currentUserId, //target user is the current user
@@ -66,11 +72,10 @@
     if (!response.ok) { 
       throw new Error("Failed to confirm follow request");
     }
-    // Reload the page after successful deletion
-    location.reload();
+    updateStatus()
   }
+
   async function rejectResponseButtonClicked() {
-    console.log("reject clicked")
     const followRequest = {
       userId1 : currentUserId,
       userId2 : userId, //target user
@@ -100,12 +105,16 @@
     </div>
     <div class="right-column">
       <div class="post-header">
-        <strong>{userName} {content}</strong>
+        {#if (alreadyFriended)}
+          <div class="already-accepted">{userName} {content}</div>
+        {:else}
+          <strong>{userName} {content}</strong>
+        {/if}
         <span>{postTime}</span>
       </div>
-      {#if !alreadyFriended}
+      {#if (alreadyFriended)}
         <div class="actions">
-          <button>Already Accepted</button>
+          <accepted-button>Already Accepted</accepted-button>
         </div>
       {:else}
         <div class="actions">
@@ -152,6 +161,10 @@
     display: flex;
     justify-content: right;
   }
+  .already-accepted{
+    color: #525252;
+    font-weight: bold;
+  }
   button {
     cursor: pointer;
     background-color: transparent;
@@ -160,11 +173,11 @@
     padding: 0;
     margin-right: 2%;
   }
-  button {
+  accepted-button {
     cursor: pointer;
     background-color: transparent;
     border: none;
-    color: #043d3b;
+    color: #525252;
     padding: 0;
     margin-right: 2%;
   }
