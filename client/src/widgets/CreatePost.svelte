@@ -3,6 +3,7 @@
   import { currentUser } from "../stores/stores.js";
   import { get } from "svelte/store";
   import { fetchWithRefresh } from "../utils/apiUtils.js";
+  import { posts } from "../stores/stores.js";
 
   let postTitle = "";
   let postContent = "";
@@ -10,6 +11,22 @@
   let content_type = "text/markdown";
 
   let id = $currentUser.userId;
+
+  // Function to fetch posts from the backend
+  async function fetchPosts() {
+    try {
+      const response = await fetch(server + "/api/public-posts/");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched posts:", data); // Log the fetched data
+        $posts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
 
   // Function to handle form submission
   async function submitPost() {
@@ -55,6 +72,9 @@
     } catch (error) {
       console.error("Error:", error);
     }
+
+    // After successfully submitting the post, update the posts store
+    fetchPosts();
   }
 </script>
 
