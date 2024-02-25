@@ -1,10 +1,23 @@
 <script>
   import { Link } from 'svelte-routing';
-  import FriendWidget from "./friendWidget.svelte";
-
+  import FriendWidget from "../Friends/friendWidget.svelte";
+  import { onMount } from "svelte";
+  import {
+    authToken,
+    isLoginPage,
+    getCurrentUser,
+    server,
+    refreshToken,
+  } from "../../stores/stores.js";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { writable } from 'svelte/store';
 
   let mode = writable(null);
+  let isAuthenticated = false;
+
+  let allFriends = [];
+  let followed = [];
+  let following = [];
 
   function switchMode(newMode) {
     mode.set(newMode);
@@ -14,11 +27,11 @@
         break;
 
       case 2:
-        currentList = Following;
+        currentList = following;
         break;
 
       case 3:
-        currentList = Follower;
+        currentList = followed;
         break;
 
       default:
@@ -26,86 +39,45 @@
     }
   }
 
-  let allFriends = [
-    {
-      id: 1,
-      userName: "John Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "HOHO HAHA Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "hoho.haha@example.com",
-    },
-    {
-      id: 3,
-      userName: "Bad Apple!",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "bad.apple@example.com",
-    },
-    {
-      id: 4,
-      userName: "Number 4",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 5,
-      userName: "Number 5",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 6,
-      userName: "YUUU Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+  onMount(async () => {
+    isAuthenticated = $authToken !== "";
+    if (!isAuthenticated) {
+      $isLoginPage = true;
+      navigate("/");
+    }
+    const friendsResponse = await fetch(server + `/api/friends/friends/${getCurrentUser().userId()}`, {
+      method: "GET",
+    });
+    if (!friendsResponse.ok) {
+      throw new Error("Failed to fetch friends");
+    }
+    allFriends = await friendsResponse.json();
 
-  let Following = [
-    {
-      id: 1,
-      userName: "Following 1",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "Following 2",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 3,
-      userName: "Following 3",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+    const followingResponse = await fetch(server + `/api/friends/following/${getCurrentUser().userId()}`, {
+      method: "GET",
+    });
+    if (!followingResponse.ok) {
+      throw new Error("Failed to fetch friends");
+    }
+    following = await followingResponse.json();
 
-  let Follower = [
-    {
-      id: 1,
-      userName: "Follower 1",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "Follower 2",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 3,
-      userName: "Follower 3",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+    const followedResponse = await fetch(server + `/api/friends/followed/${getCurrentUser().userId()}`, {
+      method: "GET",
+    });
+    if (!followedResponse.ok) {
+      throw new Error("Failed to fetch friends");
+    }
+    followed = await followedResponse.json();
+    
+  });
+
+  //
+  //let sample = {
+  //  "user_id": 1,
+  //  "full_name": 1,
+  //  "profileImageUrl": 1,
+  //  "email": 1,
+  //
 
   let currentList = allFriends;
   mode.set(1)
@@ -127,7 +99,7 @@
             <div class="profile-widget">
               <FriendWidget
                 profileImageUrl= {currentList[rowIndex * 5 + colIndex].profileImageUrl}
-                name = {currentList[rowIndex * 5 + colIndex].userName}
+                name = {currentList[rowIndex * 5 + colIndex].full_name}
                 email = {currentList[rowIndex * 5 + colIndex].email}
               />
             </div>

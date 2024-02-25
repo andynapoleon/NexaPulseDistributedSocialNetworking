@@ -114,3 +114,69 @@ class FollowAllView(APIView):
         followers = Follows.objects.filter(followed_id=user_id)
         serializer = FollowsSerializer(followers, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class UserFollowingView(APIView):
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
+
+    def get(self, request, user_id):
+        return_package = []
+        followings = Follows.objects.filter(follower_id=user_id, acceptedRequest=True)
+        for following in followings:
+            user = FollowView.get_user_from_id(following.followed_id)
+            if not user:
+                return Response({"error": "User not found"}, status=404)
+
+            user_id = user.id
+            full_name = f"{user.firstName} {user.lastName}"
+            github = user.github
+            email = user.email
+            context = {
+                "user_id": user_id,
+                "full_name": full_name,
+                "github": github,
+                "email": email,
+            }
+            return_package.append(context)
+        return Response(return_package)
+    
+class UserFollowedView(APIView):
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
+
+    def get(self, request, user_id):
+        return_package = []
+        followeds = Follows.objects.filter(followed_id=user_id, acceptedRequest=True)
+        for followed in followeds:
+            user = FollowView.get_user_from_id(followed.follower_id)
+            if not user:
+                return Response({"error": "User not found"}, status=404)
+
+            user_id = user.id
+            full_name = f"{user.firstName} {user.lastName}"
+            profileImageUrl = user.profileImage
+            email = user.email
+            context = {
+                "user_id": user_id,
+                "full_name": full_name,
+                "profileImageUrl": profileImageUrl,
+                "email": email,
+            }
+            return_package.append(context)
+        return Response(return_package)
+    
+class UserFriendsView(APIView):
+    permission_classes = [IsAuthenticated] #[IsAuthenticated]
+
+    def get(self, request, user_id):
+        return_package = []
+        following = UserFollowingView().get(request, user_id)
+        followed = UserFollowingView().get(request, user_id)
+
+        user_ids_set = {element.user_id for element in following}
+    
+        # Iterate through elements in list1
+        for element in followed:
+            if element.user_id in user_ids_set:
+                return_package.append(element)
+
+        return return_package
+   
