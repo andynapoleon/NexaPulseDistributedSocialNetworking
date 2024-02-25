@@ -11,6 +11,7 @@
   } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { get } from "svelte/store";
+  import { fetchWithRefresh } from "../../utils/apiUtils.js";
 
   let fullName = "";
   let github = "";
@@ -39,6 +40,9 @@
       const profileEndpoint = server + `/api/profile/${userId}`;
       const response = await fetch(profileEndpoint, {
         method: "GET",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+        },
       });
 
       if (!response.ok) {

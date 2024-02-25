@@ -7,6 +7,11 @@
   import { navigate } from "svelte-routing";
 
   let id = $currentUser.userId;
+
+  const navigateProfile = () => {
+    navigate(`/profile/${id}`);
+    location.reload();
+  };
 </script>
 
 <nav>
@@ -21,7 +26,7 @@
     <Icon.ArrowUpOutline id="icon" />
     <Icon.UserSettingsSolid id="icon" />
     <div>
-      <button on:click={() => navigate(`/profile/${id}`)}>
+      <button on:click={navigateProfile}>
         <img src="../../fake_profile.png" alt="fake profile" />
       </button>
     </div>

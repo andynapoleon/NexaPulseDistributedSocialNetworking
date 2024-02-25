@@ -60,7 +60,7 @@
     });
   
     async function saveProfile() {
-      const updateEndpoint = server + `/api/users/${userId}`;
+      const updateEndpoint = server + `/api/users/${currentUserId}`;
   
       const response = await fetch(updateEndpoint, {
         method: "PUT",
