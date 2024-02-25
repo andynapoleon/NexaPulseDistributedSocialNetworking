@@ -46,7 +46,6 @@
     alreadyFollowedValue = value;
   });
   onMount(async () => {
-
     const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
     console.log("currentUserId", currentUserId)
