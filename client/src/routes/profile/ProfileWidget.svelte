@@ -46,24 +46,13 @@
     alreadyFollowedValue = value;
   });
 
-
+  onMount(async () => {
     const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
     console.log("currentUserId", currentUserId)
     console.log("target userId", userId)
 
-      const response = await fetchWithRefresh(followEndpoint, {
-        method: "GET",
-        headers: {
-          //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-        }
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch follow status");
-      }
-      const data = await response.json();
-
-    const response = await fetch(followEndpoint, {
+    const response = await fetchWithRefresh(followEndpoint, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${$authToken}`, // Include the token in the request headers
