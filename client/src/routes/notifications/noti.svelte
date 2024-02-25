@@ -27,7 +27,7 @@
     const response = await fetchWithRefresh(followEndpoint, {
       method: "GET",
       headers: {
-        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       }
     });
     if (!response.ok) {

@@ -1,9 +1,11 @@
 from django.shortcuts import render
+from django.db.models import Q
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from authors.models import Author
+from authors.serializers import AuthorSerializer
 from follow.models import Follows
 from rest_framework.decorators import api_view
 from .serializers import FollowsSerializer
@@ -100,9 +102,9 @@ class FollowView(APIView):
 
         return Response({'following': follow_exists, "acceptedRequest": accepted_request}, status=status.HTTP_200_OK)
 
-    def get_user_from_id(self, user_id):
+    def get_user_from_id(self, target_user_id):
         try:
-            user = Author.objects.get(id=user_id)
+            user = Author.objects.get(id=target_user_id)
             return user
         except Author.DoesNotExist:
             return None
@@ -121,8 +123,14 @@ class UserFollowingView(APIView):
     def get(self, request, user_id):
         return_package = []
         followings = Follows.objects.filter(follower_id=user_id, acceptedRequest=True)
-        for following in followings:
-            user = FollowView.get_user_from_id(following.followed_id)
+        serializer = FollowsSerializer(followings, many=True)
+
+        for followingUser in serializer.data:
+
+            # WTF --------------------------------------------------------
+            user = FollowView.get_user_from_id(followingUser['followed'])
+            # WTF --------------------------------------------------------
+            
             if not user:
                 return Response({"error": "User not found"}, status=404)
 
@@ -145,8 +153,14 @@ class UserFollowedView(APIView):
     def get(self, request, user_id):
         return_package = []
         followeds = Follows.objects.filter(followed_id=user_id, acceptedRequest=True)
-        for followed in followeds:
-            user = FollowView.get_user_from_id(followed.follower_id)
+        serializer = FollowsSerializer(followeds, many=True)
+    
+        for followedUser in serializer.data:
+
+            # WTF --------------------------------------------------------
+            user = FollowView.get_user_from_id(followedUser['follower'])
+            # WTF --------------------------------------------------------
+
             if not user:
                 return Response({"error": "User not found"}, status=404)
 
@@ -168,15 +182,28 @@ class UserFriendsView(APIView):
 
     def get(self, request, user_id):
         return_package = []
-        following = UserFollowingView().get(request, user_id)
-        followed = UserFollowingView().get(request, user_id)
-
-        user_ids_set = {element.user_id for element in following}
+        followeds = Follows.objects.filter(followed_id=user_id, acceptedRequest=True)
+        serializer = FollowsSerializer(followeds, many=True)
     
-        # Iterate through elements in list1
-        for element in followed:
-            if element.user_id in user_ids_set:
-                return_package.append(element)
+        for followedUser in serializer.data:
 
-        return return_package
+            # WTF --------------------------------------------------------
+            user = FollowView.get_user_from_id(4)
+            # WTF --------------------------------------------------------
+
+            if not user:
+                return Response({"error": "User not found"}, status=404)
+
+            user_id = user.id
+            full_name = f"{user.firstName} {user.lastName}"
+            profileImageUrl = user.profileImage
+            email = user.email
+            context = {
+                "user_id": user_id,
+                "full_name": full_name,
+                "profileImageUrl": profileImageUrl,
+                "email": email,
+            }
+            return_package.append(context)
+        return Response(return_package)
    

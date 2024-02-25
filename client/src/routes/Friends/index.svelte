@@ -5,12 +5,11 @@
   import {
     authToken,
     isLoginPage,
-    getCurrentUser,
+    currentUser,
     server,
-    refreshToken,
   } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
-  import { writable } from 'svelte/store';
+  import { writable, get } from 'svelte/store';
 
   let mode = writable(null);
   let isAuthenticated = false;
@@ -40,39 +39,46 @@
   }
 
   onMount(async () => {
-    isAuthenticated = $authToken !== "";
-    if (!isAuthenticated) {
-      $isLoginPage = true;
-      navigate("/");
-    }
-    const friendsResponse = await fetch(server + `/api/friends/friends/${getCurrentUser().userId()}`, {
+    const friendsResponse = await fetch(server + `/api/friends/friends/${get(currentUser).userId}`, {
       method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
     });
     if (!friendsResponse.ok) {
       throw new Error("Failed to fetch friends");
     }
     allFriends = await friendsResponse.json();
+    console.log("allFriends fetched:", allFriends)
 
-    const followingResponse = await fetch(server + `/api/friends/following/${getCurrentUser().userId()}`, {
+    const followingResponse = await fetch(server + `/api/friends/following/${get(currentUser).userId}`, {
       method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
     });
     if (!followingResponse.ok) {
-      throw new Error("Failed to fetch friends");
+      throw new Error("Failed to fetch following");
     }
     following = await followingResponse.json();
+    console.log("following fetched:", following)
 
-    const followedResponse = await fetch(server + `/api/friends/followed/${getCurrentUser().userId()}`, {
+    const followedResponse = await fetch(server + `/api/friends/followed/${get(currentUser).userId}`, {
       method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
     });
     if (!followedResponse.ok) {
-      throw new Error("Failed to fetch friends");
+      throw new Error("Failed to fetch followed");
     }
     followed = await followedResponse.json();
+    console.log("followed fetched:", followed)
     
   });
 
   //
-  //let sample = {
+  //sample = {
   //  "user_id": 1,
   //  "full_name": 1,
   //  "profileImageUrl": 1,
