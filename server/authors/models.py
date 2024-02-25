@@ -34,8 +34,8 @@ class Author(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-    def check_password(self, client_password):
-        return self.password == client_password
+    # def check_password(self, client_password):
+    #     return self.password == client_password
 
     @property
     def token(self):
