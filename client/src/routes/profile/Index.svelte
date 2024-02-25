@@ -11,6 +11,7 @@
   } from "../../stores/stores.js";
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { get } from "svelte/store";
+  import { fetchWithRefresh } from "../../utils/fetchWithRefresh.js";
 
   let fullName = "";
   let github = "";

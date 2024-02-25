@@ -25,23 +25,12 @@
     console.log("currentUserId", currentUserId)
     console.log("userId", userId)
 
-      const response = await fetchWithRefresh(followEndpoint, {
-        method: "GET",
-        headers: {
-          'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-        }
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch follow status");
-      }
-      const data = await response.json();
-
     console.log("updateStatus")
 
     const response = await fetchWithRefresh(followEndpoint, {
       method: "GET",
       headers: {
-        //'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
       }
     });
     if (!response.ok) {
