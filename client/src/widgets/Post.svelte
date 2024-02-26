@@ -2,6 +2,7 @@
   import { currentUser, server, authToken } from "../stores/stores.js";
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
+  import { posts } from "../stores/stores.js";
 
   // Props passed to the component
   export let post;
@@ -18,6 +19,27 @@
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
+
+  // Function to fetch posts from the backend
+  async function fetchPosts() {
+    try {
+      const response = await fetch(server + "/api/public-posts/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${$authToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched posts:", data); // Log the fetched data
+        $posts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
 
   // Fetch author's information based on authorId
   async function fetchAuthor() {
@@ -87,6 +109,8 @@
         console.error("Failed to delete post:", response.statusText);
       }
     }
+    // After successfully submitting the post, update the posts store
+    fetchPosts();
   }
 
   // Fetch author's information when the component is mounted
