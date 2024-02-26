@@ -44,22 +44,32 @@
 
     const data = await response.json();
 
-    // Update followRequests array
-    data.forEach((item) => {
-      let name = "";
-      fetchAuthor(item.follower).then((name) => {
-        // Use the retrieved name here
-        name = name;
-      });
-      const followRequest = {
-        id: item.follower,
-        userId: item.follower,
-        profileImageUrl:
-          "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
-        userName: item.follower,
-        postTime: "1h ago",
-      };
-      followRequests.push(followRequest);
+    // Define an async function to execute asynchronous operations sequentially
+    async function processFollowRequests(data) {
+      const follows = [];
+      for (const item of data) {
+        try {
+          const name = await fetchAuthor(item.follower);
+          const followRequest = {
+            id: item.follower,
+            userId: item.follower,
+            profileImageUrl:
+              "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+            userName: name,
+            postTime: "1h ago",
+          };
+          follows.push(followRequest);
+        } catch (error) {
+          console.error("Error fetching author:", error);
+        }
+      }
+      followRequests = follows;
+    }
+
+    // Call the async function and handle the result
+    processFollowRequests(data).then((followRequests) => {
+      // Now you have the followRequests array ready to use
+      console.log(followRequests);
     });
 
     isLoading = false; // Update loading state
