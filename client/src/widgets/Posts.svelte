@@ -3,11 +3,17 @@
   import Post from "./Post.svelte";
   import { server } from "../stores/stores.js";
   import { posts } from "../stores/stores.js";
+  import { authToken } from "../stores/stores.js";
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
     try {
-      const response = await fetch(server + "/api/public-posts/");
+      const response = await fetch(server + "/api/public-posts/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${$authToken}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched posts:", data); // Log the fetched data
