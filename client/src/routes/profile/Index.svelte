@@ -54,28 +54,6 @@
       email = data.email;
     }
   });
-
-  // Fetch names & posts with the userId passed in
-  let posts = [
-    {
-      id: 1,
-      userName: "John Doe",
-      postTime: "1h ago",
-      content: "This is my first post!",
-    },
-    {
-      id: 2,
-      userName: "Jane Smith",
-      postTime: "2h ago",
-      content: "Svelte is awesome!",
-    },
-    {
-      id: 3,
-      userName: "Dave Lee",
-      postTime: "3h ago",
-      content: "Check out my new project.",
-    },
-  ];
 </script>
 
 <main class="main">

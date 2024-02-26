@@ -1,7 +1,7 @@
 from django.urls import path, include
 from . import views
 from auth.views import LoginView, TokenRefreshAPIView
-from follow.views import FollowView, FollowAllView
+from follow.views import FollowView, FollowAllView, UserFollowingView, UserFollowedView, UserFriendsView
 
 urlpatterns = [
     path('api/get/', views.getData),
@@ -13,4 +13,7 @@ urlpatterns = [
     path("api/",include('authors.urls')),  # Include the author app URLs
     path("api/follow/<int:user_id>", FollowView.as_view()),
     path("api/follow/all/<int:user_id>", FollowAllView.as_view()),
+    path("api/friends/following/<int:user_id>", UserFollowingView.as_view()),
+    path("api/friends/followed/<int:user_id>", UserFollowedView.as_view()),
+    path("api/friends/friends/<int:user_id>", UserFriendsView.as_view()),
 ]

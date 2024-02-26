@@ -22,9 +22,6 @@
 
     const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
-    console.log("currentUserId", currentUserId)
-    console.log("userId", userId)
-
     console.log("updateStatus")
 
     const response = await fetchWithRefresh(followEndpoint, {
@@ -39,7 +36,6 @@
     const data = await response.json();
 
     console.log("/api/follow/", {currentUserId}, "?userId2=", {userId},":", data);
-    console.log(typeof data.acceptedRequest)
 
     // Convert data.acceptedRequest to a boolean value
     const acceptedRequestBoolean = Boolean(data.acceptedRequest);

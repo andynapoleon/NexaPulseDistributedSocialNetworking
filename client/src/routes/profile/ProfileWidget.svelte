@@ -45,14 +45,13 @@
   alreadyFollowed.subscribe((value) => {
     alreadyFollowedValue = value;
   });
-
   onMount(async () => {
     const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
     console.log("currentUserId", currentUserId)
     console.log("target userId", userId)
 
-    const response = await fetchWithRefresh(followEndpoint, {
+    const response = await fetch(followEndpoint, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${$authToken}`, // Include the token in the request headers
@@ -80,7 +79,7 @@
     };
     if (alreadyFollowedValue) {
       const response = await fetchWithRefresh(
-        server + `/api/follow/${userId}?userId2=${currentUserId}`,
+        server + `/api/follow/${currentUserId}?userId2=${userId}`, //////////////////////////
         {
           method: "DELETE",
           headers: headers,
@@ -112,8 +111,8 @@
 
   async function saveProfile() {
     const updateEndpoint = server + `/api/profile/${userId}`;
-    
-    const response = await fetchWithRefresh(updateEndpoint, {
+
+    const response = await fetch(updateEndpoint, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers

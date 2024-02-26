@@ -1,10 +1,24 @@
 <script>
   import { Link } from 'svelte-routing';
-  import FriendWidget from "./friendWidget.svelte";
-
-  import { writable } from 'svelte/store';
+  import FriendWidget from "../Friends/friendWidget.svelte";
+  import { onMount } from "svelte";
+  import {
+    authToken,
+    isLoginPage,
+    currentUser,
+    server,
+  } from "../../stores/stores.js";
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+  import { writable, get } from 'svelte/store';
 
   let mode = writable(null);
+  let isAuthenticated = false;
+
+  let allFriends = [];
+  let followed = [];
+  let following = [];
+
+  let currentList = [];
 
   function switchMode(newMode) {
     mode.set(newMode);
@@ -14,11 +28,11 @@
         break;
 
       case 2:
-        currentList = Following;
+        currentList = following;
         break;
 
       case 3:
-        currentList = Follower;
+        currentList = followed;
         break;
 
       default:
@@ -26,88 +40,55 @@
     }
   }
 
-  let allFriends = [
-    {
-      id: 1,
-      userName: "John Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "HOHO HAHA Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "hoho.haha@example.com",
-    },
-    {
-      id: 3,
-      userName: "Bad Apple!",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "bad.apple@example.com",
-    },
-    {
-      id: 4,
-      userName: "Number 4",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 5,
-      userName: "Number 5",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 6,
-      userName: "YUUU Doe",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+  async function fetchData() {
+    const friendsResponse = await fetch(server + `/api/friends/friends/${get(currentUser).userId}`, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
+    if (!friendsResponse.ok) {
+      throw new Error("Failed to fetch friends");
+    }
+    allFriends = await friendsResponse.json();
+    console.log("allFriends fetched:", allFriends)
 
-  let Following = [
-    {
-      id: 1,
-      userName: "Following 1",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "Following 2",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 3,
-      userName: "Following 3",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+    const followingResponse = await fetch(server + `/api/friends/following/${get(currentUser).userId}`, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
+    if (!followingResponse.ok) {
+      throw new Error("Failed to fetch following");
+    }
+    following = await followingResponse.json();
+    console.log("following fetched:", following)
 
-  let Follower = [
-    {
-      id: 1,
-      userName: "Follower 1",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 2,
-      userName: "Follower 2",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-    {
-      id: 3,
-      userName: "Follower 3",
-      profileImageUrl: "https://i1.sndcdn.com/avatars-000119210476-6i9giz-t500x500.jpg",
-      email: "jane.smith@example.com",
-    },
-  ];
+    const followedResponse = await fetch(server + `/api/friends/followed/${get(currentUser).userId}`, {
+      method: "GET",
+      headers: {
+        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
+      }
+    });
+    if (!followedResponse.ok) {
+      throw new Error("Failed to fetch followed");
+    }
+    followed = await followedResponse.json();
+    console.log("followed fetched:", followed)
 
-  let currentList = allFriends;
+    currentList = allFriends
+  };
+
+  //
+  //sample = {
+  //  "user_id": 1,
+  //  "full_name": 1,
+  //  "profileImageUrl": 1,
+  //  "email": 1,
+  //
+  onMount(fetchData);
+
   mode.set(1)
 </script>
 
@@ -127,7 +108,7 @@
             <div class="profile-widget">
               <FriendWidget
                 profileImageUrl= {currentList[rowIndex * 5 + colIndex].profileImageUrl}
-                name = {currentList[rowIndex * 5 + colIndex].userName}
+                name = {currentList[rowIndex * 5 + colIndex].full_name}
                 email = {currentList[rowIndex * 5 + colIndex].email}
               />
             </div>
