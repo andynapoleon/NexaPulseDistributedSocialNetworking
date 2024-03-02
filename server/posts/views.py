@@ -7,6 +7,7 @@ from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Post
 from .serializers import PostSerializer
+from follow.models import Follows
 
 
 class PostList(generics.ListCreateAPIView):
@@ -92,8 +93,38 @@ class AuthorPosts(APIView):
 class PublicPosts(APIView):
     permission_classes = [AllowAny]
 
+    # def get(self, request):
+    #     # Filter posts by authorId and visibility='PUBLIC'
+    #     posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
+    #     serializer = PostSerializer(posts, many=True)
+    #     return Response(serializer.data)
+
     def get(self, request):
-        # Filter posts by authorId and visibility='PUBLIC'
-        posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
-        serializer = PostSerializer(posts, many=True)
-        return Response(serializer.data)
+        try:
+            user_id = request.user.id
+
+            # Get posts authored by users the current user follows
+            followed_users_ids = Follows.objects.filter(
+                follower_id=user_id
+            ).values_list("followed_id", flat=True)
+
+            # Include the current user's ID in the list of followed users
+            followed_users_ids = list(followed_users_ids)
+            followed_users_ids.append(user_id)
+
+            queryset = Post.objects.filter(
+                visibility="PUBLIC", authorId__in=followed_users_ids
+            ).order_by("-published")
+
+            # Order by published date
+            queryset = queryset.order_by("-published")
+
+            # Serialize the queryset to JSON
+            serializer = PostSerializer(queryset, many=True)
+
+            # Return serialized data as JSON response
+            return Response(serializer.data)
+
+        except Exception as e:
+            # Handle exceptions (e.g., author not found, serializer errors)
+            return Response({"error": str(e)}, status=500)
