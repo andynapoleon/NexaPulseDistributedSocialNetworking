@@ -12,6 +12,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshAPIView.as_view(), name="token_refresh"),
     path("api/",include('posts.urls')),  # Include the posts app URLs
     path("api/",include('authors.urls')),  # Include the author app URLs
+    path("api/",include('comments.urls')), # Include the comments app URLs
     path("api/follow/<int:user_id>", FollowView.as_view()),
     path("api/follow/all/<int:user_id>", FollowAllView.as_view()),
     path("api/friends/following/<int:user_id>", UserFollowingView.as_view()),
