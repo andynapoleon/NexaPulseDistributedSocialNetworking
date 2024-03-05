@@ -17,3 +17,5 @@ tzdata==2023.4
 whitenoise==6.6.0
 # Set-ExecutionPolicy RemoteSigned -Scope Process
 # .\venv\Scripts\activate
+# python manage.py makemigrations
+
