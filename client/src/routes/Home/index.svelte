@@ -68,7 +68,7 @@
     const response = await fetchWithRefresh(createPostEndpoint, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+        // Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
         "Content-Type": "application/json",
       },
       body: JSON.stringify(newPost),
