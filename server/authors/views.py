@@ -14,7 +14,7 @@ class AuthorList(generics.ListCreateAPIView):
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         return AuthorSerializer
@@ -38,6 +38,7 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class Profile(APIView):
     permission_classes = [IsAuthenticated]

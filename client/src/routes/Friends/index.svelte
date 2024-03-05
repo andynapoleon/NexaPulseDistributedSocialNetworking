@@ -1,6 +1,6 @@
 <script>
   import { Link } from "svelte-routing";
-  import FriendWidget from "../Friends/friendWidget.svelte";
+  import FriendWidget from "./friendWidget.svelte";
   import { onMount } from "svelte";
   import {
     authToken,

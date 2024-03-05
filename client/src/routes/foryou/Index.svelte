@@ -1,6 +1,6 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
-  import Posts from "../../widgets/Posts.svelte";
+  import Posts from "../../widgets/FollowingPosts.svelte";
   import { onMount } from "svelte";
   import {
     authToken,
@@ -85,7 +85,7 @@
   <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
   <br />
   <CreatePost on:createpost={handleCreatePost} />
-  <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
+  <h1 class="text-[#0f6460] font-bold text-xl">Posts For You</h1>
   <br />
   <Posts {posts} />
 </main>
