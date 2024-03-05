@@ -13,9 +13,5 @@ urlpatterns = [
     path("api/",include('posts.urls')),  # Include the posts app URLs
     path("api/",include('authors.urls')),  # Include the author app URLs
     path("api/",include('comments.urls')), # Include the comments app URLs
-    path("api/follow/<int:user_id>", FollowView.as_view()),
-    path("api/follow/all/<int:user_id>", FollowAllView.as_view()),
-    path("api/friends/following/<int:user_id>", UserFollowingView.as_view()),
-    path("api/friends/followed/<int:user_id>", UserFollowedView.as_view()),
-    path("api/friends/friends/<int:user_id>", UserFriendsView.as_view()),
+    path("api/", include('follow.views')), # Include the follow app URLS
 ]
