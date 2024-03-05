@@ -37,6 +37,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     "authors.apps.AuthorsConfig",
     "follow.apps.FollowConfig",
+    "comments.apps.CommentsConfig",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
