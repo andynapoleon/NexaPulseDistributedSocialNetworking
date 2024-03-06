@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Comment
-from .serializers import CommentSerializer, AuthorRefSerializer
+from .serializers import CommentSerializer
 
 class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -17,15 +17,12 @@ class CommentDetail(generics.RetrieveAPIView):
     serializer_class = CommentSerializer
 
     def get(self, request, author_id, post_id):
-        comments = self.get_queryset().filter(post_id=post_id)
+        try:
+            comment = Comment.objects.filter(post_id=post_id) # get the comments of the post given post_id
+        except Comment.DoesNotExist:
+            return Response({"error": "Post not found hence no comments"}, status=404)
 
-        page = self.paginate_queryset(comments)
-
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        
-        serializer = self.get_serializer(comments, many=True)
+        serializer = CommentSerializer(comment, many=True)
         return Response(serializer.data)
         
 
