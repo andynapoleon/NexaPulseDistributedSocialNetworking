@@ -11,6 +11,7 @@
   import Login from "./routes/login/Index.svelte";
   import Friends from "./routes/friends/Index.svelte";
   import Settings from "./routes/Settings/Index.svelte";
+  import ForYou from "./routes/foryou/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import {
     mode,
@@ -23,6 +24,7 @@
   // Sidebar menu items
   const menuItems = [
     { href: "/home", label: "Home" },
+    { href: "/foryou", label: "For You" },
     // { href: `/messages/${$currentUser.userId}`, label: "Messages" },
     // { href: "/makepost", label: "Create a post" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
@@ -34,6 +36,7 @@
   // Routes
   const routes = {
     "/home": Home,
+    "/foryou": ForYou,
     "/profile/:id": Profile,
     //"/messages/:id": UserMessage,
     "/notifications/:id": Notifications,
@@ -53,6 +56,8 @@
   <SideBar items={menuItems} let:item>
     {#if item.label === "Home"}
       <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "For You"}
+      <Icon.PhoneSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {:else if item.label === "Messages"}
       <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {:else if item.label === "Create a post"}

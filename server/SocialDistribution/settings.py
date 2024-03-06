@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "authors.apps.AuthorsConfig",
     "follow.apps.FollowConfig",
     "comments.apps.CommentsConfig",
+    "share",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -112,7 +113,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'authors.Author'
+AUTH_USER_MODEL = "authors.Author"
 
 
 # DRF settings

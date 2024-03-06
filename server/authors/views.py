@@ -39,6 +39,7 @@ class AuthorDetail(generics.RetrieveAPIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
 class Profile(APIView):
     permission_classes = [IsAuthenticated]
 
