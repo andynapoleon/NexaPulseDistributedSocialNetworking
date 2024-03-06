@@ -14,7 +14,7 @@ class AuthorList(generics.ListCreateAPIView):
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         return AuthorSerializer

@@ -44,7 +44,15 @@
   // Fetch author's information based on authorId
   async function fetchAuthor() {
     try {
-      const response = await fetch(`${server}/api/authors/${post.authorId}`);
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${post.authorId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
       if (response.ok) {
         const authorData = await response.json();
         userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
@@ -111,6 +119,28 @@
     }
     // After successfully submitting the post, update the posts store
     fetchPosts();
+  }
+
+  async function sharePost() {
+    try {
+      const sharePostEndpoint = `${server}/api/share-post/`;
+      const response = await fetchWithRefresh(sharePostEndpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ post_id: postId }),
+      });
+
+      if (response.ok) {
+        // Update UI or show a success message
+      } else {
+        console.error("Failed to share post:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error sharing post:", error.message);
+    }
   }
 
   // Fetch author's information when the component is mounted

@@ -13,7 +13,12 @@
   // Fetch author's information based on authorId
   async function fetchAuthor(id) {
     try {
-      const response = await fetch(`${server}/api/authors/${id}`);
+      const response = await fetchWithRefresh(`${server}/api/authors/${id}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+        },
+      });
       if (response.ok) {
         const authorData = await response.json();
         let userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
