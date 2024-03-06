@@ -1,126 +1,146 @@
 <script>
   import { onMount } from "svelte";
 
-  export let profileImageUrl =  "default-profile.png";
+  export let profileImageUrl = "default-profile.png";
   import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get, writable } from "svelte/store";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
-  import { TruckSolid } from "flowbite-svelte-icons"
+  import { TruckSolid } from "flowbite-svelte-icons";
 
   export let userId; // The user ID passed into the component
   export let userName = "HOHO HAHA";
   export let postTime = "1 min ago";
-  export let content = "wanted to follow you."
+  export let content = "wanted to follow you.";
 
   const currentUserId = get(currentUser).userId;
 
   // Initialize alreadyFollowed as a writable store
   let alreadyFriended = Boolean(false);
-  
-  async function updateStatus (){
+  let rejectClicked = false;
+
+  async function updateStatus() {
     // Check if the current user has already accepted the follow request
 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+    const followEndpoint =
+      server + `/api/follow/${currentUserId}?userId2=${userId}`;
 
-    console.log("updateStatus")
+    console.log("updateStatus");
 
     const response = await fetchWithRefresh(followEndpoint, {
       method: "GET",
       headers: {
-        'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      }
+        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+      },
     });
     if (!response.ok) {
       throw new Error("Failed to fetch follow status");
     }
     const data = await response.json();
 
-    console.log("/api/follow/", {currentUserId}, "?userId2=", {userId},":", data);
+    console.log(
+      "/api/follow/",
+      { currentUserId },
+      "?userId2=",
+      { userId },
+      ":",
+      data
+    );
 
     // Convert data.acceptedRequest to a boolean value
     const acceptedRequestBoolean = Boolean(data.acceptedRequest);
 
     // Set alreadyFriended to the boolean value
-    alreadyFriended=(acceptedRequestBoolean);
+    alreadyFriended = acceptedRequestBoolean;
 
-    console.log("alreadyFriended:", alreadyFriended)
+    console.log("alreadyFriended:", alreadyFriended);
   }
- 
+
   onMount(async () => {
     await updateStatus(); // Wait for updateStatus to finish
   });
 
-  async function acceptResponseButtonClicked(){
+  async function acceptResponseButtonClicked() {
     const followRequest = {
-      userId1 : userId,
-      userId2 : currentUserId, //target user is the current user
-    }; 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+      userId1: userId,
+      userId2: currentUserId, //target user is the current user
+    };
+    const followEndpoint =
+      server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+      "Content-Type": "application/json",
     };
     const response = await fetchWithRefresh(followEndpoint, {
       method: "PUT",
       headers: headers,
       body: JSON.stringify(followRequest),
     });
-    if (!response.ok) { 
+    if (!response.ok) {
       throw new Error("Failed to confirm follow request");
     }
-    updateStatus()
+    updateStatus();
   }
 
   async function rejectResponseButtonClicked() {
     const followRequest = {
-      userId1 : currentUserId,
-      userId2 : userId, //target user
-    }; 
-    const followEndpoint = server + `/api/follow/${currentUserId}?userId2=${userId}`;
+      userId1: currentUserId,
+      userId2: userId, //target user
+    };
+    const followEndpoint =
+      server + `/api/follow/${currentUserId}?userId2=${userId}`;
     const headers = {
-      'Authorization': `Bearer ${get(authToken)}`, // Include the token in the request headers
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+      "Content-Type": "application/json",
     };
     const response = await fetchWithRefresh(followEndpoint, {
       method: "DELETE",
       headers: headers,
       body: JSON.stringify(followRequest),
     });
-    if (!response.ok) { 
+    if (!response.ok) {
       throw new Error("Failed to delete follow request");
     }
-    // Reload the page after successful deletion
-    location.reload();
+    rejectClicked = true;
   }
 </script>
 
-<div class="post">
-  <div class="content">
-    <div class="left-column">
-      <img class="profile-avatar" src={profileImageUrl}, alt="Profile Avatar" />
-    </div>
-    <div class="right-column">
-      <div class="post-header">
-        {#if (alreadyFriended)}
-          <div class="already-accepted">{userName} {content}</div>
-        {:else}
-          <strong>{userName} {content}</strong>
-        {/if}
-        <span>{postTime}</span>
+{#if !rejectClicked}
+  <div class="post">
+    <div class="content">
+      <div class="left-column">
+        <img
+          class="profile-avatar"
+          src="{profileImageUrl},"
+          alt="Profile Avatar"
+        />
       </div>
-      {#if (alreadyFriended)}
-        <div class="actions">
-          <accepted-button>Already Accepted</accepted-button>
+      <div class="right-column">
+        <div class="post-header">
+          {#if alreadyFriended}
+            <div class="already-accepted">{userName} {content}</div>
+          {:else}
+            <strong>{userName} {content}</strong>
+          {/if}
+          <span>{postTime}</span>
         </div>
-      {:else}
-        <div class="actions">
-          <button on:click={() => acceptResponseButtonClicked()}>Accept</button>
-          <button on:click={() => rejectResponseButtonClicked()}>Reject</button>
-        </div>
-      {/if}
+        {#if alreadyFriended}
+          <div class="actions">
+            <accepted-button>Already Accepted</accepted-button>
+          </div>
+        {:else}
+          <div class="actions">
+            <button on:click={() => acceptResponseButtonClicked()}
+              >Accept</button
+            >
+            <button on:click={() => rejectResponseButtonClicked()}
+              >Reject</button
+            >
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
-</div>
+{/if}
 
 <style>
   .post {
@@ -157,7 +177,7 @@
     display: flex;
     justify-content: right;
   }
-  .already-accepted{
+  .already-accepted {
     color: #525252;
     font-weight: bold;
   }

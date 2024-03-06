@@ -93,19 +93,21 @@ class AuthorPosts(APIView):
 class PublicPosts(APIView):
     permission_classes = [AllowAny]
 
-    # def get(self, request):
-    #     # Filter posts by authorId and visibility='PUBLIC'
-    #     posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
-    #     serializer = PostSerializer(posts, many=True)
-    #     return Response(serializer.data)
+    def get(self, request):
+        # Filter posts by authorId and visibility='PUBLIC'
+        posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
 
+
+class FollowingPosts(APIView):
     def get(self, request):
         try:
             user_id = request.user.id
 
             # Get posts authored by users the current user follows
             followed_users_ids = Follows.objects.filter(
-                follower_id=user_id
+                follower_id=user_id, acceptedRequest=True
             ).values_list("followed_id", flat=True)
 
             # Include the current user's ID in the list of followed users
