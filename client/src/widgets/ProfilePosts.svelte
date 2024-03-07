@@ -29,6 +29,22 @@
     }
   }
 
+  // Function to fetch posts from the backend
+  async function fetchPostsAsHimself() {
+    console.log("fetching posts")
+    try {
+      const response = await fetch(server + `/api/authors/posts/${authorId}/asHimself`);
+      if (response.ok) {
+        const data = await response.json();
+        profilePosts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
+
   // Function to fetch posts from the backend as a STRANGER(can't see FRIENDS posts)
   async function fetchPostsAsStranger() {
     console.log("fetching posts as stranger")
@@ -72,12 +88,16 @@
   // Fetch posts when the component is mounted
   onMount(async () => {
     await fetchFriends()
-    
-    if (beFriend){
-      fetchPosts();
+    if (authorId == get(currentUser).userId) {
+      fetchPostsAsHimself();
     } else {
-      fetchPostsAsStranger();
+      if (beFriend){
+        fetchPosts();
+    } else {
+        fetchPostsAsStranger();
     }
+    }
+    
   });
   // onMount(fetchPosts);
 </script>

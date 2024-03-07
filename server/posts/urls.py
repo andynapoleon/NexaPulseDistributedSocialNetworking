@@ -37,4 +37,11 @@ urlpatterns = [
         views.ProfilePostForStranger.as_view(),
         name="get_profile_post_as_strangers",
     ),
+
+    # Endpoint for retrieving recent posts by a specific author as the user himself 
+    path(
+        "authors/posts/<str:author_id>/asHimself",
+        views.ProfilePostForHimself.as_view(),
+        name="get_profile_post_as_himself",
+    ),
 ]
