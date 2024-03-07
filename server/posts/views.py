@@ -21,7 +21,7 @@ class ProfilePost(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(authorId=author_id).order_by("-published")
+            posts = Post.objects.filter(authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]).order_by("-published")
 
             # Serialize the queryset to JSON
             serializer = PostSerializer(posts, many=True)
