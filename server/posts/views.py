@@ -31,6 +31,23 @@ class ProfilePost(generics.ListCreateAPIView):
         except Exception as e:
             # Handle exceptions (e.g., author not found, serializer errors)
             return Response({"error": str(e)}, status=500)
+        
+class ProfilePostForStranger(generics.ListCreateAPIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, author_id):
+        try:
+            # Filter posts by author ID
+            posts = Post.objects.filter(authorId=author_id, visibility="PUBLIC").order_by("-published")
+
+            # Serialize the queryset to JSON
+            serializer = PostSerializer(posts, many=True)
+
+            # Return serialized data as JSON response
+            return Response(serializer.data)
+        except Exception as e:
+            # Handle exceptions (e.g., author not found, serializer errors)
+            return Response({"error": str(e)}, status=500)
 
 
 class PostDetail(APIView):
