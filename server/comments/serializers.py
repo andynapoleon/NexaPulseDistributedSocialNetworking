@@ -15,10 +15,12 @@ class CommentSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         '''Represents the id field as an url'''
-        # Either we pass in the base url i.e, http://127.0.0.1:8000/ or find a way to get it
         data = super().to_representation(instance)
-        author_id = instance.author.id
-        post_id = instance.post.id
-        comment_id = instance.id
-        data['id'] = f"/authors/{author_id}/posts/{post_id}/comments/{comment_id}"
+        context = self.context
+        base_url = context.get('base_url')
+        if base_url is not None:
+            author_id = instance.author.id
+            post_id = instance.post.id
+            comment_id = instance.id
+            data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/comments/{comment_id}"
         return data
