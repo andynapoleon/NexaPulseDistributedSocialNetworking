@@ -25,8 +25,8 @@ urlpatters = router.urls
 
 urlpatterns = [
     # path("authors/", include("authors.urls")),
-    path("admin/", admin.site.urls),
-    path("", include("api.urls")),
-    re_path(r'^(?!api/|assets/|admin/|public/).*$', views.index, name='index'), # catch all for frontend
+    re_path(r'^admin/?$', admin.site.urls),
+    # path("", include("api.urls")),
+    re_path(r'^(?!api/|assets/|admin/|public/).*?/?$', views.index, name='index'), # catch all for frontend
     path("assets/<path:path>", views.assets, name="assets")
 ]
