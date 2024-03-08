@@ -16,7 +16,8 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from . import views
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -25,5 +26,7 @@ urlpatters = router.urls
 urlpatterns = [
     # path("authors/", include("authors.urls")),
     path("admin/", admin.site.urls),
-    path("", include("api.urls"))
+    path("", include("api.urls")),
+    re_path(r'^(?!api/|assets/|admin/|public/).*$', views.index, name='index'), # catch all for frontend
+    path("assets/<path:path>", views.assets, name="assets")
 ]
