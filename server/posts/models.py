@@ -27,7 +27,7 @@ class Post(models.Model):
 
     # ISO 8601 TIMESTAMP
     published = models.DateTimeField(auto_now_add=True)
-
+    
     # The content type of the post assume either
         # text/markdown -- common mark
         # text/plain -- UTF-8
@@ -38,6 +38,8 @@ class Post(models.Model):
         # image/jpeg;base64 # this is an embedded jpeg
     content_type = models.CharField(max_length=50, default="")
     content = models.TextField(default="")
+
+    image_ref = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
     
     # total number of comments for this post
     # count = models.IntegerField(default=0)
