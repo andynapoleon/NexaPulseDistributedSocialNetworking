@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Comment
-from .serializers import CommentSerializer, AuthorRefSerializer
+from .serializers import CommentSerializer
 
 class CommentList(generics.ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -17,34 +17,29 @@ class CommentDetail(generics.RetrieveAPIView):
     serializer_class = CommentSerializer
 
     def get(self, request, author_id, post_id):
-        comments = self.get_queryset().filter(post_id=post_id)
+        try:
+            comment = Comment.objects.filter(post_id=post_id) # get the comments of the post given post_id
+        except Comment.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        page = self.paginate_queryset(comments)
-
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
+        base_url = request.build_absolute_uri('/')
+        serializer = CommentSerializer(comment, many=True, context={'base_url': base_url})
+        if (serializer.is_valid):
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def post(self, request, author_id, post_id):
+        serializer = CommentSerializer(data=request.data)
         
-        serializer = self.get_serializer(comments, many=True)
-        return Response(serializer.data)
+        print(serializer.initial_data)
+        # Validate the serializer data
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-
-
-# @api_view(['GET'])
-# def get_comment(request, comment_id):
-#     try:
-#         comment = Comment.objects.get(id=comment_id)
-#     except Comment.DoesNotExist:
-#         return Response({"error": "Comment not found"}, status=404)
-
-#     serializer = CommentSerializer(comment)
-#     author_serializer = AuthorRefSerializer(comment.author)
-#     data = {
-#         "type": "comment",
-#         "author": author_serializer.data
-#         **serializer.data
-#     }
-#     return Response(data)
 
 # @api_view(['POST'])
 # def create_comment(request, post_id):
