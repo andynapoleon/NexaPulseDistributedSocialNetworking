@@ -76,6 +76,7 @@ class PostDetail(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print("POST ID: ", post_id)
             serializer = PostSerializer(post)
             return Response(serializer.data)
         except Post.DoesNotExist:
