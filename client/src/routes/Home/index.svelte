@@ -6,6 +6,7 @@
     authToken,
     isLoginPage,
     getCurrentUser,
+    currentUser,
     server,
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
@@ -16,6 +17,65 @@
     $isLoginPage = false;
     console.log(getCurrentUser());
     console.log(get(authToken));
+
+    // check if the github link is valid
+    if (isValidGitHubLink(getCurrentUser().github)){
+      // get the github username from the link
+      const githubUsername = getGitHubUsername(getCurrentUser().github);
+      // get 5 public events of the user from github 
+      const response_github = fetch(
+        `https://api.github.com/users/${githubUsername}/events/public?per_page=5`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then((response) => response.json())
+      .then((data) => {
+        // filter data by created_at and get the new activity since 
+        const newActivity = data.filter((event) => new Date(event.created_at) > getCurrentUser().lastUpdated);
+        
+        console.log("github", newActivity);
+
+        // if there is new activity, create a new post for each activity
+        if (newActivity.length > 0) {
+          newActivity.forEach((event) => {
+            const postData = {
+              authorId: getCurrentUser().userId,
+              type: "post",
+              title: `New ${event.type} event on GitHub!`,
+              content: `${event.repo.name}: ${event.payload.commits && event.payload.commits.length > 0 ? event.payload.commits[0].message : ''}`,
+              content_type: "text/markdown",
+              visibility: "Public".toUpperCase(),
+            };
+            fetchWithRefresh(
+              server + `/api/authors/${getCurrentUser().userId}/posts/`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${get(authToken)}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(postData),
+              }
+            ).then((response) => {
+              if (response.ok) {
+                console.log("Post created successfully");
+              } else {
+                console.error("Failed to create post:", response.statusText);
+              }
+            });
+            
+          });
+        }
+        // update time last updated
+        var updatedUserData = getCurrentUser();
+        updatedUserData.lastUpdated = new Date();
+        currentUser.set(updatedUserData);
+        console.log("updated user", updatedUserData);
+      });
+    }
     // isAuthenticated = $authToken !== "";
     // console.log(isAuthenticated);
     // if (!isAuthenticated) {
@@ -51,40 +111,29 @@
       visibility: "Public",
     },
   ];
+  
+  function isValidGitHubLink(link) {
+    // Regular expression to match GitHub user profile URLs
+    var regex = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+$/;
+    return regex.test(link);
+  }
 
-  // Function to handle the creation of a new post
-  async function handleCreatePost(event) {
-    let newPost = {
-      id: null,
-      userName: getCurrentUser().name, // Placeholder; use actual user data in a real app
-      postTime: "Just now",
-      title: event.detail.title,
-      content: event.detail.content,
-      visibility: event.detail.visibility,
-    };
-    // fetch api here
-    const createPostEndpoint =
-      server + `api/authors/${getCurrentUser().userId}/posts/`;
-    const response = await fetchWithRefresh(createPostEndpoint, {
-      method: "POST",
-      headers: {
-        // Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newPost),
-    });
-    if (!response.ok) {
-      throw new Error("Failed to fetch follow status");
+  function getGitHubUsername(link) {
+    // Regular expression to match GitHub user profile URLs and extract the username
+    var regex = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_-]+)$/;
+    var match = link.match(regex);
+    if (match) {
+        return match[1]; // Return the username captured by the regex
+    } else {
+        return null; // Return null if the link is not a valid GitHub link
     }
-    const post = await response.json();
-    posts = [post, ...posts]; // Add the new post to the beginning of the posts array
   }
 </script>
 
 <main class="posts">
   <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
   <br />
-  <CreatePost on:createpost={handleCreatePost} />
+  <CreatePost/>
   <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
   <br />
   <Posts {posts} />

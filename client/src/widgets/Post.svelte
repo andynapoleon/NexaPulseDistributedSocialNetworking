@@ -14,11 +14,16 @@
   let authorId = $currentUser.userId;
   let postId = post.id;
   let likes = 0;
+  let commentCount = 0;
 
   // Local component state for editing
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
+
+  // Comment state
+  let isCommenting = false;
+  let commentText = '';
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
@@ -64,6 +69,32 @@
       }
     } catch (error) {
       console.error("Error fetching author information:", error.message);
+    }
+  }
+
+  // Function to fetch comment count - returns a list of comments
+  async function fetchComments() {
+    try {
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/comments`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const comments = await response.json();
+        commentCount = comments.length;
+      } else {
+        console.error(
+          "Failed to fetch comment count:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching comment count:", error.message);
     }
   }
 
@@ -143,8 +174,19 @@
     }
   }
 
+  // Function to toggle comment mode
+  function toggleCommentMode() {
+    isCommenting = !isCommenting;
+  }
+
+  // Function to add a comment
+  async function addComment() {
+    // Add your comment posting logic here
+  }
+
   // Fetch author's information when the component is mounted
   fetchAuthor();
+  fetchComments();
 </script>
 
 <div class="post">
@@ -167,6 +209,15 @@
   </div>
   <div class="actions">
     <button>Like</button>
+    <button on:click={toggleCommentMode}>
+      {commentCount > 0 ? `${commentCount} Comments` : ''}
+    </button>
+    {#if isCommenting}
+      <div>
+        <textarea bind:value={commentText}></textarea>
+        <button on:click={addComment}>Add Comment</button>
+      </div>
+    {/if}
     <button>Share</button>
     {#if post.authorId == authorId}
       <button on:click={toggleEditMode}>
