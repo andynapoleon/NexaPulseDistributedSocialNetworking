@@ -3,12 +3,11 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
-  import { onMount } from "svelte";
 
   // Props passed to the component
   export let post;
 
-  let userName = ""; // Initialize userName variable for the author's name
+  let userName = "";
   let postTime = post.published;
   let content = post.content;
   let title = post.title;
@@ -16,6 +15,10 @@
   let postId = post.id;
   let likes = 0;
   let commentCount = 0;
+  let sharedBy = post.sharedBy;
+  let isShared = post.isShared;
+  let thoughts = "This post is so good!";
+  let originalAuthor = "";
 
   // Local component state for editing
   let isEditing = false;
@@ -61,7 +64,33 @@
       );
       if (response.ok) {
         const authorData = await response.json();
-        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+        userName = `${authorData.firstName} ${authorData.lastName}`;
+      } else {
+        console.error(
+          "Failed to fetch author information:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching author information:", error.message);
+    }
+  }
+
+  // Fetch author's information based on authorId
+  async function fetchOriginalAuthor() {
+    try {
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${sharedBy}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const authorData = await response.json();
+        originalAuthor = `${authorData.firstName} ${authorData.lastName}`;
       } else {
         console.error(
           "Failed to fetch author information:",
@@ -150,26 +179,6 @@
     fetchPosts();
   }
 
-  async function sharePost() {
-    try {
-      const sharePostEndpoint = `${server}/api/authors/${authorId}/shared-posts/${postId}/`;
-      const response = await fetchWithRefresh(sharePostEndpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-        },
-      });
-
-      if (response.ok) {
-        fetchPosts();
-      } else {
-        console.error("Failed to share post:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error sharing post:", error.message);
-    }
-  }
-
   // Function to toggle comment mode
   function toggleCommentMode() {
     isCommenting = !isCommenting;
@@ -182,25 +191,35 @@
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
+  // fetchComments();
+  fetchOriginalAuthor();
 </script>
 
 <div class="post">
   <div class="post-header">
-    <strong>Posted by {userName} {postTime}</strong>
-  </div>
-  <div class="post-title">
-    {#if isEditing}
-      <input type="text" bind:value={postTitle} />
-    {:else}
-      {title}
-    {/if}
+    <strong>Shared by {userName} {postTime}</strong>
   </div>
   <div class="post-content">
-    {#if isEditing}
-      <textarea class="edit-content" bind:value={editedContent}></textarea>
-    {:else}
-      {content}
-    {/if}
+    <p>{thoughts}</p>
+  </div>
+  <div class="post-header">
+    <strong>Posted by {originalAuthor}</strong>
+  </div>
+  <div class="border-cyan-400">
+    <div class="post-title">
+      {#if isEditing}
+        <input type="text" bind:value={postTitle} />
+      {:else}
+        {title}
+      {/if}
+    </div>
+    <div class="post-content">
+      {#if isEditing}
+        <textarea class="edit-content" bind:value={editedContent}></textarea>
+      {:else}
+        {content}
+      {/if}
+    </div>
   </div>
   <div class="actions">
     <button>Like</button>
@@ -210,9 +229,6 @@
         <textarea bind:value={commentText}></textarea>
         <button on:click={addComment}>Add Comment</button>
       </div>
-    {/if}
-    {#if authorId != post.authorId}
-      <button on:click={sharePost}>Share</button>
     {/if}
     {#if post.authorId == authorId}
       <button on:click={toggleEditMode}>
@@ -225,8 +241,8 @@
     {#if post.authorId == authorId}
       <button on:click={deletePost}>Delete</button>
     {/if}
-    <span>Likes: {likes}</span>
-    <span class="ml-4">Comments: {commentCount}</span>
+    <span class="mr-4">Likes: {likes}</span>
+    <span>Comments: {commentCount}</span>
   </div>
 </div>
 
@@ -242,6 +258,7 @@
   }
   .post-header {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     margin-bottom: 8px;
     color: grey;
@@ -258,6 +275,10 @@
   .actions {
     display: flex;
     justify-content: left;
+  }
+  .shared-post {
+    border: 25px;
+    border-color: #008480;
   }
   button {
     cursor: pointer;

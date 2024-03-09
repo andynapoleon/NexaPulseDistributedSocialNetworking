@@ -9,6 +9,7 @@ from .models import Post
 from .serializers import PostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
+from django.utils import timezone
 
 
 class PostList(generics.ListCreateAPIView):
@@ -161,8 +162,8 @@ class PostDetail(APIView):
                 if request.user.id == int(author_id):
                     serializer.save()
                     saved_data = serializer.data
-                    saved_id = saved_data.get('id', None)
-                    
+                    saved_id = saved_data.get("id", None)
+
                     return saved_id, True
             print(serializer.errors)
             return None, False
@@ -267,3 +268,31 @@ class FollowingPosts(APIView):
         except Exception as e:
             # Handle exceptions (e.g., author not found, serializer errors)
             return Response({"error": str(e)}, status=500)
+
+
+class SharedPost(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, author_id, post_id):
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+        if post.visibility == "PUBLIC" and int(author_id) != post.authorId.id:
+            serializer = PostSerializer(post)
+            shared_post = serializer.data
+            shared_post["published"] = timezone.now()
+            shared_post["isShared"] = True
+            shared_post["sharedBy"] = shared_post["authorId"]
+            shared_post["authorId"] = int(author_id)
+            serializer = PostSerializer(data=shared_post)
+            if serializer.is_valid():
+                serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        else:
+            return Response(
+                {"error": "You are not authorized to share this post"},
+                status=status.HTTP_403_FORBIDDEN,
+            )
