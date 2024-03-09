@@ -24,3 +24,14 @@ class CommentSerializer(serializers.ModelSerializer):
             comment_id = instance.id
             data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/comments/{comment_id}"
         return data
+    
+class CommentSerializerPost(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
+    def create(self, validated_data):
+        """
+        Create and return a new `Post` instance, given the validated data
+        """
+        return Comment.objects.create(**validated_data)
