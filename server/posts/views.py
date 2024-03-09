@@ -124,17 +124,17 @@ class PostDetail(APIView):
                 id, response = self.put_image(
                     request, author_id, post_id, request.data["image"]
                 )
-                print("HEADER ID:", id)
+                # print("HEADER ID:", id)
                 if response:
 
                     # Remove the 'image' key from request.data
                     request_data = request.data.copy()
                     request_data["image_ref"] = id
                     request_data.pop("image", None)
-                    request.data = request_data
+                    request_data["authorId"] = int(author_id)
 
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post, data=request.data, partial=True)
+            serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
@@ -148,15 +148,22 @@ class PostDetail(APIView):
         try:
             post = Post.objects.get(id=post_id)
             request_data = request.data.copy()
+
             request_data["content"] = image_blob
             request_data["content_type"] = "image"
-            # request.data = request_data
-            print("AUTHOR ID: ", author_id, "REQUEST USER ID: ", request.user.id)
+            request_data["image"] = None
+            # Ensure that authorId is passed as an integer
+            request_data["authorId"] = int(author_id)
+
             serializer = PostSerializer(post, data=request_data, partial=True)
+
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
-                    return serializer.id, True
+                    saved_data = serializer.data
+                    saved_id = saved_data.get('id', None)
+                    
+                    return saved_id, True
             print(serializer.errors)
             return None, False
         except Post.DoesNotExist:
