@@ -12,53 +12,60 @@ class PostViewsTestCase(APITestCase):
         self.client = APIClient()
 
         # Create an instance of Author and authenticate the client
-        self.test_author = Author.objects.create(firstName='testuser', lastName='testuser', github='https://github.com/testuser', email='testuser@example.com')
-        
+        self.test_author = Author.objects.create(
+            firstName="testuser",
+            lastName="testuser",
+            github="https://github.com/testuser",
+            email="testuser@example.com",
+        )
+
         self.token = AccessToken.for_user(self.test_author)
-        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
+        self.client.credentials(HTTP_AUTHORIZATION="Bearer " + str(self.token))
 
         # Create test posts
         self.public_post = Post.objects.create(
-            type = "post",
-            visibility = Post.VISIBILITY_CHOICES[0][0], # Public Post
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[0][0],  # Public Post
             authorId=self.test_author,
             title="Public Test Post",
-            content_type = "text/markdown",
-            content="This is a test post content."
+            content_type="text/markdown",
+            content="This is a test post content.",
         )
 
         self.friends_post = Post.objects.create(
-            type = "post",
-            visibility = Post.VISIBILITY_CHOICES[1][0], # Friends Post
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[1][0],  # Friends Post
             authorId=self.test_author,
             title="Friend Test Post",
-            content_type = "text/markdown",
-            content="This is a test post content."
+            content_type="text/markdown",
+            content="This is a test post content.",
         )
 
         self.unlisted_post = Post.objects.create(
-            type = "post",
-            visibility = Post.VISIBILITY_CHOICES[2][0], # Unlisted Post
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[2][0],  # Unlisted Post
             authorId=self.test_author,
             title="Unlisted Test Post",
-            content_type = "text/markdown",
-            content="This is a test post content."
+            content_type="text/markdown",
+            content="This is a test post content.",
         )
 
-    
     def test_putPublicPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
         image_blob = "some_base64_data"
-        url = reverse('image_post_detail', args=(self.public_post.authorId, self.public_post.id))
-        # self.public_post.image 
+        url = reverse(
+            "image_post_detail",
+            args=(self.public_post.authorId.id, self.public_post.id),
+        )
+        # self.public_post.image
 
         data = {
-            'type': "post",
-            'visibility': Post.VISIBILITY_CHOICES[0][0], # Unlisted Post
-            'authorId': AuthorSerializer(self.test_author),
-            'title':"Unlisted Test Post",
-            'content_type': "text/markdown",
-            'content':"This is a test post content.",
-            'image': image_blob
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],  # Unlisted Post
+            "authorId": AuthorSerializer(self.test_author),
+            "title": "Unlisted Test Post",
+            "content_type": "text/markdown",
+            "content": "This is a test post content.",
+            "image": image_blob,
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -89,7 +96,6 @@ class PostViewsTestCase(APITestCase):
 
     # def createPost_invalidAuthorIdAndPostId_returns401status(self):
     #     pass
-
 
     # def test_retrieve_post(self):
     #     url = reverse('get_post/update_post/delete_post', args=[self.test_author.id, self.test_post.id])
