@@ -110,7 +110,7 @@ class PostDetail(APIView):
     def get_serializer_class(self):
         return PostSerializer
 
-    def get(self, request, author_id, post_id):
+    def get(self, request, post_id):
         try:
             post = Post.objects.get(id=post_id)
             print("POST ID: ", post_id)

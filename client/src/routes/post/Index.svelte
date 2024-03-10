@@ -1,7 +1,7 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
-  import Posts from "../../widgets/Posts.svelte";
-  import { onMount } from "svelte";
+  import Post from "../../widgets/Post.svelte";
+  import { onMount, beforeUpdate } from "svelte";
   import {
     authToken,
     isLoginPage,
@@ -11,38 +11,41 @@
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
-  // let isAuthenticated = false;
 
-  function isValidGitHubLink(link) {
-    // Regular expression to match GitHub user profile URLs
-    var regex = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+$/;
-    return regex.test(link);
-  }
+  export let params;
+  let postId = params.id;
+  let post;
 
-  function getGitHubUsername(link) {
-    // Regular expression to match GitHub user profile URLs and extract the username
-    var regex = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_-]+)$/;
-    var match = link.match(regex);
-    if (match) {
-      return match[1]; // Return the username captured by the regex
-    } else {
-      return null; // Return null if the link is not a valid GitHub link
+  async function fetchPostById() {
+    console.log("fetching post by ID");
+    try {
+      const response = await fetch(`${server}/api/posts/${postId}`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data);
+        post = data;
+      } else {
+        console.error("Failed to fetch post:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching post:", error.message);
     }
   }
+
+  onMount(fetchPostById);
 </script>
 
 <main class="posts">
-  <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
-  <br />
-  <CreatePost />
-  <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
-  <br />
-  <Posts />
+  {#if post}
+    <Post {post}></Post>
+  {:else}
+    <p>Loading post...</p>
+  {/if}
 </main>
 
 <style>
   .posts {
-    padding-top: 7%;
+    padding-top: 10%;
     padding-left: 20%;
     padding-right: 7%;
   }
