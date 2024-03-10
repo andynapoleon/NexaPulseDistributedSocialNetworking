@@ -34,7 +34,7 @@
   }
 
   // Function to handle form submission
-  async function submitPost() {
+  export async function submitPost() {
     if (postContent.trim() === "") {
       // Prevent submission of empty content
       console.error("Post content cannot be empty");

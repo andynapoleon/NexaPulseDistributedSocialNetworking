@@ -5,5 +5,5 @@ from . import views # . referes to the current module we are in
 
 urlpatterns = [
     # Endpoint for retrieving comments for a specific post
-    path("authors/<str:author_id>/posts/<str:post_id>/comments", views.CommentDetail.as_view(), name="get_comments"),
+    path("authors/<str:author_id>/posts/<str:post_id>/comments", views.CommentDetail.as_view(), name="get_post_comments"),
 ]
