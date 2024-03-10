@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "follow.apps.FollowConfig",
     "comments.apps.CommentsConfig",
     "share",
+    "approval",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",

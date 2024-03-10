@@ -9,6 +9,7 @@ from follow.views import (
     UserFollowedView,
     UserFriendsView,
 )
+from approval.views import ApprovalView
 
 urlpatterns = [
     path("api/get/", views.getData),
@@ -16,6 +17,7 @@ urlpatterns = [
     path("api/add/", views.addAuthor),
     path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshAPIView.as_view(), name="token_refresh"),
+    path("api/non-approved-users/", ApprovalView.as_view()),
     path("api/", include("posts.urls")),  # Include the posts app URLs
     path("api/", include("authors.urls")),  # Include the author app URLs
     path("api/", include("comments.urls")),  # Include the comments app URLs
