@@ -70,7 +70,7 @@
   let beFriend = false;
   async function fetchFriends() {
     const friendsResponse = await fetch(
-      server + `/api/friends/friends/${get(currentUser).userId}`,
+      server + `/api/friends/following/${get(currentUser).userId}`,
       {
         method: "GET",
         headers: {

@@ -121,21 +121,21 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
-            if request.data["image"] != None:
-                id, response = self.put_image(
-                    request, author_id, post_id, request.data["image"]
-                )
-                # print("HEADER ID:", id)
-                if response:
+            # if request.data["image"] != None:
+            #     id, response = self.put_image(
+            #         request, author_id, post_id, request.data["image"]
+            #     )
+            #     # print("HEADER ID:", id)
+            #     if response:
 
-                    # Remove the 'image' key from request.data
-                    request_data = request.data.copy()
-                    request_data["image_ref"] = id
-                    request_data.pop("image", None)
-                    request_data["authorId"] = int(author_id)
+            #         # Remove the 'image' key from request.data
+            #         request_data = request.data.copy()
+            #         request_data["image_ref"] = id
+            #         # request_data.pop("image", None)
+            #         request_data["authorId"] = int(author_id)
 
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post, data=request_data, partial=True)
+            serializer = PostSerializer(post, data=request.data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
@@ -252,9 +252,9 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(
-                visibility="PUBLIC", authorId__in=followed_users_ids
-            ).order_by("-published")
+            queryset = Post.objects.filter(authorId__in=followed_users_ids).order_by(
+                "-published"
+            )
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -287,6 +287,9 @@ class SharedPost(APIView):
             shared_post["isShared"] = True
             shared_post["sharedBy"] = shared_post["authorId"]
             shared_post["authorId"] = int(author_id)
+            shared_post["visibility"] = "FRIENDS"
+            shared_post["originalContent"] = shared_post["content"]
+            shared_post["content"] = request.data["content"]
             serializer = PostSerializer(data=shared_post)
             if serializer.is_valid():
                 serializer.save()

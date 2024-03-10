@@ -4,6 +4,7 @@
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
   import { onMount } from "svelte";
+  import SharedPopUp from "./SharedPopUp.svelte";
 
   // Props passed to the component
   export let post;
@@ -17,14 +18,27 @@
   let likes = 0;
   let commentCount = 0;
 
-  // Local component state for editing
+  // Local component states
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
-
-  // Comment state
   let isCommenting = false;
   let commentText = "";
+  let showPopup = false;
+
+  function openPopup() {
+    showPopup = true;
+  }
+
+  function handleConfirm(event) {
+    console.log("Shared content:", event.detail.content);
+    sharePost(event.detail.content);
+    showPopup = false; // Close the pop-up after sharing
+  }
+
+  function handleCancel() {
+    showPopup = false; // Close the pop-up if canceled
+  }
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
@@ -150,16 +164,17 @@
     fetchPosts();
   }
 
-  async function sharePost() {
+  async function sharePost(content) {
     try {
       const sharePostEndpoint = `${server}/api/authors/${authorId}/shared-posts/${postId}/`;
       const response = await fetchWithRefresh(sharePostEndpoint, {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${get(authToken)}`,
+          Authorization: `Bearer ${$authToken}`,
+          "Content-Type": "application/json",
         },
+        body: JSON.stringify({ content: content }),
       });
-
       if (response.ok) {
         fetchPosts();
       } else {
@@ -211,8 +226,11 @@
         <button on:click={addComment}>Add Comment</button>
       </div>
     {/if}
-    {#if authorId != post.authorId}
-      <button on:click={sharePost}>Share</button>
+    {#if authorId != post.authorId && post.visibility == "PUBLIC"}
+      <button on:click={openPopup}>Share</button>
+      {#if showPopup}
+        <SharedPopUp on:confirm={handleConfirm} on:cancel={handleCancel} />
+      {/if}
     {/if}
     {#if post.authorId == authorId}
       <button on:click={toggleEditMode}>

@@ -19,6 +19,7 @@
   let isShared = post.isShared;
   let thoughts = "This post is so good!";
   let originalAuthor = "";
+  let originalContent = post.originalContent;
 
   // Local component state for editing
   let isEditing = false;
@@ -176,7 +177,7 @@
       }
     }
     // After successfully submitting the post, update the posts store
-    fetchPosts();
+    // fetchPosts();
   }
 
   // Function to toggle comment mode
@@ -200,7 +201,11 @@
     <strong>Shared by {userName} {postTime}</strong>
   </div>
   <div class="post-content">
-    <p>{thoughts}</p>
+    {#if isEditing}
+      <textarea class="edit-content" bind:value={editedContent}></textarea>
+    {:else}
+      {content}
+    {/if}
   </div>
   <div class="post-header">
     <strong>Posted by {originalAuthor}</strong>
@@ -214,11 +219,7 @@
       {/if}
     </div>
     <div class="post-content">
-      {#if isEditing}
-        <textarea class="edit-content" bind:value={editedContent}></textarea>
-      {:else}
-        {content}
-      {/if}
+      {originalContent}
     </div>
   </div>
   <div class="actions">
