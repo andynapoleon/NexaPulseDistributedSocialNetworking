@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Post from "./Post.svelte";
+  import SharedPost from "./SharedPost.svelte";
   import { server } from "../stores/stores.js";
   import { posts } from "../stores/stores.js";
   import { authToken } from "../stores/stores.js";
@@ -34,7 +35,11 @@
 
 <div class="posts">
   {#each $posts as post (post.id)}
-    <Post {post} />
+    {#if !post.isShared}
+      <Post {post} />
+    {:else}
+      <SharedPost {post} />
+    {/if}
   {/each}
 </div>
 
