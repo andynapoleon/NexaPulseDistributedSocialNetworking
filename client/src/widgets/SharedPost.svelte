@@ -3,13 +3,11 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
-  import { onMount } from "svelte";
-  import SharedPopUp from "./SharedPopUp.svelte";
 
   // Props passed to the component
   export let post;
 
-  let userName = ""; // Initialize userName variable for the author's name
+  let userName = "";
   let postTime = post.published;
   let content = post.content;
   let title = post.title;
@@ -17,28 +15,20 @@
   let postId = post.id;
   let likes = 0;
   let commentCount = 0;
+  let sharedBy = post.sharedBy;
+  let isShared = post.isShared;
+  let thoughts = "This post is so good!";
+  let originalAuthor = "";
+  let originalContent = post.originalContent;
 
-  // Local component states
+  // Local component state for editing
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
+
+  // Comment state
   let isCommenting = false;
   let commentText = "";
-  let showPopup = false;
-
-  function openPopup() {
-    showPopup = true;
-  }
-
-  function handleConfirm(event) {
-    console.log("Shared content:", event.detail.content);
-    sharePost(event.detail.content);
-    showPopup = false; // Close the pop-up after sharing
-  }
-
-  function handleCancel() {
-    showPopup = false; // Close the pop-up if canceled
-  }
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
@@ -75,7 +65,33 @@
       );
       if (response.ok) {
         const authorData = await response.json();
-        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+        userName = `${authorData.firstName} ${authorData.lastName}`;
+      } else {
+        console.error(
+          "Failed to fetch author information:",
+          response.statusText
+        );
+      }
+    } catch (error) {
+      console.error("Error fetching author information:", error.message);
+    }
+  }
+
+  // Fetch author's information based on authorId
+  async function fetchOriginalAuthor() {
+    try {
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${sharedBy}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const authorData = await response.json();
+        originalAuthor = `${authorData.firstName} ${authorData.lastName}`;
       } else {
         console.error(
           "Failed to fetch author information:",
@@ -161,28 +177,7 @@
       }
     }
     // After successfully submitting the post, update the posts store
-    fetchPosts();
-  }
-
-  async function sharePost(content) {
-    try {
-      const sharePostEndpoint = `${server}/api/authors/${authorId}/shared-posts/${postId}/`;
-      const response = await fetchWithRefresh(sharePostEndpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ content: content }),
-      });
-      if (response.ok) {
-        fetchPosts();
-      } else {
-        console.error("Failed to share post:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error sharing post:", error.message);
-    }
+    // fetchPosts();
   }
 
   // Function to toggle comment mode
@@ -192,45 +187,18 @@
 
   // Function to add a comment
   async function addComment() {
-    const addCommentEndpoint =
-      server + `/api/authors/${authorId}/posts/${postId}/comments`;
-    const response = await fetchWithRefresh(addCommentEndpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${get(authToken)}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type: 'comment',
-        content_type: 'text/plain',
-        content: commentText,
-        author: authorId,
-        post: postId,
-      }),
-    });
-
-    if (response.ok) {
-      fetchComments();
-      commentText = '';
-    } else {
-      console.error("Failed to add a comment:", response.statusText);
-    }
+    // Add your comment posting logic here
   }
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
+  // fetchComments();
+  fetchOriginalAuthor();
 </script>
 
 <div class="post">
   <div class="post-header">
-    <strong>Posted by {userName} {postTime}</strong>
-  </div>
-  <div class="post-title">
-    {#if isEditing}
-      <input type="text" bind:value={postTitle} />
-    {:else}
-      {title}
-    {/if}
+    <strong>Shared by {userName} {postTime}</strong>
   </div>
   <div class="post-content">
     {#if isEditing}
@@ -238,6 +206,21 @@
     {:else}
       {content}
     {/if}
+  </div>
+  <div class="post-header">
+    <strong>Posted by {originalAuthor}</strong>
+  </div>
+  <div class="border-cyan-400">
+    <div class="post-title">
+      {#if isEditing}
+        <input type="text" bind:value={postTitle} />
+      {:else}
+        {title}
+      {/if}
+    </div>
+    <div class="post-content">
+      {originalContent}
+    </div>
   </div>
   <div class="actions">
     <button>Like</button>
@@ -247,12 +230,6 @@
         <textarea bind:value={commentText}></textarea>
         <button on:click={addComment}>Add Comment</button>
       </div>
-    {/if}
-    {#if authorId != post.authorId && post.visibility == "PUBLIC"}
-      <button on:click={openPopup}>Share</button>
-      {#if showPopup}
-        <SharedPopUp on:confirm={handleConfirm} on:cancel={handleCancel} />
-      {/if}
     {/if}
     {#if post.authorId == authorId}
       <button on:click={toggleEditMode}>
@@ -265,8 +242,8 @@
     {#if post.authorId == authorId}
       <button on:click={deletePost}>Delete</button>
     {/if}
-    <span>Likes: {likes}</span>
-    <span class="ml-4">Comments: {commentCount}</span>
+    <span class="mr-4">Likes: {likes}</span>
+    <span>Comments: {commentCount}</span>
   </div>
 </div>
 
@@ -282,6 +259,7 @@
   }
   .post-header {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     margin-bottom: 8px;
     color: grey;
@@ -298,6 +276,10 @@
   .actions {
     display: flex;
     justify-content: left;
+  }
+  .shared-post {
+    border: 25px;
+    border-color: #008480;
   }
   button {
     cursor: pointer;
