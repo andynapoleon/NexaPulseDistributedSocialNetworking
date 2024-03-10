@@ -4,34 +4,16 @@
   import { get } from "svelte/store";
   import { fetchWithRefresh } from "../utils/apiUtils.js";
   import { posts } from "../stores/stores.js";
+  import { createEventDispatcher } from "svelte";
 
   let postTitle = "";
   let postContent = "";
   let visibility = "Public";
   let content_type = "text/markdown";
+  export let streamType;
+  const dispatch = createEventDispatcher();
 
   let id = $currentUser.userId;
-
-  // Function to fetch posts from the backend
-  async function fetchPosts() {
-    try {
-      const response = await fetch(server + "/api/public-posts/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched posts:", data); // Log the fetched data
-        $posts = data;
-      } else {
-        console.error("Failed to fetch posts:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error.message);
-    }
-  }
 
   // Function to handle form submission
   export async function submitPost() {
@@ -67,6 +49,7 @@
 
       if (response.ok) {
         console.log("Post created successfully!");
+        dispatch("submit", { currentStream: streamType });
         // Reset input fields after successful submission
         postContent = "";
         postTitle = "";
@@ -77,9 +60,6 @@
     } catch (error) {
       console.error("Error:", error);
     }
-
-    // After successfully submitting the post, update the posts store
-    fetchPosts();
   }
 </script>
 

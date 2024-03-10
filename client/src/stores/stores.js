@@ -37,4 +37,5 @@ export const hasNotifications = writable(false);
 export const isLoginPage = writable(false);
 
 export const posts = writable([]);
+export const followingPosts = writable([]);
 export const followRequests = writable([]);
