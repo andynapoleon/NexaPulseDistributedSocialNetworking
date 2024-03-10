@@ -7,6 +7,9 @@
   function sharePost() {
     if (content.trim() !== "") {
       dispatch("confirm", { content });
+    } else {
+      content = "Check out this post!";
+      dispatch("confirm", { content });
     }
   }
 
@@ -58,7 +61,7 @@
     margin-left: 10px;
     border: none;
     border-radius: 4px;
-    background-color: #0084ff;
+    background-color: #008480;
     color: white;
   }
 </style>
