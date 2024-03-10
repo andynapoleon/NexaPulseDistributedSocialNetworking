@@ -3,9 +3,11 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
+  import { createEventDispatcher } from "svelte";
 
   // Props passed to the component
   export let post;
+  const dispatch = createEventDispatcher();
 
   let userName = "";
   let postTime = post.published;
@@ -29,27 +31,6 @@
   // Comment state
   let isCommenting = false;
   let commentText = "";
-
-  // Function to fetch posts from the backend
-  async function fetchPosts() {
-    try {
-      const response = await fetch(server + "/api/public-posts/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched posts:", data); // Log the fetched data
-        $posts = data;
-      } else {
-        console.error("Failed to fetch posts:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error.message);
-    }
-  }
 
   // Fetch author's information based on authorId
   async function fetchAuthor() {
@@ -172,12 +153,11 @@
       });
 
       if (response.ok) {
+        dispatch("changed", { changeDetected: true });
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
     }
-    // After successfully submitting the post, update the posts store
-    // fetchPosts();
   }
 
   // Function to toggle comment mode

@@ -103,14 +103,28 @@
       }
     }
   });
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      if (authorId == get(currentUser).userId) {
+        fetchPostsAsHimself();
+      } else {
+        if (beFriend) {
+          fetchPosts();
+        } else {
+          fetchPostsAsStranger();
+        }
+      }
+    }
+  }
 </script>
 
 <div class="posts">
   {#each profilePosts as post (post.id)}
     {#if !post.isShared}
-      <Post {post} />
+      <Post {post} on:changed={handleChange} />
     {:else}
-      <SharedPost {post} />
+      <SharedPost {post} on:changed={handleChange} />
     {/if}
   {/each}
 </div>

@@ -5,9 +5,11 @@
   import { posts } from "../stores/stores.js";
   import { onMount } from "svelte";
   import SharedPopUp from "./SharedPopUp.svelte";
+  import { createEventDispatcher } from "svelte";
 
   // Props passed to the component
   export let post;
+  const dispatch = createEventDispatcher();
 
   let userName = ""; // Initialize userName variable for the author's name
   let postTime = post.published;
@@ -38,27 +40,6 @@
 
   function handleCancel() {
     showPopup = false; // Close the pop-up if canceled
-  }
-
-  // Function to fetch posts from the backend
-  async function fetchPosts() {
-    try {
-      const response = await fetch(server + "/api/public-posts/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched posts:", data); // Log the fetched data
-        $posts = data;
-      } else {
-        console.error("Failed to fetch posts:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error.message);
-    }
   }
 
   // Fetch author's information based on authorId
@@ -156,12 +137,11 @@
       });
 
       if (response.ok) {
+        dispatch("changed", { changeDetected: true });
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
     }
-    // After successfully submitting the post, update the posts store
-    fetchPosts();
   }
 
   async function sharePost(content) {
@@ -176,7 +156,7 @@
         body: JSON.stringify({ content: content }),
       });
       if (response.ok) {
-        fetchPosts();
+        dispatch("changed", { changeDetected: true });
       } else {
         console.error("Failed to share post:", response.statusText);
       }

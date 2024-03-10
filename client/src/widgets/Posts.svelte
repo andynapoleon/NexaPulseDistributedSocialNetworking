@@ -31,14 +31,20 @@
   onMount(() => {
     fetchPosts();
   });
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      fetchPosts();
+    }
+  }
 </script>
 
 <div class="posts">
   {#each $posts as post (post.id)}
     {#if !post.isShared}
-      <Post {post} />
+      <Post {post} on:changed={handleChange} />
     {:else}
-      <SharedPost {post} />
+      <SharedPost {post} on:changed={handleChange} />
     {/if}
   {/each}
 </div>
