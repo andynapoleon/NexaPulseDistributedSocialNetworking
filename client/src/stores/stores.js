@@ -12,6 +12,7 @@ const initialUserData = storedUserData
       name: "Andy Tran",
       email: "aqtran@ualberta.ca",
       github: "",
+      lastUpdated: new Date(),
     };
 export const currentUser = writable(initialUserData);
 
