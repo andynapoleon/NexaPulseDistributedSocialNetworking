@@ -181,7 +181,29 @@
 
   // Function to add a comment
   async function addComment() {
-    // Add your comment posting logic here
+    const addCommentEndpoint =
+      server + `/api/authors/${authorId}/posts/${postId}/comments`;
+    const response = await fetchWithRefresh(addCommentEndpoint, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${get(authToken)}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        type: 'comment',
+        content_type: 'text/plain',
+        content: commentText,
+        author: authorId,
+        post: postId,
+      }),
+    });
+
+    if (response.ok) {
+      fetchComments();
+      commentText = '';
+    } else {
+      console.error("Failed to add a comment:", response.statusText);
+    }
   }
 
   // Fetch author's information when the component is mounted
