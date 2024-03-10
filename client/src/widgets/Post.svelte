@@ -210,7 +210,7 @@
   <div class="actions">
     <button>Like</button>
     <button on:click={toggleCommentMode}>
-      {commentCount > 0 ? `${commentCount} Comments` : ''}
+      {commentCount >= 0 ? `${commentCount} Comments` : ''}
     </button>
     {#if isCommenting}
       <div>
