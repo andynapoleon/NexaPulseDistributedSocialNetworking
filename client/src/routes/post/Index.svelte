@@ -20,6 +20,8 @@
   let authorId = $currentUser.userId;
   let commentText = ''; // Variable to hold the new comment text
 
+  let commentCount;
+
   async function fetchPostById() {
     console.log("fetching post by ID");
     try {
@@ -50,6 +52,7 @@
       );
       if (response.ok) {
         comments = await response.json();
+        commentCount = comments.length;
       } else {
         console.error("Failed to fetch comments:", response.statusText);
       }

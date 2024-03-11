@@ -19,14 +19,13 @@
   let authorId = $currentUser.userId;
   let postId = post.id;
   let likeCount = 0;
-  let commentCount = 0;
+  export let commentCount = 0;
 
   // Local component states
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
   let isCommenting = false;
-  let commentText = "";
   let showPopup = false;
 
   function openPopup() {
