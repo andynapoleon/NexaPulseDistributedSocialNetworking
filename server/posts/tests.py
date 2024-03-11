@@ -93,7 +93,7 @@ class PostViewsTestCase(APITestCase):
         )
         data = {
             "type": "post",
-            "visibility": Post.VISIBILITY_CHOICES[0][0],  # Unlisted Post
+            "visibility": Post.VISIBILITY_CHOICES[0][0],
             "authorId": AuthorSerializer(self.test_author),
             'title': 'Updated Title',
             "content_type": "text/markdown",
@@ -145,7 +145,22 @@ class PostViewsTestCase(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-
+    def test_putPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
+        url = reverse(
+            "post_detail",
+            args=(self.public_post.authorId.id, self.post_with_image.id),
+        )
+        data = {
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],
+            "authorId": AuthorSerializer(self.test_author),
+            'title': 'Updated Title',
+            "content_type": "text/markdown",
+            'content': 'Updated content of the post.',
+            'image': 'image_blob_base64, NEWIMAGE',
+        }
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     # Integration Tests
     # Named this way: Action, method call, condition, return
     # def getPublicPost_validAuthorIdAndPostId_returns200status(self):

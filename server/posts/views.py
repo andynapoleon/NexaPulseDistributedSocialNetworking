@@ -22,12 +22,14 @@ class ProfilePost(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(
-                authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]
-            ).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"])
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -42,12 +44,14 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(
-                authorId=author_id, visibility="PUBLIC"
-            ).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -62,10 +66,14 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(authorId=author_id).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id)
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -90,19 +98,26 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
+            post = Post.objects.get(id=post_id)
+
             request_data = request.data.copy()
             request_data["authorId"] = int(author_id)
             if request_data["image"]:
-                id, response = self.create_image_post(
-                    request, author_id, post_id, request.data["image"]
-                )
-                # print("HEADER ID:", id)
-                if response:
-                    # Remove the 'image' key from request.data 
-                    request_data["image_ref"] = id
-                    # request_data.pop("image", None)
-                    
-            post = Post.objects.get(id=post_id)
+                # Delete old image post
+                if post.image_ref:
+                    image_blob = request.data["image"]
+                    image_info = image_blob.split(",")
+                    post.image_ref.content = image_info[1]
+                    post.image_ref.contet_type = image_info[0]
+                    post.image_ref.save()
+                else: 
+                    # Create a new one
+                    id, response = self.create_image_post(
+                        request, author_id, post_id, request.data["image"]
+                    )
+                    if response:
+                        request_data["image_ref"] = id
+            
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
@@ -161,8 +176,13 @@ class AuthorPosts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
-        posts = Post.objects.filter(authorId=author_id).order_by("-published")
-        serializer = PostSerializer(posts, many=True)
+        queryset = Post.objects.filter(authorId=author_id)
+        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+        # Order by published date
+        queryset = queryset.order_by("-published")
+
+        serializer = PostSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request, author_id):
@@ -206,8 +226,12 @@ class PublicPosts(APIView):
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
-        posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
-        serializer = PostSerializer(posts, many=True)
+        queryset = Post.objects.filter(visibility="PUBLIC")
+        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+        # Order by published date
+        queryset = queryset.order_by("-published")
+        serializer = PostSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -225,9 +249,8 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(authorId__in=followed_users_ids).order_by(
-                "-published"
-            )
+            queryset = Post.objects.filter(authorId__in=followed_users_ids)
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
 
             # Order by published date
             queryset = queryset.order_by("-published")

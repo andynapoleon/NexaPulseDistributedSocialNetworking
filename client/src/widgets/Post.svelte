@@ -25,6 +25,8 @@
   // Local component states
   let isEditing = false;
   let editedContent = post.content;
+  let files;
+  let editInput;
   let postTitle = title;
   let isCommenting = false;
   let commentText = "";
@@ -106,17 +108,36 @@
   async function saveEdit() {
     const editPostEndpoint =
       server + `/api/authors/${authorId}/posts/${postId}/`;
+    let imageData = "";
+    if (files) {
+      imageData = await readFileAsBase64(files[0]);
+    }
     const response = await fetchWithRefresh(editPostEndpoint, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent, image: null }),
+      body: JSON.stringify({ title: postTitle, content: editedContent, image: imageData }),
     });
+
+    // Function to read image file as base64
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
     if (response.ok) {
       // Update the component state with edited content
+      let imageInfo = imageData.split(",");
+      image_type = imageInfo[0];
+      image_base64 = imageInfo[1];
       content = editedContent;
       title = postTitle;
       isEditing = false;
@@ -217,11 +238,11 @@
   </div>
   <div class="post-content">
     {#if post.image_ref}
-      <p>"{image_type}, {image_base64}"</p>
       <img src="{image_type}, {image_base64}" alt=" " />
     {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
+      <input type="file" bind:files bind:this={editInput} class="post-image" accept="image/png, image/jpeg" />
     {:else}
       {content}
     {/if}
