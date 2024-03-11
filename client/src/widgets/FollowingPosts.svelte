@@ -1,8 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import Post from "./Post.svelte";
+  import SharedPost from "./SharedPost.svelte";
   import { server } from "../stores/stores.js";
-  import { posts } from "../stores/stores.js";
+  import { followingPosts } from "../stores/stores.js";
   import { authToken } from "../stores/stores.js";
 
   // Function to fetch posts from the backend
@@ -17,7 +18,7 @@
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched posts:", data); // Log the fetched data
-        $posts = data;
+        $followingPosts = data;
       } else {
         console.error("Failed to fetch posts:", response.statusText);
       }
@@ -30,11 +31,21 @@
   onMount(() => {
     fetchPosts();
   });
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      fetchPosts();
+    }
+  }
 </script>
 
 <div class="posts">
-  {#each $posts as post (post.id)}
-    <Post {post} />
+  {#each $followingPosts as post (post.id)}
+    {#if !post.isShared}
+      <Post {post} on:changed={handleChange} />
+    {:else}
+      <SharedPost {post} on:changed={handleChange} />
+    {/if}
   {/each}
 </div>
 

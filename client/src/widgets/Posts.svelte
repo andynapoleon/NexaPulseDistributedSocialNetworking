@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Post from "./Post.svelte";
+  import SharedPost from "./SharedPost.svelte";
   import { server } from "../stores/stores.js";
   import { posts } from "../stores/stores.js";
   import { authToken } from "../stores/stores.js";
@@ -30,11 +31,21 @@
   onMount(() => {
     fetchPosts();
   });
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      fetchPosts();
+    }
+  }
 </script>
 
 <div class="posts">
   {#each $posts as post (post.id)}
-    <Post {post} />
+    {#if !post.isShared}
+      <Post {post} on:changed={handleChange} />
+    {:else}
+      <SharedPost {post} on:changed={handleChange} />
+    {/if}
   {/each}
 </div>
 

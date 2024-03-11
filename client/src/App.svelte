@@ -6,13 +6,12 @@
   import SideBar from "./components/SideBar.svelte";
   import Home from "./routes/home/Index.svelte";
   import Profile from "./routes/profile/Index.svelte";
-  import UserMessage from "./routes/messages/UserMessage.svelte";
   import Notifications from "./routes/notifications/Index.svelte";
   import Login from "./routes/login/Index.svelte";
   import Friends from "./routes/friends/Index.svelte";
-  import Settings from "./routes/Settings/Index.svelte";
   import ForYou from "./routes/foryou/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
+  import Post from "./routes/post/Index.svelte";
   import {
     mode,
     currentUser,
@@ -25,11 +24,8 @@
   const menuItems = [
     { href: "/home", label: "Home" },
     { href: "/foryou", label: "For You" },
-    // { href: `/messages/${$currentUser.userId}`, label: "Messages" },
-    // { href: "/makepost", label: "Create a post" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
-    //{ href: "/settings", label: "Settings" },
     { href: "/", label: "Log Out" },
   ];
 
@@ -38,10 +34,9 @@
     "/home": Home,
     "/foryou": ForYou,
     "/profile/:id": Profile,
-    //"/messages/:id": UserMessage,
+    "/posts/:id": Post,
     "/notifications/:id": Notifications,
     "/friends/:id": Friends,
-    //"/settings": Settings,
   };
 
   // Reactively set isLoginPage based on the current path
@@ -94,29 +89,6 @@
       </AuthenticatedRoute>
     </Route>
   {/each}
-  <!-- <Route path="/home">
-      <Home /></Route
-    >
-    <Route path="/profile/:id" let:params>
-      <div class="content">
-        <Profile id={params.id} />
-      </div>
-    </Route>
-    <Route path="/messages/:id" let:params>
-      <div class="content">
-        <UserMessage />
-      </div>
-    </Route>
-    <Route path="/friends/:id" let:params>
-      <div class="content">
-        <Friends id={$currentUser.userId} />
-      </div>
-    </Route>
-    <Route path="/notifications/:id" let:params>
-      <div class="content">
-        <Notifications id={$currentUser.userId} />
-      </div>
-    </Route> -->
 </Router>
 
 <style>

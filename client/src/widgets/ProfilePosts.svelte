@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import Post from "./Post.svelte";
+  import SharedPost from "./SharedPost.svelte";
   import {
     server,
     authToken,
@@ -15,7 +16,7 @@
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
-    console.log("fetching posts")
+    console.log("fetching posts");
     try {
       const response = await fetch(server + `/api/authors/posts/${authorId}/`);
       if (response.ok) {
@@ -31,9 +32,11 @@
 
   // Function to fetch posts from the backend
   async function fetchPostsAsHimself() {
-    console.log("fetching posts")
+    console.log("fetching posts");
     try {
-      const response = await fetch(server + `/api/authors/posts/${authorId}/asHimself`);
+      const response = await fetch(
+        server + `/api/authors/posts/${authorId}/asHimself`
+      );
       if (response.ok) {
         const data = await response.json();
         profilePosts = data;
@@ -47,9 +50,11 @@
 
   // Function to fetch posts from the backend as a STRANGER(can't see FRIENDS posts)
   async function fetchPostsAsStranger() {
-    console.log("fetching posts as stranger")
+    console.log("fetching posts as stranger");
     try {
-      const response = await fetch(server + `/api/authors/posts/${authorId}/asStranger`);
+      const response = await fetch(
+        server + `/api/authors/posts/${authorId}/asStranger`
+      );
       if (response.ok) {
         const data = await response.json();
         profilePosts = data;
@@ -62,10 +67,10 @@
   }
 
   // Function to check if current user is a stranger
-  let beFriend = false
+  let beFriend = false;
   async function fetchFriends() {
     const friendsResponse = await fetch(
-      server + `/api/friends/friends/${get(currentUser).userId}`,
+      server + `/api/friends/following/${get(currentUser).userId}`,
       {
         method: "GET",
         headers: {
@@ -78,33 +83,49 @@
     }
     let allFriends = await friendsResponse.json();
     for (let i = 0; i < allFriends.length; i++) {
-      if (authorId == allFriends[i].user_id){
-        beFriend = true
+      if (authorId == allFriends[i].user_id) {
+        beFriend = true;
       }
     }
-    console.log("beFriend:", beFriend)
+    console.log("beFriend:", beFriend);
   }
 
   // Fetch posts when the component is mounted
   onMount(async () => {
-    await fetchFriends()
+    await fetchFriends();
     if (authorId == get(currentUser).userId) {
       fetchPostsAsHimself();
     } else {
-      if (beFriend){
+      if (beFriend) {
         fetchPosts();
-    } else {
+      } else {
         fetchPostsAsStranger();
+      }
     }
-    }
-    
   });
-  // onMount(fetchPosts);
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      if (authorId == get(currentUser).userId) {
+        fetchPostsAsHimself();
+      } else {
+        if (beFriend) {
+          fetchPosts();
+        } else {
+          fetchPostsAsStranger();
+        }
+      }
+    }
+  }
 </script>
 
 <div class="posts">
   {#each profilePosts as post (post.id)}
-    <Post {post} />
+    {#if !post.isShared}
+      <Post {post} on:changed={handleChange} />
+    {:else}
+      <SharedPost {post} on:changed={handleChange} />
+    {/if}
   {/each}
 </div>
 
