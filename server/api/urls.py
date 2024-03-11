@@ -20,4 +20,5 @@ urlpatterns = [
     path("api/", include("authors.urls")),  # Include the author app URLs
     path("api/", include("comments.urls")),  # Include the comments app URLs
     path("api/", include("follow.urls")),  # Include the follow app URLS
+    path("api/", include("likes.urls")), # Include the likes app URLS
 ]
