@@ -10,7 +10,7 @@
   let postContent = "";
   let visibility = "Public";
   let content_type = "text/markdown";
-  let files
+  let files, input;
   export let streamType;
   const dispatch = createEventDispatcher();
 
@@ -60,6 +60,7 @@
         // Reset input fields after successful submission
         postContent = "";
         postTitle = "";
+        input.value = ''
         visibility = "Public";
       } else {
         console.error("Failed to create post");
@@ -94,7 +95,7 @@
     placeholder="What's on your mind?"
     bind:value={postContent}
   ></textarea>
-  <input type="file" bind:files class="post-image" accept="image/*" />
+  <input type="file" bind:files bind:this={input} class="post-image" accept="image/png, image/jpeg" />
   <select class="visibility-select" bind:value={visibility}>
     <option value="Public">Public</option>
     <option value="Unlisted">Unlisted</option>

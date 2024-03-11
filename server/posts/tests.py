@@ -50,8 +50,26 @@ class PostViewsTestCase(APITestCase):
             content="This is a test post content.",
         )
 
+        self.image_post = Post.objects.create(
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[0][0],
+            authorId=self.test_author,
+            title="Image Post",
+            content_type="data:image/jpeg;base64",
+            content="image_encoded_base64"
+        )
+
+        self.post_with_image = Post.objects.create(
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[0][0],  # Public Post
+            authorId=self.test_author,
+            title="Public Test Post",
+            content_type="text/markdown",
+            content="This is a test post content.",
+            image_ref=self.image_post,
+        )
+
     def test_putPublicPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
-        image_blob = "some_base64_data"
         url = reverse(
             "image_post_detail",
             args=(self.public_post.authorId.id, self.public_post.id),
@@ -63,7 +81,7 @@ class PostViewsTestCase(APITestCase):
             "title": "Updated Image Public Test Post",
             "content_type": "text/markdown",
             "content": "This is a test post content.",
-            "image": image_blob,
+            "image": 'image_blob_base64, asdfkjl',
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -114,10 +132,18 @@ class PostViewsTestCase(APITestCase):
             "title": "New Test Post",
             "content_type": "text/markdown",
             "content": "This is a new test post content.",
-            "image": 'image_blob_base64',
+            "image": 'image_blob_base64, asdfkjl',
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_getPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
+        url = reverse(
+            "image_post",
+            args=(self.test_author.id, self.post_with_image.id)
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
 
     # Integration Tests

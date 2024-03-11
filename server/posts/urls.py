@@ -12,9 +12,14 @@ urlpatterns = [
     ),
     # Endpoint for retrieving the list of posts with an image
     path(
-        "authors/<str:author_id>/posts/<str:post_id>/image/",
+        "authors/<str:author_id>/posts/<str:post_id>/images/",
         views.PostDetail.as_view(),
         name="image_post_detail",
+    ),
+    path(
+        "authors/<str:author_id>/posts/<str:post_id>/image/",
+        views.ImagePost.as_view(),
+        name="image_post",
     ),
     # Endpoint for retrieving the list of posts
     path("public-posts/", views.PublicPosts.as_view(), name="public_post_list"),
@@ -54,5 +59,11 @@ urlpatterns = [
         "authors/<str:author_id>/shared-posts/<str:post_id>/",
         views.SharedPost.as_view(),
         name="share-post",
+    ),
+    
+    path(
+        "authors/${authorId}/posts/${postId}/image/",
+        views.ImagePost.as_view(),
+        name="image-post",
     ),
 ]

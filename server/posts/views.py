@@ -83,7 +83,6 @@ class PostDetail(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            print("POST ID: ", post_id)
             serializer = PostSerializer(post)
             return Response(serializer.data)
         except Post.DoesNotExist:
@@ -93,7 +92,7 @@ class PostDetail(APIView):
         try:
             request_data = request.data.copy()
             request_data["authorId"] = int(author_id)
-            if request_data["image"] != None:
+            if request_data["image"]:
                 id, response = self.create_image_post(
                     request, author_id, post_id, request.data["image"]
                 )
@@ -169,7 +168,7 @@ class AuthorPosts(APIView):
     def post(self, request, author_id):
         request_data = request.data.copy()
         request_data["authorId"] = int(author_id)
-        if request_data.get("image", None):
+        if request_data["image"] != None:
             id, response = self.create_image_post(request, author_id, request.data["image"])
             if response:
                 request_data["image_ref"] = id
@@ -187,7 +186,6 @@ class AuthorPosts(APIView):
             image_info = image_blob.split(",")
             request_data["content"] = image_info[1]
             request_data["content_type"] = image_info[0]
-            request_data["content_type"] = "image"
             request_data["image"] = None
             request_data["authorId"] = int(author_id)
 
@@ -201,30 +199,6 @@ class AuthorPosts(APIView):
             return None, False
         except Exception as e:
             return None, False
-    # def put(self, request, author_id, post_id):
-    #     try:
-    #         request_data = request.data.copy()
-    #         request_data["authorId"] = int(author_id)
-    #         if request_data["image"] != None:
-    #             id, response = self.create_image_post(
-    #                 request, author_id, post_id, request.data["image"]
-    #             )
-    #             # print("HEADER ID:", id)
-    #             if response:
-    #                 # Remove the 'image' key from request.data 
-    #                 request_data["image_ref"] = id
-    #                 # request_data.pop("image", None)
-                    
-    #         post = Post.objects.get(id=post_id)
-    #         serializer = PostSerializer(post, data=request_data, partial=True)
-    #         if serializer.is_valid():
-    #             if request.user.id == int(author_id):
-    #                 serializer.save()
-    #                 return Response(serializer.data)
-    #         print(serializer.errors)
-    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    #     except Post.DoesNotExist:
-    #         return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class PublicPosts(APIView):
@@ -298,3 +272,14 @@ class SharedPost(APIView):
                 {"error": "You are not authorized to share this post"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+
+class ImagePost(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, author_id, post_id):
+        try:
+            post = Post.objects.get(id=post_id)
+            if post.image_ref != None:
+                serializer = PostSerializer(post.image_ref)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

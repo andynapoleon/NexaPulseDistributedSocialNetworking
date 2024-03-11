@@ -19,6 +19,8 @@
   let postId = post.id;
   let likes = 0;
   let commentCount = 0;
+  let image_base64 = "";
+  let image_type = "";
 
   // Local component states
   let isEditing = false;
@@ -110,7 +112,7 @@
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent }),
+      body: JSON.stringify({ title: postTitle, content: editedContent, image: null }),
     });
 
     if (response.ok) {
@@ -177,6 +179,29 @@
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
+
+    // Fetch the image associated with the post
+    async function fetchPostImage() {
+    try {
+      const response = await fetch(`${server}/api/authors/${authorId}/posts/${postId}/image`);
+      if (response.ok) {
+        const post = await response.json();
+        image_base64 = post.content
+        image_type = post.content_type
+      } else {
+        console.error("Failed to fetch image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching image:", error.message);
+    }
+  }
+
+  // Fetch the image associated with the post when the component is mounted
+  onMount(() => {
+      if (post.image_ref) {
+          fetchPostImage();
+      }
+    });
 </script>
 
 <div class="post">
@@ -191,6 +216,10 @@
     {/if}
   </div>
   <div class="post-content">
+    {#if post.image_ref}
+      <p>"{image_type}, {image_base64}"</p>
+      <img src="{image_type}, {image_base64}" alt=" " />
+    {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
     {:else}
