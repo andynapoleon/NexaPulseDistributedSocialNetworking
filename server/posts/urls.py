@@ -6,8 +6,8 @@ urlpatterns = [
     path("posts/", views.PostList.as_view(), name="post_list"),
     # Endpoint for retrieving a post by id
     path(
-        "authors/<str:author_id>/posts/<str:post_id>/",
-        views.PostDetail.as_view(),
+        "posts/<str:post_id>/",
+        views.PostById.as_view(),
         name="post_detail",
     ),
     # Endpoint for retrieving the list of posts with an image
@@ -24,7 +24,9 @@ urlpatterns = [
     # Endpoint for retrieving the list of posts
     path("public-posts/", views.PublicPosts.as_view(), name="public_post_list"),
     # Endpoint for retrieving the list of posts of people we're following
-    path("following-posts/", views.FollowingPosts.as_view(), name="following_post_list"),
+    path(
+        "following-posts/", views.FollowingPosts.as_view(), name="following_post_list"
+    ),
     # Endpoint for retrieving a specific post by its author and post ID
     path(
         "authors/<str:author_id>/posts/<str:post_id>/",
@@ -60,7 +62,7 @@ urlpatterns = [
         views.SharedPost.as_view(),
         name="share-post",
     ),
-     # Gets and deletes image post
+    # Gets and deletes image post
     path(
         "authors/${authorId}/posts/${postId}/image/",
         views.ImagePost.as_view(),

@@ -16,15 +16,18 @@ class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-published")
     serializer_class = PostSerializer
 
+
 class ProfilePost(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            queryset = Post.objects.filter(authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"])
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
-            
+            queryset = Post.objects.filter(
+                authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]
+            )
+            queryset = Post.objects.exclude(content_type__startswith="data:image/")
+
             # Order by published date
             queryset = queryset.order_by("-published")
 
@@ -45,8 +48,8 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
-            
+            queryset = Post.objects.exclude(content_type__startswith="data:image/")
+
             # Order by published date
             queryset = queryset.order_by("-published")
 
@@ -67,8 +70,8 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id)
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
-            
+            queryset = Post.objects.exclude(content_type__startswith="data:image/")
+
             # Order by published date
             queryset = queryset.order_by("-published")
 
@@ -80,6 +83,18 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
         except Exception as e:
             # Handle exceptions (e.g., author not found, serializer errors)
             return Response({"error": str(e)}, status=500)
+
+
+class PostById(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, post_id):
+        try:
+            post = Post.objects.get(id=post_id)
+            serializer = PostSerializer(post)
+            return Response(serializer.data)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class PostDetail(APIView):
@@ -110,7 +125,7 @@ class PostDetail(APIView):
                     post.image_ref.content = image_info[1]
                     post.image_ref.contet_type = image_info[0]
                     post.image_ref.save()
-                else: 
+                else:
                     print("I AM CREATING A NEW POST | Current post_id:", post_id)
                     print("Before making | Current image_ref?:", post.image_ref)
                     # Create a new one
@@ -120,7 +135,7 @@ class PostDetail(APIView):
                     if response:
                         request_data["image_ref"] = id
                         print("After making | Current image_ref?:", id)
-            
+
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
@@ -181,8 +196,8 @@ class AuthorPosts(APIView):
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
-        queryset = Post.objects.exclude(content_type__startswith='data:image/')
-            
+        queryset = Post.objects.exclude(content_type__startswith="data:image/")
+
         # Order by published date
         queryset = queryset.order_by("-published")
 
@@ -193,7 +208,9 @@ class AuthorPosts(APIView):
         request_data = request.data.copy()
         request_data["authorId"] = int(author_id)
         if request_data["image"] != None:
-            id, response = self.create_image_post(request, author_id, request.data["image"])
+            id, response = self.create_image_post(
+                request, author_id, request.data["image"]
+            )
             if response:
                 request_data["image_ref"] = id
 
@@ -231,8 +248,8 @@ class PublicPosts(APIView):
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC")
-        queryset = Post.objects.exclude(content_type__startswith='data:image/')
-            
+        queryset = Post.objects.exclude(content_type__startswith="data:image/")
+
         # Order by published date
         queryset = queryset.order_by("-published")
         serializer = PostSerializer(queryset, many=True)
@@ -254,7 +271,7 @@ class FollowingPosts(APIView):
             followed_users_ids.append(user_id)
 
             queryset = Post.objects.filter(authorId__in=followed_users_ids)
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            queryset = Post.objects.exclude(content_type__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -300,8 +317,10 @@ class SharedPost(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+
 class ImagePost(APIView):
     permission_classes = [AllowAny]
+
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
@@ -310,7 +329,7 @@ class ImagePost(APIView):
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-    
+
     def delete(self, request, author_id, post_id):
         try:
             regular_post = Post.objects.get(id=post_id)
