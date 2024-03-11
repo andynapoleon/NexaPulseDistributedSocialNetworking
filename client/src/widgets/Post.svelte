@@ -6,6 +6,7 @@
   import { onMount } from "svelte";
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
+  import { navigate } from "svelte-routing";
 
   // Props passed to the component
   export let post;
@@ -17,7 +18,7 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likes = 0;
+  let likeCount = 0;
   let commentCount = 0;
 
   // Local component states
@@ -170,35 +171,62 @@
     isCommenting = !isCommenting;
   }
 
-  // Function to add a comment
-  async function addComment() {
-    const addCommentEndpoint =
-      server + `/api/authors/${authorId}/posts/${postId}/comments`;
-    const response = await fetchWithRefresh(addCommentEndpoint, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${get(authToken)}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type: 'comment',
-        content_type: 'text/plain',
-        content: commentText,
-        author: authorId,
-        post: postId,
-      }),
-    });
+  
 
-    if (response.ok) {
-      fetchComments();
-      commentText = '';
-    } else {
-      console.error("Failed to add a comment:", response.statusText);
+  // Define a function to handle post details redirection
+  function goToPostDetails(postId) {
+    navigate(`/posts/${postId}`);
+  }
+
+  // Fetch the number of likes for the post
+  async function fetchLikes() {
+    try {
+      const response = await fetchWithRefresh(`${server}/api/authors/${authorId}/posts/${postId}/likes`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+        },
+      });
+
+      if (response.ok) {
+        const likes = await response.json();
+        likeCount = likes.length; // Update the local variable with the number of likes
+      } else {
+        console.error("Failed to fetch likes:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching likes:", error.message);
     }
   }
 
+  async function addLike() {
+    try {
+      const addLikeEndpoint =
+        server + `/api/authors/${authorId}/inbox`;
+        const response = await fetchWithRefresh(addLikeEndpoint, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${get(authToken)}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({}),
+        });
+
+        if (response.ok) {
+            fetchLikes();
+        } else {
+            console.error("Failed to add like:", response.statusText);
+        }
+    } catch (error) {
+        console.error("Error adding like:", error.message);
+    }
+  }
+
+
   // Fetch author's information when the component is mounted
   fetchAuthor();
+  fetchComments();
+  fetchLikes();
 </script>
 
 <div class="post">
@@ -209,7 +237,7 @@
     {#if isEditing}
       <input type="text" bind:value={postTitle} />
     {:else}
-      {title}
+      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}>{title}</a>
     {/if}
   </div>
   <div class="post-content">
@@ -220,14 +248,8 @@
     {/if}
   </div>
   <div class="actions">
-    <button>Like</button>
-    <button on:click={toggleCommentMode}> Comment </button>
-    {#if isCommenting}
-      <div>
-        <textarea bind:value={commentText}></textarea>
-        <button on:click={addComment}>Add Comment</button>
-      </div>
-    {/if}
+    <button on:click={addLike}>Like</button>
+    <button on:click={() => goToPostDetails(post.id)}> Comment </button>
     {#if authorId != post.authorId && post.visibility == "PUBLIC"}
       <button on:click={openPopup}>Share</button>
       {#if showPopup}
@@ -245,7 +267,7 @@
     {#if post.authorId == authorId}
       <button on:click={deletePost}>Delete</button>
     {/if}
-    <span>Likes: {likes}</span>
+    <span>Likes: {likeCount}</span>
     <span class="ml-4">Comments: {commentCount}</span>
   </div>
 </div>
