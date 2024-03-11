@@ -10,6 +10,7 @@
   let postContent = "";
   let visibility = "Public";
   let content_type = "text/markdown";
+  let files
   export let streamType;
   const dispatch = createEventDispatcher();
 
@@ -23,13 +24,10 @@
       return;
     }
   
-    let imageInput = document.querySelector('.post-image');
-    console.log(imageInput)
-    // let imageFile = imageInput.files[0];
     let imageData = "";
-    // if (imageFile) {
-    //   imageData = await readFileAsBase64(imageFile);
-    // }
+    if (files) {
+      imageData = await readFileAsBase64(files[0]);
+    }
 
     const postData = {
       authorId: id,
@@ -96,7 +94,7 @@
     placeholder="What's on your mind?"
     bind:value={postContent}
   ></textarea>
-  <input type="file" class="post-image" accept="image/*" />
+  <input type="file" bind:files class="post-image" accept="image/*" />
   <select class="visibility-select" bind:value={visibility}>
     <option value="Public">Public</option>
     <option value="Unlisted">Unlisted</option>

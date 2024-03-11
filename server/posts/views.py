@@ -118,9 +118,10 @@ class PostDetail(APIView):
         try:
             post = Post.objects.get(id=post_id)
             request_data = request.data.copy()
+            image_info = image_blob.split(",")
 
-            request_data["content"] = image_blob
-            request_data["content_type"] = "image"
+            request_data["content"] = image_info[1]
+            request_data["content_type"] = image_info[0]
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
@@ -183,7 +184,9 @@ class AuthorPosts(APIView):
     def create_image_post(self, request, author_id, image_blob):
         try:
             request_data = request.data.copy()
-            request_data["content"] = image_blob
+            image_info = image_blob.split(",")
+            request_data["content"] = image_info[1]
+            request_data["content_type"] = image_info[0]
             request_data["content_type"] = "image"
             request_data["image"] = None
             request_data["authorId"] = int(author_id)
