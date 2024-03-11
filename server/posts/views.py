@@ -23,7 +23,7 @@ class ProfilePost(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"])
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            queryset = queryset.exclude(content_type__startswith='data:image/')
             
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -45,7 +45,7 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            queryset = queryset.exclude(content_type__startswith='data:image/')
             
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -67,7 +67,7 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id)
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            queryset = queryset.exclude(content_type__startswith='data:image/')
             
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -181,7 +181,7 @@ class AuthorPosts(APIView):
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
-        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+        queryset = queryset.exclude(content_type__startswith='data:image/')
             
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -231,7 +231,7 @@ class PublicPosts(APIView):
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC")
-        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+        queryset = queryset.exclude(content_type__startswith='data:image/')
             
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -253,8 +253,8 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(authorId__in=followed_users_ids)
-            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            queryset = Post.objects.filter(authorId__in=followed_users_ids).exclude(content_type__startswith='data:image/')
+            queryset = queryset.exclude(content_type__startswith='data:image/')
 
             # Order by published date
             queryset = queryset.order_by("-published")
