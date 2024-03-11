@@ -34,12 +34,18 @@
       ).then((response) => response.json())
       .then((data) => {
         // filter data by created_at and get the new activity since 
-        const newActivity = data.filter((event) => new Date(event.created_at) > getCurrentUser().lastUpdated);
+        data.forEach((event) => console.log("Past: ", new Date(event.created_at)));
+        const lastUpdated = new Date(getCurrentUser().lastUpdated);
+        console.log("Last Updated: ", getCurrentUser().lastUpdated);
+        console.log("Threshold: ", lastUpdated);
+
+        const newActivity = data.filter((event) => new Date(event.created_at) > lastUpdated);
         
         console.log("github", newActivity);
 
         // if there is new activity, create a new post for each activity
         if (newActivity.length > 0) {
+          console.log("new activity", newActivity);
           newActivity.forEach((event) => {
             const postData = {
               authorId: getCurrentUser().userId,
@@ -66,14 +72,16 @@
                 console.error("Failed to create post:", response.statusText);
               }
             });
-            
+          });     
+          fetchPosts();
+          // get the latest event and update the lastUpdated field
+          const latestEvent = newActivity[0];
+          // set the lastUpdated field to the latest event
+          currentUser.update(user => {
+            return { ...user, lastUpdated: latestEvent.created_at };
           });
-        }
-        // update time last updated
-        var updatedUserData = getCurrentUser();
-        updatedUserData.lastUpdated = new Date();
-        currentUser.set(updatedUserData);
-        console.log("updated user", updatedUserData);
+          console.log("Updated lastUpdated: ", getCurrentUser().lastUpdated);
+        } 
       });
     }
     // isAuthenticated = $authToken !== "";
@@ -111,6 +119,27 @@
       visibility: "Public",
     },
   ];
+
+  // Function to fetch posts from the backend
+  async function fetchPosts() {
+    try {
+      const response = await fetch(server + "/api/public-posts/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${$authToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched posts:", data); // Log the fetched data
+        posts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
   
   function isValidGitHubLink(link) {
     // Regular expression to match GitHub user profile URLs
