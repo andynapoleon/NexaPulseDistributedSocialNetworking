@@ -22,6 +22,14 @@
       console.error("Post content cannot be empty");
       return;
     }
+  
+    let imageInput = document.querySelector('.post-image');
+    console.log(imageInput)
+    // let imageFile = imageInput.files[0];
+    let imageData = "";
+    // if (imageFile) {
+    //   imageData = await readFileAsBase64(imageFile);
+    // }
 
     const postData = {
       authorId: id,
@@ -30,6 +38,7 @@
       content: postContent,
       content_type: content_type,
       visibility: visibility.toUpperCase(),
+      image: imageData,
     };
 
     console.log("Data to be sent:", postData);
@@ -60,6 +69,18 @@
     } catch (error) {
       console.error("Error:", error);
     }
+  }
+
+  // Function to read image file as base64
+  function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        resolve(reader.result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 </script>
 
