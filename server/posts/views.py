@@ -16,48 +16,20 @@ class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-published")
     serializer_class = PostSerializer
 
-    def create(self, request, *args, **kwargs):
-        data = request.data
-        is_image_post = False
-
-        if "content" in data and data["content"].startswith("data:image"):
-            is_image_post = True
-
-        serializer = self.get_serializer(data=data)
-        if serializer.is_valid():
-            regular_post = serializer.save()
-
-            if is_image_post:
-                image_data = {
-                    "type": "image",
-                    "visibility": data.get("visibility", "PUBLIC"),
-                    "authorId": data["authorId"],
-                    "title": data.get("title", "Image Post"),
-                    "published": data["published"],
-                    "content_type": data["content_type"],
-                    "content": data["content"],
-                    "post": regular_post.id,
-                }
-                image_serializer = self.get_serializer(data=image_data)
-                if image_serializer.is_valid():
-                    image_serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 class ProfilePost(generics.ListCreateAPIView):
     permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(
-                authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]
-            ).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"])
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -72,12 +44,14 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(
-                authorId=author_id, visibility="PUBLIC"
-            ).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -92,10 +66,14 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
-            posts = Post.objects.filter(authorId=author_id).order_by("-published")
+            queryset = Post.objects.filter(authorId=author_id)
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+            # Order by published date
+            queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(posts, many=True)
+            serializer = PostSerializer(queryset, many=True)
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -110,10 +88,9 @@ class PostDetail(APIView):
     def get_serializer_class(self):
         return PostSerializer
 
-    def get(self, request, post_id):
+    def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            print("POST ID: ", post_id)
             serializer = PostSerializer(post)
             return Response(serializer.data)
         except Post.DoesNotExist:
@@ -121,21 +98,30 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
-            # if request.data["image"] != None:
-            #     id, response = self.put_image(
-            #         request, author_id, post_id, request.data["image"]
-            #     )
-            #     # print("HEADER ID:", id)
-            #     if response:
-
-            #         # Remove the 'image' key from request.data
-            #         request_data = request.data.copy()
-            #         request_data["image_ref"] = id
-            #         # request_data.pop("image", None)
-            #         request_data["authorId"] = int(author_id)
-
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post, data=request.data, partial=True)
+
+            request_data = request.data.copy()
+            request_data["authorId"] = int(author_id)
+            if request_data["image"]:
+                # Delete old image post
+                if post.image_ref:
+                    image_blob = request.data["image"]
+                    image_info = image_blob.split(",")
+                    post.image_ref.content = image_info[1]
+                    post.image_ref.contet_type = image_info[0]
+                    post.image_ref.save()
+                else: 
+                    print("I AM CREATING A NEW POST | Current post_id:", post_id)
+                    print("Before making | Current image_ref?:", post.image_ref)
+                    # Create a new one
+                    id, response = self.create_image_post(
+                        request, author_id, post_id, request.data["image"]
+                    )
+                    if response:
+                        request_data["image_ref"] = id
+                        print("After making | Current image_ref?:", id)
+            
+            serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
@@ -145,25 +131,27 @@ class PostDetail(APIView):
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-    def put_image(self, request, author_id, post_id, image_blob):
+    def create_image_post(self, request, author_id, post_id, image_blob):
         try:
-            post = Post.objects.get(id=post_id)
             request_data = request.data.copy()
+            image_info = image_blob.split(",")
 
-            request_data["content"] = image_blob
-            request_data["content_type"] = "image"
+            request_data["content"] = image_info[1]
+            request_data["content_type"] = image_info[0]
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
+            print("New Data created:")
+            print(request_data)
 
-            serializer = PostSerializer(post, data=request_data, partial=True)
+            serializer = PostSerializer(data=request_data, partial=True)
 
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
-
+                    print("Saved id:", saved_id)
                     return saved_id, True
             print(serializer.errors)
             return None, False
@@ -171,61 +159,70 @@ class PostDetail(APIView):
             return None, False
 
     def delete(self, request, author_id, post_id):
-        # Retrieve the regular post object
         try:
             regular_post = Post.objects.get(id=post_id)
+            if regular_post.authorId.id == int(author_id):
+                # Delete the associated image post, if it exists
+                if regular_post.image_ref:
+                    regular_post.image_ref.delete()
+
+                # Delete the regular post
+                regular_post.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(status=status.HTTP_403_FORBIDDEN)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
-        if request.user.id == int(author_id):
-            # Delete the regular post
-            regular_post.delete()
-
-            # Also delete the corresponding image post, if exists
-            try:
-                image_post = Post.objects.get(id=post_id, type="image")
-                image_post.delete()
-            except Post.DoesNotExist:
-                pass  # Image post does not exist
-
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        return Response(status=status.HTTP_403_FORBIDDEN)
-
-
-class ImagePostDetail(APIView):
-    permission_classes = [AllowAny]
-
-    def get(self, request, author_id, post_id):
-        try:
-            post = Post.objects.get(id=post_id, authorId=author_id, type="image")
-            serializer = PostSerializer(post)
-            return Response(serializer.data)
-        except Post.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, author_id, post_id, image_blob):
-        try:
-            post = Post(content=image_blob, authorID=author_id)
-        except:
-            pass
 
 
 class AuthorPosts(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
-        posts = Post.objects.filter(authorId=author_id).order_by("-published")
-        serializer = PostSerializer(posts, many=True)
+        queryset = Post.objects.filter(authorId=author_id)
+        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+        # Order by published date
+        queryset = queryset.order_by("-published")
+
+        serializer = PostSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def post(self, request, author_id):
-        serializer = PostSerializer(data=request.data)
-        print(serializer.initial_data)
+        request_data = request.data.copy()
+        request_data["authorId"] = int(author_id)
+        if request_data["image"] != None:
+            id, response = self.create_image_post(request, author_id, request.data["image"])
+            if response:
+                request_data["image_ref"] = id
+
+        serializer = PostSerializer(data=request_data)
         if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            if request.user.id == int(author_id):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def create_image_post(self, request, author_id, image_blob):
+        try:
+            request_data = request.data.copy()
+            image_info = image_blob.split(",")
+            request_data["content"] = image_info[1]
+            request_data["content_type"] = image_info[0]
+            request_data["image"] = None
+            request_data["authorId"] = int(author_id)
+
+            serializer = PostSerializer(data=request_data)
+            if serializer.is_valid():
+                if request.user.id == int(author_id):
+                    serializer.save()
+                    saved_data = serializer.data
+                    saved_id = saved_data.get("id", None)
+                    return saved_id, True
+            return None, False
+        except Exception as e:
+            return None, False
 
 
 class PublicPosts(APIView):
@@ -233,8 +230,12 @@ class PublicPosts(APIView):
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
-        posts = Post.objects.filter(visibility="PUBLIC").order_by("-published")
-        serializer = PostSerializer(posts, many=True)
+        queryset = Post.objects.filter(visibility="PUBLIC")
+        queryset = Post.objects.exclude(content_type__startswith='data:image/')
+            
+        # Order by published date
+        queryset = queryset.order_by("-published")
+        serializer = PostSerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -252,9 +253,8 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(authorId__in=followed_users_ids).order_by(
-                "-published"
-            )
+            queryset = Post.objects.filter(authorId__in=followed_users_ids)
+            queryset = Post.objects.exclude(content_type__startswith='data:image/')
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -299,3 +299,28 @@ class SharedPost(APIView):
                 {"error": "You are not authorized to share this post"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+
+class ImagePost(APIView):
+    permission_classes = [AllowAny]
+    def get(self, request, author_id, post_id):
+        try:
+            post = Post.objects.get(id=post_id)
+            if post.image_ref != None:
+                serializer = PostSerializer(post.image_ref)
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self, request, author_id, post_id):
+        try:
+            regular_post = Post.objects.get(id=post_id)
+            if regular_post.authorId.id == int(author_id):
+                # Delete the associated image post, if it exists
+                if regular_post.image_ref:
+                    regular_post.image_ref.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(status=status.HTTP_403_FORBIDDEN)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
