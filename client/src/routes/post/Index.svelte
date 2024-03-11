@@ -94,7 +94,7 @@
 
 <main class="posts">
   {#if post}
-    <Post {post}></Post>
+    <Post {post} bind:commentCount></Post>
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">
