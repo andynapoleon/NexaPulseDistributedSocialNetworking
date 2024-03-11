@@ -111,12 +111,15 @@ class PostDetail(APIView):
                     post.image_ref.contet_type = image_info[0]
                     post.image_ref.save()
                 else: 
+                    print("I AM CREATING A NEW POST | Current post_id:", post_id)
+                    print("Before making | Current image_ref?:", post.image_ref)
                     # Create a new one
                     id, response = self.create_image_post(
                         request, author_id, post_id, request.data["image"]
                     )
                     if response:
                         request_data["image_ref"] = id
+                        print("After making | Current image_ref?:", id)
             
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
@@ -130,7 +133,6 @@ class PostDetail(APIView):
 
     def create_image_post(self, request, author_id, post_id, image_blob):
         try:
-            post = Post.objects.get(id=post_id)
             request_data = request.data.copy()
             image_info = image_blob.split(",")
 
@@ -139,15 +141,17 @@ class PostDetail(APIView):
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
+            print("New Data created:")
+            print(request_data)
 
-            serializer = PostSerializer(post, data=request_data, partial=True)
+            serializer = PostSerializer(data=request_data, partial=True)
 
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
-
+                    print("Saved id:", saved_id)
                     return saved_id, True
             print(serializer.errors)
             return None, False
@@ -304,5 +308,19 @@ class ImagePost(APIView):
             if post.image_ref != None:
                 serializer = PostSerializer(post.image_ref)
                 return Response(serializer.data, status=status.HTTP_200_OK)
+        except Post.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    def delete(self, request, author_id, post_id):
+        try:
+            regular_post = Post.objects.get(id=post_id)
+            if regular_post.authorId.id == int(author_id):
+                # Delete the associated image post, if it exists
+                if regular_post.image_ref:
+                    regular_post.image_ref.delete()
+
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response(status=status.HTTP_403_FORBIDDEN)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

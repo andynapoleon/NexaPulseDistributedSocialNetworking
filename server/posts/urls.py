@@ -60,7 +60,7 @@ urlpatterns = [
         views.SharedPost.as_view(),
         name="share-post",
     ),
-    
+     # Gets and deletes image post
     path(
         "authors/${authorId}/posts/${postId}/image/",
         views.ImagePost.as_view(),

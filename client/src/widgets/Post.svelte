@@ -31,6 +31,7 @@
   let isCommenting = false;
   let commentText = "";
   let showPopup = false;
+  let removeImageFlag = false;
 
   function openPopup() {
     showPopup = true;
@@ -101,6 +102,7 @@
     // Revert to original content if editing is canceled
     if (!isEditing) {
       post.content = editedContent;
+      removeImageFlag = false;
     }
   }
 
@@ -111,6 +113,7 @@
     let imageData = "";
     if (files) {
       imageData = await readFileAsBase64(files[0]);
+      console.log("Image data sent:", imageData); // Log the image data being sent
     }
     const response = await fetchWithRefresh(editPostEndpoint, {
       method: "PUT",
@@ -120,6 +123,11 @@
       },
       body: JSON.stringify({ title: postTitle, content: editedContent, image: imageData }),
     });
+
+    if (removeImageFlag && post.image_ref) {
+      deleteImagePost();
+      removeImageFlag = true;
+    }
 
     // Function to read image file as base64
     function readFileAsBase64(file) {
@@ -135,12 +143,18 @@
 
     if (response.ok) {
       // Update the component state with edited content
-      let imageInfo = imageData.split(",");
-      image_type = imageInfo[0];
-      image_base64 = imageInfo[1];
+      if (post.image_ref) {
+        removeImageFlag = false;
+
+        let imageInfo = imageData.split(",");
+        image_type = imageInfo[0];
+        image_base64 = imageInfo[1];
+      }
+
       content = editedContent;
       title = postTitle;
       isEditing = false;
+      dispatch("changed", { changeDetected: true });
     } else {
       console.error("Failed to save edited post");
     }
@@ -185,6 +199,30 @@
       }
     } catch (error) {
       console.error("Error sharing post:", error.message);
+    }
+  }
+
+  async function removeImageDisplay() {
+    // Remove the image display by clearing the image data
+    removeImageFlag = true;
+  }
+
+  async function deleteImagePost() {
+    try {
+        const response = await fetch(`${server}/api/authors/${authorId}/posts/${postId}/image/`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${get(authToken)}`
+            }
+        });
+
+        if (response.ok) {
+          dispatch("changed", { changeDetected: true });
+        } else {
+            console.error('Failed to remove image:', response.statusText);
+        }
+    } catch (error) {
+        console.error('Error removing image:', error.message);
     }
   }
 
@@ -237,12 +275,15 @@
     {/if}
   </div>
   <div class="post-content">
-    {#if post.image_ref}
+    {#if post.image_ref && !removeImageFlag}
       <img src="{image_type}, {image_base64}" alt=" " />
     {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
       <input type="file" bind:files bind:this={editInput} class="post-image" accept="image/png, image/jpeg" />
+      {#if post.image_ref}
+        <button on:click={removeImageDisplay}>Remove Image</button>
+      {/if}
     {:else}
       {content}
     {/if}
