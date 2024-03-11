@@ -78,16 +78,36 @@
           fetchPosts();
           // get the latest event and update the lastUpdated field
           const latestEvent = newActivity[0];
-          // set the lastUpdated field to the latest event
-          currentUser.update(user => {
-            return { ...user, lastUpdated: latestEvent.created_at };
+          const updatedLastUpdated = latestEvent.created_at;
+          // update the lastUpdated field with API
+          fetch(
+            server + `/api/authors/${getCurrentUser().userId}/`,
+            {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ${get(authToken)}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                lastUpdated: updatedLastUpdated
+              }),
+            }
+          ).then((response) => {
+            if (response.ok) {
+              console.log("lastUpdated field updated successfully");
+              // Update lastUpdated field in currentUser
+              currentUser.update(user => {
+                return { ...user, lastUpdated: updatedLastUpdated };
+              });
+              console.log("Updated lastUpdated: ", getCurrentUser().lastUpdated);
+            } else {
+              console.error("Failed to update lastUpdated field:", response.statusText);
+            }
           });
-          console.log("Updated lastUpdated: ", getCurrentUser().lastUpdated);
         } 
-      });
+      })
     }
   });
-
   function isValidGitHubLink(link) {
     // Regular expression to match GitHub user profile URLs
     var regex = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+$/;
