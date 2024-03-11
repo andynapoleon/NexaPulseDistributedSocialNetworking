@@ -18,7 +18,7 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likeCount = 0;
+  export let likeCount = 0;
   export let commentCount = 0;
 
   // Local component states

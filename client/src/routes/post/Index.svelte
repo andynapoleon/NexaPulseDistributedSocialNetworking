@@ -21,6 +21,7 @@
   let commentText = ''; // Variable to hold the new comment text
 
   let commentCount;
+  let likeCount;
 
   async function fetchPostById() {
     console.log("fetching post by ID");
@@ -94,7 +95,7 @@
 
 <main class="posts">
   {#if post}
-    <Post {post} bind:commentCount></Post>
+    <Post {post} bind:commentCount bind:likeCount></Post>
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">
