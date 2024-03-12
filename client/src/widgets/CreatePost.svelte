@@ -9,7 +9,7 @@
   let postTitle = "";
   let postContent = "";
   let visibility = "Public";
-  let content_type = "text/plain";
+  let contentType = "text/plain";
   let files, input;
   export let streamType;
   const dispatch = createEventDispatcher();
@@ -34,7 +34,7 @@
       type: "post",
       title: postTitle,
       content: postContent,
-      content_type: content_type,
+      contentType: contentType,
       visibility: visibility.toUpperCase(),
       image: imageData,
     };

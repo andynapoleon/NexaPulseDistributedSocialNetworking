@@ -5,6 +5,7 @@
   import { posts } from "../stores/stores.js";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
+  import { onMount } from "svelte";
 
   // Props passed to the component
   export let post;
@@ -23,6 +24,8 @@
   let thoughts = "This post is so good!";
   let originalAuthor = "";
   let originalContent = post.originalContent;
+  let image_base64 = "";
+  let image_type = "";
 
   // Local component state for editing
   let isLiked = false;
@@ -244,6 +247,36 @@
     }
   }
 
+  async function fetchPostImage() {
+    try {
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts/${postId}/image`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const post = await response.json();
+        image_base64 = post.content;
+        image_type = post.contentType
+      } else {
+        console.error("Failed to fetch image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching image:", error.message);
+    }
+  }
+
+  // Fetch the image associated with the post when the component is mounted
+  onMount(() => {
+    if (post.image_ref) {
+      fetchPostImage();
+    }
+  });
+
   // Fetch author's information when the component is mounted
   fetchAuthor();
   fetchComments();
@@ -273,6 +306,9 @@
       {/if}
     </div>
     <div class="post-content">
+      {#if post.image_ref}
+        <img src="data:{image_type}, {image_base64}" alt=" " />
+      {/if}
       {originalContent}
     </div>
   </div>

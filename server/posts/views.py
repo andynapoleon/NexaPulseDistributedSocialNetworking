@@ -27,7 +27,7 @@ class ProfilePost(generics.ListCreateAPIView):
             queryset = Post.objects.filter(
                 authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]
             )
-            queryset = queryset.exclude(contentType__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -49,7 +49,7 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
-            queryset = queryset.exclude(contentType__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -71,7 +71,7 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id)
-            queryset = queryset.exclude(contentType__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -138,7 +138,7 @@ class PostDetail(APIView):
                     image_blob = request.data["image"]
                     image_info = image_blob.split(",")
                     post.image_ref.content = image_info[1]
-                    post.image_ref.contentType = image_info[0]
+                    post.image_ref.contentType = image_info[0][5:]
                     post.image_ref.save()
                 else:
                     print("I AM CREATING A NEW POST | Current post_id:", post_id)
@@ -149,7 +149,7 @@ class PostDetail(APIView):
                     )
                     if response:
                         request_data["image_ref"] = id
-                        print("After making | Current image_ref?:", id)
+                        print("After making | Current image_ref:", id)
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
@@ -166,7 +166,7 @@ class PostDetail(APIView):
             image_info = image_blob.split(",")
 
             request_data["content"] = image_info[1]
-            request_data["contentType"] = image_info[0]
+            request_data["contentType"] = image_info[0][5:]
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
@@ -210,7 +210,7 @@ class AuthorPosts(APIView):
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
-        queryset = queryset.exclude(contentType__startswith="data:image/")
+        queryset = queryset.exclude(contentType__startswith="image/")
 
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -227,6 +227,7 @@ class AuthorPosts(APIView):
             )
             if response:
                 request_data["image_ref"] = id
+                print("After making | Current image_ref?:", id)
 
         serializer = PostSerializer(data=request_data)
         if serializer.is_valid():
@@ -240,11 +241,13 @@ class AuthorPosts(APIView):
             request_data = request.data.copy()
             image_info = image_blob.split(",")
             request_data["content"] = image_info[1]
-            request_data["contentType"] = image_info[0]
+            request_data["contentType"] = image_info[0][5:]
             request_data["image"] = None
             request_data["authorId"] = int(author_id)
 
+            print("image post: ", request_data)
             serializer = PostSerializer(data=request_data)
+            print("Serializer validated:", serializer.is_valid())
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
@@ -262,7 +265,7 @@ class PublicPosts(APIView):
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC")
-        queryset = queryset.exclude(contentType__startswith="data:image/")
+        queryset = queryset.exclude(contentType__startswith="image/")
 
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -288,8 +291,8 @@ class FollowingPosts(APIView):
             queryset = Post.objects.filter(
                 Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
                 authorId__in=followed_users_ids,
-            ).exclude(contentType__startswith="data:image/")
-            # queryset = queryset.exclude(contentType__startswith="data:image/")
+            ).exclude(contentType__startswith="image/")
+            # queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -321,11 +324,15 @@ class SharedPost(APIView):
             shared_post = serializer.data
             shared_post["published"] = timezone.now()
             shared_post["isShared"] = True
+            # sharedBy means original author
             shared_post["sharedBy"] = shared_post["authorId"]
+            # authorId is the author sharing the post
             shared_post["authorId"] = int(author_id)
             shared_post["visibility"] = "FRIENDS"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
+            shared_post["image_ref"] = post.image_ref.id
+            print(shared_post)
             serializer = PostSerializer(data=shared_post)
             if serializer.is_valid():
                 serializer.save()
