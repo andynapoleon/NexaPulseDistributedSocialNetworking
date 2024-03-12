@@ -24,17 +24,15 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
-        print("AUTHOR", author_id)
-        print("DFDSF,", request.data.get("author"))
 
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
-        # if request.data.get("author") != int(author_id):
-        #     return Response(
-        #         {
-        #             "error": "You are not authorized to like posts on behalf of other users."
-        #         },
-        #         status=status.HTTP_403_FORBIDDEN,
-        #     )
+        if request.data.get("author") != int(author_id):
+            return Response(
+                {
+                    "error": "You are not authorized to like posts on behalf of other users."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         try:
             like = PostLikes.objects.create(author_id=author_id, post_id=post_id)
