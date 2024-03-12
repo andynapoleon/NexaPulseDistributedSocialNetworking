@@ -276,7 +276,7 @@
           Authorization: `Bearer ${get(authToken)}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ author: authorId }),
       });
 
       if (response.ok) {
