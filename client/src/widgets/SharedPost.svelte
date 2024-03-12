@@ -156,13 +156,11 @@
 
       if (response.ok) {
         dispatch("changed", { changeDetected: true });
-        navigate("/foryou");
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
     }
   }
-
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
@@ -172,17 +170,20 @@
   // Fetch the number of likes for the post
   async function fetchLikes() {
     try {
-      const response = await fetchWithRefresh(`${server}/api/authors/${authorId}/posts/${postId}/listoflikes`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-        },
-      });
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/listoflikes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const likes = await response.json();
         likeCount = likes.length;
-        isLiked = likes.some(like => like.author === authorId);
+        isLiked = likes.some((like) => like.author === authorId);
       } else {
         console.error("Failed to fetch likes:", response.statusText);
       }
@@ -238,7 +239,6 @@
       console.error("Error toggling like:", error.message);
     }
   }
-
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
