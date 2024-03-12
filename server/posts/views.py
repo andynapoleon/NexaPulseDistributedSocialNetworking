@@ -19,7 +19,7 @@ class PostList(generics.ListCreateAPIView):
 
 
 class ProfilePost(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         try:
@@ -27,7 +27,7 @@ class ProfilePost(generics.ListCreateAPIView):
             queryset = Post.objects.filter(
                 authorId=author_id, visibility__in=["PUBLIC", "FRIENDS"]
             )
-            queryset = queryset.exclude(content_type__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -43,13 +43,13 @@ class ProfilePost(generics.ListCreateAPIView):
 
 
 class ProfilePostForStranger(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
-            queryset = queryset.exclude(content_type__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -65,13 +65,13 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
 
 
 class ProfilePostForHimself(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         try:
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id)
-            queryset = queryset.exclude(content_type__startswith="data:image/")
+            queryset = queryset.exclude(contentType__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -87,7 +87,7 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
 
 
 class PostById(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id, post_id):
         try:
@@ -110,7 +110,7 @@ class PostById(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -118,7 +118,8 @@ class PostDetail(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post)
+            base_url = request.build_absolute_uri('/')
+            serializer = PostSerializer(post, context={'base_url': base_url})
             return Response(serializer.data)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -129,13 +130,14 @@ class PostDetail(APIView):
 
             request_data = request.data.copy()
             request_data["authorId"] = int(author_id)
+            print("Current request_data image:", request_data["image"])
             if request_data["image"]:
                 # Delete old image post
                 if post.image_ref:
                     image_blob = request.data["image"]
                     image_info = image_blob.split(",")
                     post.image_ref.content = image_info[1]
-                    post.image_ref.contet_type = image_info[0]
+                    post.image_ref.contentType = image_info[0]
                     post.image_ref.save()
                 else:
                     print("I AM CREATING A NEW POST | Current post_id:", post_id)
@@ -146,14 +148,14 @@ class PostDetail(APIView):
                     )
                     if response:
                         request_data["image_ref"] = id
-                        print("After making | Current image_ref?:", id)
+                        # print("After making | Current image_ref?:", id)
 
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
                     return Response(serializer.data)
-            print(serializer.errors)
+            # print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -164,12 +166,12 @@ class PostDetail(APIView):
             image_info = image_blob.split(",")
 
             request_data["content"] = image_info[1]
-            request_data["content_type"] = image_info[0]
+            request_data["contentType"] = image_info[0]
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
-            print("New Data created:")
-            print(request_data)
+            # print("New Data created:")
+            # print(request_data)
 
             serializer = PostSerializer(data=request_data, partial=True)
 
@@ -178,9 +180,9 @@ class PostDetail(APIView):
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
-                    print("Saved id:", saved_id)
+                    # print("Saved id:", saved_id)
                     return saved_id, True
-            print(serializer.errors)
+            # print(serializer.errors)
             return None, False
         except Post.DoesNotExist:
             return None, False
@@ -204,11 +206,11 @@ class PostDetail(APIView):
 
 
 class AuthorPosts(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
-        queryset = queryset.exclude(content_type__startswith="data:image/")
+        queryset = queryset.exclude(contentType__startswith="data:image/")
 
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -238,7 +240,7 @@ class AuthorPosts(APIView):
             request_data = request.data.copy()
             image_info = image_blob.split(",")
             request_data["content"] = image_info[1]
-            request_data["content_type"] = image_info[0]
+            request_data["contentType"] = image_info[0]
             request_data["image"] = None
             request_data["authorId"] = int(author_id)
 
@@ -255,12 +257,12 @@ class AuthorPosts(APIView):
 
 
 class PublicPosts(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC")
-        queryset = queryset.exclude(content_type__startswith="data:image/")
+        queryset = queryset.exclude(contentType__startswith="data:image/")
 
         # Order by published date
         queryset = queryset.order_by("-published")
@@ -285,8 +287,8 @@ class FollowingPosts(APIView):
             queryset = Post.objects.filter(
                 Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
                 authorId__in=followed_users_ids,
-            ).exclude(content_type__startswith="data:image/")
-            # queryset = queryset.exclude(content_type__startswith="data:image/")
+            ).exclude(contentType__startswith="data:image/")
+            # queryset = queryset.exclude(contentType__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -303,7 +305,7 @@ class FollowingPosts(APIView):
 
 
 class SharedPost(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def post(self, request, author_id, post_id):
         try:
@@ -334,7 +336,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id, post_id):
         try:

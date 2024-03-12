@@ -9,7 +9,7 @@
   let postTitle = "";
   let postContent = "";
   let visibility = "Public";
-  let content_type = "text/markdown";
+  let content_type = "text/plain";
   let files, input;
   export let streamType;
   const dispatch = createEventDispatcher();
