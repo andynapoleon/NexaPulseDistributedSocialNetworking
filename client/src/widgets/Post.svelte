@@ -121,7 +121,11 @@
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent, image: imageData }),
+      body: JSON.stringify({
+        title: postTitle,
+        content: editedContent,
+        image: imageData,
+      }),
     });
 
     if (removeImageFlag && post.image_ref) {
@@ -209,20 +213,23 @@
 
   async function deleteImagePost() {
     try {
-        const response = await fetch(`${server}/api/authors/${authorId}/posts/${postId}/image/`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${get(authToken)}`
-            }
-        });
-
-        if (response.ok) {
-          dispatch("changed", { changeDetected: true });
-        } else {
-            console.error('Failed to remove image:', response.statusText);
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts/${postId}/image/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
         }
+      );
+
+      if (response.ok) {
+        dispatch("changed", { changeDetected: true });
+      } else {
+        console.error("Failed to remove image:", response.statusText);
+      }
     } catch (error) {
-        console.error('Error removing image:', error.message);
+      console.error("Error removing image:", error.message);
     }
   }
 
@@ -230,8 +237,6 @@
   function toggleCommentMode() {
     isCommenting = !isCommenting;
   }
-
-  
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
@@ -241,12 +246,15 @@
   // Fetch the number of likes for the post
   async function fetchLikes() {
     try {
-      const response = await fetchWithRefresh(`${server}/api/authors/${authorId}/posts/${postId}/likes`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-        },
-      });
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/likes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const likes = await response.json();
@@ -261,27 +269,25 @@
 
   async function addLike() {
     try {
-      const addLikeEndpoint =
-        server + `/api/authors/${authorId}/inbox`;
-        const response = await fetchWithRefresh(addLikeEndpoint, {
-            method: "POST",
-            headers: {
-                Authorization: `Bearer ${get(authToken)}`,
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({}),
-        });
+      const addLikeEndpoint = server + `/api/authors/${authorId}/inbox`;
+      const response = await fetchWithRefresh(addLikeEndpoint, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ author: authorId }),
+      });
 
-        if (response.ok) {
-            fetchLikes();
-        } else {
-            console.error("Failed to add like:", response.statusText);
-        }
+      if (response.ok) {
+        fetchLikes();
+      } else {
+        console.error("Failed to add like:", response.statusText);
+      }
     } catch (error) {
-        console.error("Error adding like:", error.message);
+      console.error("Error adding like:", error.message);
     }
   }
-
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
@@ -289,11 +295,19 @@
   // Fetch the image associated with the post
   async function fetchPostImage() {
     try {
-      const response = await fetch(`${server}/api/authors/${authorId}/posts/${postId}/image`);
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts/${postId}/image`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
       if (response.ok) {
         const post = await response.json();
-        image_base64 = post.content
-        image_type = post.content_type
+        image_base64 = post.content;
+        image_type = post.content_type;
       } else {
         console.error("Failed to fetch image:", response.statusText);
       }
@@ -304,10 +318,10 @@
 
   // Fetch the image associated with the post when the component is mounted
   onMount(() => {
-      if (post.image_ref) {
-          fetchPostImage();
-      }
-    });
+    if (post.image_ref) {
+      fetchPostImage();
+    }
+  });
 
   fetchComments();
   fetchLikes();
@@ -321,7 +335,9 @@
     {#if isEditing}
       <input type="text" bind:value={postTitle} />
     {:else}
-      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}>{title}</a>
+      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}
+        >{title}</a
+      >
     {/if}
   </div>
   <div class="post-content">
@@ -330,7 +346,13 @@
     {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
-      <input type="file" bind:files bind:this={editInput} class="post-image" accept="image/png, image/jpeg" />
+      <input
+        type="file"
+        bind:files
+        bind:this={editInput}
+        class="post-image"
+        accept="image/png, image/jpeg"
+      />
       {#if post.image_ref}
         <button on:click={removeImageDisplay}>Remove Image</button>
       {/if}
