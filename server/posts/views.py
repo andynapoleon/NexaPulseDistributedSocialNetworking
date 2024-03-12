@@ -89,11 +89,22 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
 class PostById(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, post_id):
+    def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post)
-            return Response(serializer.data)
+            if post.visibility != "FRIENDS":
+                serializer = PostSerializer(post)
+                return Response(serializer.data)
+            else:
+                followed_users_ids = Follows.objects.filter(
+                    follower_id=author_id, acceptedRequest=True
+                ).values_list("followed_id", flat=True)
+                followed_users_ids = list(followed_users_ids)
+                if post.authorId.id in followed_users_ids:
+                    serializer = PostSerializer(post)
+                    return Response(serializer.data)
+                else:
+                    return Response(status=status.HTTP_403_FORBIDDEN)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 

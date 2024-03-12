@@ -16,6 +16,7 @@
   let postId = params.id;
   let post;
   let comments = [];
+  let error = false;
 
   let authorId = $currentUser.userId;
   let commentText = ""; // Variable to hold the new comment text
@@ -26,19 +27,23 @@
   async function fetchPostById() {
     console.log("fetching post by ID");
     try {
-      const response = await fetch(`${server}/api/posts/${postId}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-        },
-      });
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts-by-id/${postId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         console.log(data);
         post = data;
         fetchComments(); // Fetch comments after fetching the post
-      } else {
+      } else if (response.status === 403) {
         console.error("Failed to fetch post:", response.statusText);
+        error = true;
       }
     } catch (error) {
       console.error("Error fetching post:", error.message);
@@ -117,6 +122,8 @@
       ></textarea>
       <button on:click={addComment}>Add Comment</button>
     </div>
+  {:else if error}
+    <p>You are not authorized to see this post.</p>
   {:else}
     <p>Loading post...</p>
   {/if}
