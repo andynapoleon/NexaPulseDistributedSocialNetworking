@@ -100,6 +100,7 @@ class PostById(APIView):
                     follower_id=author_id, acceptedRequest=True
                 ).values_list("followed_id", flat=True)
                 followed_users_ids = list(followed_users_ids)
+                followed_users_ids.append(int(author_id))
                 if post.authorId.id in followed_users_ids:
                     serializer = PostSerializer(post)
                     return Response(serializer.data)

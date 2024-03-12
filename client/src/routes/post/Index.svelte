@@ -1,6 +1,7 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Post from "../../widgets/Post.svelte";
+  import SharedPost from "../../widgets/SharedPost.svelte";
   import { onMount, beforeUpdate } from "svelte";
   import {
     authToken,
@@ -135,7 +136,11 @@
 
 <main class="posts">
   {#if post}
-    <Post {post} bind:commentCount bind:likeCount on:like={likePost}></Post>
+    {#if !post.isShared}
+      <Post {post} bind:commentCount bind:likeCount on:like={likePost} />
+    {:else}
+      <SharedPost {post} bind:commentCount bind:likeCount on:like={likePost} />
+    {/if}
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">
