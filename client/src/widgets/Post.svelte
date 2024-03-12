@@ -179,6 +179,7 @@
 
       if (response.ok) {
         dispatch("changed", { changeDetected: true });
+        navigate("/");
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
