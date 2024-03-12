@@ -30,7 +30,6 @@
   let files;
   let editInput;
   let postTitle = title;
-  let isCommenting = false;
   let showPopup = false;
   let removeImageFlag = false;
 
@@ -234,11 +233,6 @@
     }
   }
 
-  // Function to toggle comment mode
-  function toggleCommentMode() {
-    isCommenting = !isCommenting;
-  }
-
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
     navigate(`/posts/${postId}`);
@@ -315,28 +309,6 @@
   }
 
 
-  // async function addLike() {
-  //   try {
-  //     const addLikeEndpoint = server + `/api/authors/${authorId}/inbox`;
-  //     const response = await fetchWithRefresh(addLikeEndpoint, {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: `Bearer ${get(authToken)}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ author: authorId, post: postId }),
-  //     });
-
-  //     if (response.ok) {
-  //       fetchLikes();
-  //     } else {
-  //       console.error("Failed to add like:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error adding like:", error.message);
-  //   }
-  // }
-
   // Fetch author's information when the component is mounted
   fetchAuthor();
 
@@ -383,9 +355,7 @@
     {#if isEditing}
       <input type="text" bind:value={postTitle} />
     {:else}
-      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}
-        >{title}</a
-      >
+      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}>{title}</a>
     {/if}
   </div>
   <div class="post-content">
@@ -414,7 +384,6 @@
     {:else}
       <button on:click={toggleLike}>Like</button>
     {/if}
-    <!-- <button on:click={addLike}>Like</button> -->
     <button on:click={() => goToPostDetails(post.id)}> Comment </button>
     {#if authorId != post.authorId && post.visibility == "PUBLIC"}
       <button on:click={openPopup}>Share</button>
