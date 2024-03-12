@@ -19,7 +19,7 @@ class PostList(generics.ListCreateAPIView):
 
 
 class ProfilePost(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -43,7 +43,7 @@ class ProfilePost(generics.ListCreateAPIView):
 
 
 class ProfilePostForStranger(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -65,7 +65,7 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
 
 
 class ProfilePostForHimself(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -87,7 +87,7 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
 
 
 class PostById(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:
@@ -111,7 +111,7 @@ class PostById(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -206,7 +206,7 @@ class PostDetail(APIView):
 
 
 class AuthorPosts(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
@@ -260,7 +260,7 @@ class AuthorPosts(APIView):
 
 
 class PublicPosts(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
@@ -310,7 +310,7 @@ class FollowingPosts(APIView):
 
 
 class SharedPost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, author_id, post_id):
         try:
@@ -345,7 +345,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:

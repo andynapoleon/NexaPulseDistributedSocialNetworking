@@ -177,6 +177,7 @@
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
+    postId = editPostId(postId);
     navigate(`/posts/${postId}`);
   }
 
