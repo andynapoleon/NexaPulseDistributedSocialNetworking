@@ -321,7 +321,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get(self, request, author_id, post_id):
         try:
