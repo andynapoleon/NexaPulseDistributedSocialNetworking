@@ -128,7 +128,11 @@
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent }),
+      body: JSON.stringify({
+        title: postTitle,
+        content: editedContent,
+        image: "",
+      }),
     });
 
     if (response.ok) {
