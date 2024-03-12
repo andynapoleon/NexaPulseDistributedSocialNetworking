@@ -6,7 +6,7 @@ urlpatterns = [
     path("posts/", views.PostList.as_view(), name="post_list"),
     # Endpoint for retrieving a post by id
     path(
-        "posts/<str:post_id>/",
+        "authors/<str:author_id>/posts-by-id/<str:post_id>/",
         views.PostById.as_view(),
         name="post_detail",
     ),

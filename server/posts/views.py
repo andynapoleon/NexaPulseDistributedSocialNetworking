@@ -10,6 +10,7 @@ from .serializers import PostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
+from django.db.models import Q
 
 
 class PostList(generics.ListCreateAPIView):
@@ -88,11 +89,22 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
 class PostById(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, post_id):
+    def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            serializer = PostSerializer(post)
-            return Response(serializer.data)
+            if post.visibility != "FRIENDS":
+                serializer = PostSerializer(post)
+                return Response(serializer.data)
+            else:
+                followed_users_ids = Follows.objects.filter(
+                    follower_id=author_id, acceptedRequest=True
+                ).values_list("followed_id", flat=True)
+                followed_users_ids = list(followed_users_ids)
+                if post.authorId.id in followed_users_ids:
+                    serializer = PostSerializer(post)
+                    return Response(serializer.data)
+                else:
+                    return Response(status=status.HTTP_403_FORBIDDEN)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -270,10 +282,11 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(authorId__in=followed_users_ids).exclude(
-                content_type__startswith="data:image/"
-            )
-            queryset = queryset.exclude(content_type__startswith="data:image/")
+            queryset = Post.objects.filter(
+                Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
+                authorId__in=followed_users_ids,
+            ).exclude(content_type__startswith="data:image/")
+            # queryset = queryset.exclude(content_type__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -321,7 +334,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:

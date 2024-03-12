@@ -16,9 +16,10 @@
   let postId = params.id;
   let post;
   let comments = [];
+  let error = false;
 
   let authorId = $currentUser.userId;
-  let commentText = ''; // Variable to hold the new comment text
+  let commentText = ""; // Variable to hold the new comment text
 
   let commentCount;
   let likeCount;
@@ -26,14 +27,23 @@
   async function fetchPostById() {
     console.log("fetching post by ID");
     try {
-      const response = await fetch(`${server}/api/posts/${postId}`);
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts-by-id/${postId}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
       if (response.ok) {
         const data = await response.json();
         console.log(data);
         post = data;
         fetchComments(); // Fetch comments after fetching the post
-      } else {
+      } else if (response.status === 403) {
         console.error("Failed to fetch post:", response.statusText);
+        error = true;
       }
     } catch (error) {
       console.error("Error fetching post:", error.message);
@@ -73,8 +83,8 @@
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        type: 'comment',
-        content_type: 'text/plain',
+        type: "comment",
+        content_type: "text/plain",
         comment: commentText,
         author: authorId,
         post: postId,
@@ -83,14 +93,13 @@
 
     if (response.ok) {
       fetchComments();
-      commentText = ''; // Clear the comment text after adding
+      commentText = ""; // Clear the comment text after adding
     } else {
       console.error("Failed to add a comment:", response.statusText);
     }
   }
 
   onMount(fetchPostById);
-  
 </script>
 
 <main class="posts">
@@ -106,12 +115,15 @@
     {:else}
       <p>No comments yet</p>
     {/if}
-    
+
     <!-- Box to add new comment -->
     <div class="new-comment-box">
-      <textarea bind:value={commentText} placeholder="Add your comment"></textarea>
+      <textarea bind:value={commentText} placeholder="Add your comment"
+      ></textarea>
       <button on:click={addComment}>Add Comment</button>
     </div>
+  {:else if error}
+    <p>You are not authorized to see this post.</p>
   {:else}
     <p>Loading post...</p>
   {/if}
@@ -123,7 +135,7 @@
     padding-left: 20%;
     padding-right: 7%;
   }
-  
+
   .comment-list {
     list-style-type: none; /* Remove default bullet points */
     padding: 0;
@@ -134,14 +146,15 @@
     margin-bottom: 10px; /* Add some spacing between comments */
   }
 
-  p, h2 {
+  p,
+  h2 {
     color: black;
   }
-  
+
   .new-comment-box {
     margin-top: 20px;
   }
-  
+
   .new-comment-box textarea {
     width: 100%;
     height: 100px;
@@ -154,7 +167,7 @@
     color: black;
     caret-color: black;
   }
-  
+
   .new-comment-box button {
     background-color: #008080;
     color: white;
