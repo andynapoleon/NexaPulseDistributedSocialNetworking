@@ -107,9 +107,9 @@
 <main class="posts">
   {#if post}
     {#if !post.isShared}
-      <Post {post} bind:commentCount bind:likeCount on:like={likePost} />
+      <Post {post} bind:commentCount bind:likeCount />
     {:else}
-      <SharedPost {post} bind:commentCount bind:likeCount on:like={likePost} />
+      <SharedPost {post} bind:commentCount bind:likeCount />
     {/if}
     <h2>Comments:</h2>
     {#if comments.length > 0}

@@ -162,10 +162,6 @@
     }
   }
 
-  // // Function to toggle comment mode
-  // function toggleCommentMode() {
-  //   isCommenting = !isCommenting;
-  // }
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
