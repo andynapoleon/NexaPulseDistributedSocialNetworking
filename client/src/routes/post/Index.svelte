@@ -1,6 +1,7 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Post from "../../widgets/Post.svelte";
+  import SharedPost from "../../widgets/SharedPost.svelte";
   import { onMount, beforeUpdate } from "svelte";
   import {
     authToken,
@@ -11,6 +12,7 @@
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
+  import { navigate } from "svelte-routing";
 
   export let params;
   let postId = params.id;
@@ -42,8 +44,9 @@
         post = data;
         fetchComments(); // Fetch comments after fetching the post
       } else if (response.status === 403) {
-        console.error("Failed to fetch post:", response.statusText);
         error = true;
+      } else {
+        console.error("Failed to fetch post:", response.statusText);
       }
     } catch (error) {
       console.error("Error fetching post:", error.message);
@@ -100,11 +103,26 @@
   }
 
   onMount(fetchPostById);
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      window.history.back();
+    }
+  }
 </script>
 
 <main class="posts">
   {#if post}
-    <Post {post} bind:commentCount bind:likeCount></Post>
+    {#if !post.isShared}
+      <Post {post} bind:commentCount bind:likeCount on:changed={handleChange} />
+    {:else}
+      <SharedPost
+        {post}
+        bind:commentCount
+        bind:likeCount
+        on:changed={handleChange}
+      />
+    {/if}
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">

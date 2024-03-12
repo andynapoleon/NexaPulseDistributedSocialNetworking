@@ -24,12 +24,12 @@
   let image_type = "";
 
   // Local component states
+  let isLiked = false;
   let isEditing = false;
   let editedContent = post.content;
   let files;
   let editInput;
   let postTitle = title;
-  let isCommenting = false;
   let showPopup = false;
   let removeImageFlag = false;
 
@@ -233,11 +233,6 @@
     }
   }
 
-  // Function to toggle comment mode
-  function toggleCommentMode() {
-    isCommenting = !isCommenting;
-  }
-
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
     navigate(`/posts/${postId}`);
@@ -247,7 +242,7 @@
   async function fetchLikes() {
     try {
       const response = await fetchWithRefresh(
-        `${server}/api/authors/${authorId}/posts/${postId}/likes`,
+        `${server}/api/authors/${authorId}/posts/${postId}/listoflikes`,
         {
           method: "GET",
           headers: {
@@ -258,7 +253,8 @@
 
       if (response.ok) {
         const likes = await response.json();
-        likeCount = likes.length; // Update the local variable with the number of likes
+        likeCount = likes.length;
+        isLiked = likes.some((like) => like.author === authorId);
       } else {
         console.error("Failed to fetch likes:", response.statusText);
       }
@@ -267,25 +263,51 @@
     }
   }
 
-  async function addLike() {
+  async function toggleLike() {
     try {
-      const addLikeEndpoint = server + `/api/authors/${authorId}/inbox`;
-      const response = await fetchWithRefresh(addLikeEndpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ author: authorId }),
-      });
+      if (isLiked) {
+        // Unlike the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
 
-      if (response.ok) {
-        fetchLikes();
+        if (response.ok) {
+          isLiked = false;
+          fetchLikes();
+        } else {
+          console.error("Failed to unlike the post:", response.statusText);
+        }
       } else {
-        console.error("Failed to add like:", response.statusText);
+        // Like the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = true;
+          fetchLikes();
+        } else {
+          console.error("Failed to like the post:", response.statusText);
+        }
       }
     } catch (error) {
-      console.error("Error adding like:", error.message);
+      console.error("Error toggling like:", error.message);
     }
   }
 
@@ -361,7 +383,11 @@
     {/if}
   </div>
   <div class="actions">
-    <button on:click={addLike}>Like</button>
+    {#if isLiked}
+      <button on:click={toggleLike}>Unlike</button>
+    {:else}
+      <button on:click={toggleLike}>Like</button>
+    {/if}
     <button on:click={() => goToPostDetails(post.id)}> Comment </button>
     {#if authorId != post.authorId && post.visibility == "PUBLIC"}
       <button on:click={openPopup}>Share</button>

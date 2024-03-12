@@ -4,6 +4,7 @@
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
   import { createEventDispatcher } from "svelte";
+  import { navigate } from "svelte-routing";
 
   // Props passed to the component
   export let post;
@@ -15,7 +16,7 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likes = 0;
+  let likeCount = 0;
   let commentCount = 0;
   let sharedBy = post.sharedBy;
   let isShared = post.isShared;
@@ -24,6 +25,7 @@
   let originalContent = post.originalContent;
 
   // Local component state for editing
+  let isLiked = false;
   let isEditing = false;
   let editedContent = post.content;
   let postTitle = title;
@@ -126,7 +128,11 @@
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent }),
+      body: JSON.stringify({
+        title: postTitle,
+        content: editedContent,
+        image: "",
+      }),
     });
 
     if (response.ok) {
@@ -160,19 +166,87 @@
     }
   }
 
-  // Function to toggle comment mode
-  function toggleCommentMode() {
-    isCommenting = !isCommenting;
+  // Define a function to handle post details redirection
+  function goToPostDetails(postId) {
+    navigate(`/posts/${postId}`);
   }
 
-  // Function to add a comment
-  async function addComment() {
-    // Add your comment posting logic here
+  // Fetch the number of likes for the post
+  async function fetchLikes() {
+    try {
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/listoflikes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const likes = await response.json();
+        likeCount = likes.length;
+        isLiked = likes.some((like) => like.author === authorId);
+      } else {
+        console.error("Failed to fetch likes:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching likes:", error.message);
+    }
+  }
+
+  async function toggleLike() {
+    try {
+      if (isLiked) {
+        // Unlike the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = false;
+          fetchLikes();
+        } else {
+          console.error("Failed to unlike the post:", response.statusText);
+        }
+      } else {
+        // Like the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = true;
+          fetchLikes();
+        } else {
+          console.error("Failed to like the post:", response.statusText);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error.message);
+    }
   }
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
-  // fetchComments();
+  fetchComments();
   fetchOriginalAuthor();
 </script>
 
@@ -203,14 +277,13 @@
     </div>
   </div>
   <div class="actions">
-    <button>Like</button>
-    <button on:click={toggleCommentMode}> Comment </button>
-    {#if isCommenting}
-      <div>
-        <textarea bind:value={commentText}></textarea>
-        <button on:click={addComment}>Add Comment</button>
-      </div>
+    {#if isLiked}
+      <button on:click={toggleLike}>Unlike</button>
+    {:else}
+      <button on:click={toggleLike}>Like</button>
     {/if}
+    <!-- <button on:click={toggleCommentMode}> Comment </button> -->
+    <button on:click={() => goToPostDetails(post.id)}> Comment </button>
     {#if post.authorId == authorId}
       <button on:click={toggleEditMode}>
         {isEditing ? "Cancel" : "Edit"}
@@ -222,7 +295,7 @@
     {#if post.authorId == authorId}
       <button on:click={deletePost}>Delete</button>
     {/if}
-    <span class="mr-4">Likes: {likes}</span>
+    <span class="mr-4">Likes: {likeCount}</span>
     <span>Comments: {commentCount}</span>
   </div>
 </div>
