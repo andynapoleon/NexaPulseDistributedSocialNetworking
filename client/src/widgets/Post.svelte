@@ -116,7 +116,7 @@
   async function saveEdit() {
     const editPostEndpoint =
       server + `/api/authors/${authorId}/posts/${postId}/`;
-    let imageData = "";
+    let imageData = `data:${image_type}, ${image_base64}`;
     if (files) {
       imageData = await readFileAsBase64(files[0]);
       console.log("Image data sent:", imageData); // Log the image data being sent
