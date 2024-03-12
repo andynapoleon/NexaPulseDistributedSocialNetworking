@@ -100,42 +100,12 @@
     }
   }
 
-  async function sendLikeNotification() {
-    try {
-      const sendLikeEndpoint = server + `/api/authors/${authorId}/inbox`;
-      const response = await fetch(sendLikeEndpoint, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          postId: postId,
-          authorId: authorId,
-        }),
-      });
-      if (response.ok) {
-        console.log("Like notification sent successfully");
-      } else {
-        console.error("Failed to send like notification:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error sending like notification:", error.message);
-    }
-  }
-
-  async function likePost() {
-    // Perform like action
-    // Update likeCount
-    // Call sendLikeNotification
-  }
-
   onMount(fetchPostById);
 </script>
 
 <main class="posts">
   {#if post}
-    <Post {post} bind:commentCount bind:likeCount on:like={likePost}></Post>
+    <Post {post} bind:commentCount bind:likeCount></Post>
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">
