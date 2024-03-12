@@ -37,6 +37,12 @@
     showPopup = true;
   }
 
+  function editPostId(postId) {
+    return postId.split('/').pop();
+  }
+
+  postId = editPostId(postId);
+
   function handleConfirm(event) {
     console.log("Shared content:", event.detail.content);
     sharePost(event.detail.content);
@@ -151,7 +157,8 @@
         removeImageFlag = false;
 
         let imageInfo = imageData.split(",");
-        image_type = imageInfo[0];
+        const imageTypePrefixLength = "data:".length;
+        image_type = imageInfo[0].substring(imageTypePrefixLength);
         image_base64 = imageInfo[1];
       }
 
@@ -235,6 +242,7 @@
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
+    postId = editPostId(postId);
     navigate(`/posts/${postId}`);
   }
 
@@ -329,7 +337,7 @@
       if (response.ok) {
         const post = await response.json();
         image_base64 = post.content;
-        image_type = post.content_type;
+        image_type = post.contentType
       } else {
         console.error("Failed to fetch image:", response.statusText);
       }
@@ -364,7 +372,7 @@
   </div>
   <div class="post-content">
     {#if post.image_ref && !removeImageFlag}
-      <img src="{image_type}, {image_base64}" alt=" " />
+      <img src="data:{image_type}, {image_base64}" alt=" " />
     {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
