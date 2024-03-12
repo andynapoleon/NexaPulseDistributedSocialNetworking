@@ -50,26 +50,117 @@ class PostViewsTestCase(APITestCase):
             content="This is a test post content.",
         )
 
+        self.image_post = Post.objects.create(
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[0][0],
+            authorId=self.test_author,
+            title="Image Post",
+            content_type="data:image/jpeg;base64",
+            content="image_encoded_base64"
+        )
+
+        self.post_with_image = Post.objects.create(
+            type="post",
+            visibility=Post.VISIBILITY_CHOICES[0][0],  # Public Post
+            authorId=self.test_author,
+            title="Public Test Post",
+            content_type="text/markdown",
+            content="This is a test post content.",
+            image_ref=self.image_post,
+        )
+
     def test_putPublicPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
-        image_blob = "some_base64_data"
         url = reverse(
             "image_post_detail",
             args=(self.public_post.authorId.id, self.public_post.id),
         )
-        # self.public_post.image
-
         data = {
             "type": "post",
             "visibility": Post.VISIBILITY_CHOICES[0][0],  # Unlisted Post
             "authorId": AuthorSerializer(self.test_author),
-            "title": "Unlisted Test Post",
+            "title": "Updated Image Public Test Post",
             "content_type": "text/markdown",
             "content": "This is a test post content.",
-            "image": image_blob,
+            "image": 'image_blob_base64, asdfkjl',
         }
         response = self.client.put(url, data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_putPost_validAuthorIdAndPostId_returns200status(self):
+        url = reverse(
+            "post_detail",
+            args=(self.public_post.authorId.id, self.public_post.id),
+        )
+        data = {
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],
+            "authorId": AuthorSerializer(self.test_author),
+            'title': 'Updated Title',
+            "content_type": "text/markdown",
+            'content': 'Updated content of the post.',
+            'image': '',
+        }
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_createPost_validAuthorIdAndPostId_returns200status(self):
+        url = reverse(
+            "get_author_posts/create_post", 
+            args=(self.test_author.id,)
+        )
+        data = {
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],  # Public Post
+            "authorId": self.test_author.id,
+            "title": "New Test Post",
+            "content_type": "text/markdown",
+            "content": "This is a new test post content.",
+            "image": '',
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+            
+    def test_createPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
+        url = reverse(
+            "get_author_posts/create_post", 
+            args=(self.test_author.id,)
+        )
+        data = {
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],  # Public Post
+            "authorId": self.test_author.id,
+            "title": "New Test Post",
+            "content_type": "text/markdown",
+            "content": "This is a new test post content.",
+            "image": 'image_blob_base64, asdfkjl',
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_getPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
+        url = reverse(
+            "image_post",
+            args=(self.test_author.id, self.post_with_image.id)
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+    def test_putPost_validAuthorIdAndPostIdContainsImage_returns200status(self):
+        url = reverse(
+            "post_detail",
+            args=(self.public_post.authorId.id, self.post_with_image.id),
+        )
+        data = {
+            "type": "post",
+            "visibility": Post.VISIBILITY_CHOICES[0][0],
+            "authorId": AuthorSerializer(self.test_author),
+            'title': 'Updated Title',
+            "content_type": "text/markdown",
+            'content': 'Updated content of the post.',
+            'image': 'image_blob_base64, NEWIMAGE',
+        }
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     # Integration Tests
     # Named this way: Action, method call, condition, return
     # def getPublicPost_validAuthorIdAndPostId_returns200status(self):
@@ -85,14 +176,12 @@ class PostViewsTestCase(APITestCase):
     # def deletePost_invalidAuthorIdAndPostId_returns401status(self):
     #     pass
 
-    # def putPost_validAuthorIdAndPostId_returns200status(self):
-    #     pass
+
 
     # def putPost_invalidAuthorIdAndPostId_returns401status(self):
     #     pass
 
-    # def createPost_validAuthorIdAndPostId_returns200status(self):
-    #     pass
+    
 
     # def createPost_invalidAuthorIdAndPostId_returns401status(self):
     #     pass

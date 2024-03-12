@@ -44,7 +44,7 @@ class Post(models.Model):
     originalContent = models.TextField(default="")
 
     image_ref = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True
+        "self", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     sharedBy = models.ForeignKey(

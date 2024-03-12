@@ -21,6 +21,7 @@ class AuthorSerializer(serializers.ModelSerializer):
         instance.lastName = validated_data.get('lastName', instance.lastName)
         instance.github = validated_data.get('github', instance.github)
         instance.profileImage = validated_data.get('profileImage', instance.profileImage)
+        instance.lastUpdated = validated_data.get('lastUpdated', instance.lastUpdated)
         instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.is_staff = validated_data.get('is_staff', instance.is_staff)
         instance.save()

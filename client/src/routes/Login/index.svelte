@@ -49,6 +49,7 @@
         name: data.name,
         email: data.email,
         github: data.github,
+        lastUpdated: data.lastUpdated,
       });
       console.log("DATA ACCESS: " + data.access);
       navigate("/home");
