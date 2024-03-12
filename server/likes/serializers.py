@@ -39,7 +39,6 @@ class LikesSerializerPost(serializers.ModelSerializer):
         if base_url is not None:
             author_id = instance.author.id
             post_id = instance.post.id
-            comment_id = instance.id
             data['object'] = f"{base_url}authors/{author_id}/posts/{post_id}"
             data['summary'] = f"{author_id} Likes your post"
         return data
