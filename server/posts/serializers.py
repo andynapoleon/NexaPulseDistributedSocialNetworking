@@ -13,10 +13,10 @@ class PostSerializer(serializers.ModelSerializer):
         context = self.context
         base_url = context.get('base_url')
         if base_url is not None:
-            author_id = instance.author.id
-            post_id = instance.post.id
+            author_id = instance.authorId.id
+            post_id = instance.id
             if data['contentType'] == "image/png;base64" or data['contentType'] == "image/jpeg;base64":
-                data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/image"
+                data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/image/"
             else:
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/"
         return data

@@ -149,13 +149,12 @@ class PostDetail(APIView):
                     )
                     if response:
                         request_data["image_ref"] = id
-                        # print("After making | Current image_ref?:", id)
-
+                        print("After making | Current image_ref?:", id)
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if request.user.id == int(author_id):
                     serializer.save()
-                    return Response(serializer.data)
+                    return Response(serializer.data, status=status.HTTP_200_OK)
             # print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Post.DoesNotExist:
@@ -172,7 +171,7 @@ class PostDetail(APIView):
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = int(author_id)
             # print("New Data created:")
-            # print(request_data)
+            print(request_data)
 
             serializer = PostSerializer(data=request_data, partial=True)
 
@@ -181,7 +180,7 @@ class PostDetail(APIView):
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
-                    # print("Saved id:", saved_id)
+                    print("Saved id:", saved_id)
                     return saved_id, True
             # print(serializer.errors)
             return None, False
@@ -215,8 +214,8 @@ class AuthorPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-
-        serializer = PostSerializer(queryset, many=True)
+        base_url = request.build_absolute_uri('/')
+        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
         return Response(serializer.data)
 
     def post(self, request, author_id):
@@ -267,7 +266,8 @@ class PublicPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-        serializer = PostSerializer(queryset, many=True)
+        base_url = request.build_absolute_uri('/')
+        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
         return Response(serializer.data)
 
 
@@ -295,7 +295,8 @@ class FollowingPosts(APIView):
             queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            serializer = PostSerializer(queryset, many=True)
+            base_url = request.build_absolute_uri('/')
+            serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -343,7 +344,8 @@ class ImagePost(APIView):
         try:
             post = Post.objects.get(id=post_id)
             if post.image_ref != None:
-                serializer = PostSerializer(post.image_ref)
+                base_url = request.build_absolute_uri('/')
+                serializer = PostSerializer(post.image_ref, context={'base_url': base_url})
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
