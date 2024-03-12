@@ -179,7 +179,6 @@
 
       if (response.ok) {
         dispatch("changed", { changeDetected: true });
-        navigate("/");
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
@@ -242,17 +241,20 @@
   // Fetch the number of likes for the post
   async function fetchLikes() {
     try {
-      const response = await fetchWithRefresh(`${server}/api/authors/${authorId}/posts/${postId}/listoflikes`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-        },
-      });
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/listoflikes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
 
       if (response.ok) {
         const likes = await response.json();
         likeCount = likes.length;
-        isLiked = likes.some(like => like.author === authorId);
+        isLiked = likes.some((like) => like.author === authorId);
       } else {
         console.error("Failed to fetch likes:", response.statusText);
       }
@@ -309,7 +311,6 @@
     }
   }
 
-
   // Fetch author's information when the component is mounted
   fetchAuthor();
 
@@ -356,7 +357,9 @@
     {#if isEditing}
       <input type="text" bind:value={postTitle} />
     {:else}
-      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}>{title}</a>
+      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}
+        >{title}</a
+      >
     {/if}
   </div>
   <div class="post-content">

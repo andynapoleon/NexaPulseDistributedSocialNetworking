@@ -12,6 +12,7 @@
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
+  import { navigate } from "svelte-routing";
 
   export let params;
   let postId = params.id;
@@ -102,14 +103,25 @@
   }
 
   onMount(fetchPostById);
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      window.history.back();
+    }
+  }
 </script>
 
 <main class="posts">
   {#if post}
     {#if !post.isShared}
-      <Post {post} bind:commentCount bind:likeCount />
+      <Post {post} bind:commentCount bind:likeCount on:changed={handleChange} />
     {:else}
-      <SharedPost {post} bind:commentCount bind:likeCount />
+      <SharedPost
+        {post}
+        bind:commentCount
+        bind:likeCount
+        on:changed={handleChange}
+      />
     {/if}
     <h2>Comments:</h2>
     {#if comments.length > 0}
