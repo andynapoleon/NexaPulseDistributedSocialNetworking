@@ -10,6 +10,7 @@ from .serializers import PostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
+from django.db.models import Q
 
 
 class PostList(generics.ListCreateAPIView):
@@ -270,10 +271,11 @@ class FollowingPosts(APIView):
             followed_users_ids = list(followed_users_ids)
             followed_users_ids.append(user_id)
 
-            queryset = Post.objects.filter(authorId__in=followed_users_ids).exclude(
-                content_type__startswith="data:image/"
-            )
-            queryset = queryset.exclude(content_type__startswith="data:image/")
+            queryset = Post.objects.filter(
+                Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
+                authorId__in=followed_users_ids,
+            ).exclude(content_type__startswith="data:image/")
+            # queryset = queryset.exclude(content_type__startswith="data:image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
@@ -321,7 +323,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:
