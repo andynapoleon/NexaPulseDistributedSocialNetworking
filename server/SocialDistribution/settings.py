@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "base",
     "corsheaders",
     "posts",
+    "node",
 ]
 
 MIDDLEWARE = [
