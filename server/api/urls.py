@@ -2,13 +2,6 @@ from django.urls import path, include
 from . import views
 from auth.views import LoginView, TokenRefreshAPIView
 from authors.views import Profile
-from follow.views import (
-    FollowView,
-    FollowAllView,
-    UserFollowingView,
-    UserFollowedView,
-    UserFriendsView,
-)
 
 urlpatterns = [
     path("api/get/", views.getData),
@@ -20,5 +13,7 @@ urlpatterns = [
     path("api/", include("authors.urls")),  # Include the author app URLs
     path("api/", include("comments.urls")),  # Include the comments app URLs
     path("api/", include("follow.urls")),  # Include the follow app URLS
-    path("api/", include("likes.urls")), # Include the likes app URLS
+    path("api/", include("likes.urls")),  # Include the likes app URLS
+    path("api/", include("node.urls")),  # Include the likes app URLS
+    path("api/", include("inbox.urls")),  # Include the likes app URLS
 ]
