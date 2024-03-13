@@ -16,7 +16,7 @@ from .models import Inbox
 from likes.models import PostLikes
 from likes.models import CommentLikes
 from comments.models import Comment
-from comments.serializers import CommentSerializer
+from comments.serializers import CommentSerializerPost
 
 
 # Create your views here.
@@ -24,23 +24,20 @@ class InboxView(APIView):
 
     def get(self, request, author_id, format=None):
         """
-        Retrieves all posts and likes from the inbox of the specified AppUser.
+        Gets the inbox of the specified Author on a server.
         """
         author = get_object_or_404(Author, pk=author_id)
         inbox = get_object_or_404(Inbox, authorId=author)
-
         # Serialize posts, likes, comments and follow requests
         posts_serializer = PostSerializer(
             inbox.posts.all().order_by("-published"), many=True
         )
-        print(inbox.posts.all())
         post_likes_serializer = LikesSerializerPost(inbox.post_likes.all(), many=True)
         comment_likes_serializer = LikesSerializerComment(
             inbox.comment_likes.all(), many=True
         )
         follow_serializer = FollowsSerializer(inbox.follow_requests.all(), many=True)
-        comment_serializer = CommentSerializer(inbox.comments.all(), many=True)
-
+        comment_serializer = CommentSerializerPost(inbox.comments.all(), many=True)
         response = {
             "type": "inbox",
             "author_id": author.id,
@@ -50,10 +47,12 @@ class InboxView(APIView):
             "follow_request": follow_serializer.data,
             "comments": comment_serializer.data,
         }
-
         return Response(response, status=status.HTTP_200_OK)
 
     def post(self, request, author_id, format=None):
+        """
+        Adds something to the inbox of the specified Author on a server.
+        """
         author = get_object_or_404(Author, pk=author_id)
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
@@ -71,39 +70,73 @@ class InboxView(APIView):
                 if serializer.is_valid():
                     new_post = serializer.save()
                 inbox.posts.add(new_post)
-            return Response({"message": "Post sent!"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Post sent to inbox!"}, status=status.HTTP_201_CREATED
+            )
 
         # Follow requests
         elif request_type == "follow":
             follower_id = request.data.get("userId1")
             followed_id = request.data.get("userId2")
-            follow = Follows(follower_id=follower_id, followed_id=followed_id)
-            follow.save()
-            inbox.follow_request.add(follow)
-
-            # Send follow request to remote authors
-            # print("Object...", identify_localauthor(followed_id))
-            # if not identify_localauthor(followed_id):
-            #     print("identifying local...", followed_id)
-            #     send_request_to_remoteInbox(follow_request, followed_id)
-
-            return Response(
-                {"detail": "Follow request added to inbox"},
-                status=status.HTTP_201_CREATED,
-            )
+            if followed_id == author_id:
+                follow = Follows(follower_id=follower_id, followed_id=followed_id)
+                follow.save()
+                inbox.follow_requests.add(follow)
+                # Send follow request to remote authors
+                # print("Object...", identify_localauthor(followed_id))
+                # if not identify_localauthor(followed_id):
+                #     print("identifying local...", followed_id)
+                #     send_request_to_remoteInbox(follow_request, followed_id)
+                return Response(
+                    {"message": "Follow request sent to inbox!"},
+                    status=status.HTTP_201_CREATED,
+                )
+            else:
+                return Response(
+                    {"message": "Non-matching author to follow!"},
+                    status=status.HTTP_403_FORBIDDEN,
+                )
 
         # Likes on posts
         elif request_type == "post_like":
-            return Response("add post like to inbox here")
+            like = PostLikes.objects.create(
+                author_id=request.data.get("author"), post_id=request.data.get("post")
+            )
+            inbox.post_likes.add(like)
+            return Response(
+                {"message": "Post like added to inbox!"}, status=status.HTTP_201_CREATED
+            )
 
         # Comments
         elif request_type == "comment":
-            return Response("add comments")
+            serializer = CommentSerializerPost(data=request.data)
+            if serializer.is_valid():
+                new_comment = serializer.save()
+            inbox.comments.add(new_comment)
+            return Response(
+                {"message": "Comment added to inbox!"}, status=status.HTTP_201_CREATED
+            )
 
-        # Likes on comments
-        elif request_type == "comment_like":
-            return Response("add comment like to inbox here")
+        # # Likes on comments
+        # elif request_type == "comment_like":
+        #     return Response("add comment like to inbox here")
 
         return Response(
-            {"detail": "Unsupported request type"}, status=status.HTTP_400_BAD_REQUEST
+            {"message": "Unsupported request type!"}, status=status.HTTP_400_BAD_REQUEST
+        )
+
+    def delete(self, request, author_id, format=None):
+        """
+        Deletes the inbox of the specified Author on a server.
+        """
+        author = get_object_or_404(Author, pk=author_id)
+        inbox = get_object_or_404(Inbox, authorId=author)
+        inbox.posts.clear()
+        inbox.post_likes.clear()
+        inbox.follow_requests.clear()
+        inbox.comments.clear()
+        inbox.comment_likes.clear()
+        return Response(
+            {"detail": f"Inbox of {author.firstName} deleted successfully"},
+            status=status.HTTP_204_NO_CONTENT,
         )
