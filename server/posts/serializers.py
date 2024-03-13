@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from .models import Post
-
+from authors.serializers import AuthorSerializer 
 
 class PostSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(source='authorId', context={'base_url': base_url})
+
     class Meta:
         model = Post
         fields = "__all__"
