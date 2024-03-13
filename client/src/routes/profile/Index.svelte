@@ -30,7 +30,8 @@
     // get the id from the URL
     const path = window.location.pathname;
     const pathSegments = path.split("/");
-    userId = pathSegments.pop();
+    console.log(pathSegments)
+    userId = pathSegments[pathSegments.length - 1];
     // if the user is looking at their on profile
     if (userId == getCurrentUser().userId) {
       fullName = getCurrentUser().name;

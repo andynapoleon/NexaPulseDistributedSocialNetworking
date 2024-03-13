@@ -96,13 +96,12 @@ class PostById(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print(post.visibility)
             if post.visibility != "FRIENDS":
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                followed_users_ids = Follows.objects.filter(
-                    follower_id=author_id, acceptedRequest=True
-                ).values_list("followed_id", flat=True)
+                followed_users_ids = Follows.objects.filter(follower_id=author_id, acceptedRequest=True).values_list("followed_id", flat=True)
                 followed_users_ids = list(followed_users_ids)
                 followed_users_ids.append(author_id)
                 if post.authorId.id in followed_users_ids:
@@ -320,9 +319,8 @@ class SharedPost(APIView):
         try:
             post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
-            return Response(
-                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+        
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
             serializer = PostSerializer(post)
             shared_post = serializer.data
@@ -335,7 +333,10 @@ class SharedPost(APIView):
             shared_post["visibility"] = "FRIENDS"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
-            shared_post["image_ref"] = post.image_ref.id
+            if post.image_ref:
+                shared_post["image_ref"] = post.image_ref.id
+            else:
+                shared_post["image_ref"] = None
             print(shared_post)
             serializer = PostSerializer(data=shared_post)
             if serializer.is_valid():

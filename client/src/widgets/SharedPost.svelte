@@ -17,8 +17,8 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likeCount = 0;
-  let commentCount = 0;
+  export let likeCount = 0;
+  export let commentCount = 0;
   let sharedBy = post.sharedBy;
   let isShared = post.isShared;
   let thoughts = "This post is so good!";
@@ -46,7 +46,7 @@
   // Fetch author's information based on authorId
   async function fetchAuthor() {
     try {
-      console.log(`I AM HERE???!`);
+      // console.log(`I AM HERE???!`);
       console.log(`${post.authorId}`);
       const response = await fetchWithRefresh(
         `${server}/api/authors/${post.authorId}`,

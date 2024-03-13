@@ -19,7 +19,7 @@
   $: isCurrentUser = userId == currentUserId;
   const path = window.location.pathname;
   const pathSegments = path.split("/");
-  userId = pathSegments.pop();
+  userId = pathSegments[pathSegments.length - 1];
 
   // Initialize edit mode as a writable store
   const isEditMode = writable(false);
@@ -46,7 +46,6 @@
     alreadyFollowedValue = value;
   });
   onMount(async () => {
-    userId = pathSegments.pop();
     const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
     console.log("currentUserId", currentUserId)
