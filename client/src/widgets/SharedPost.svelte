@@ -37,6 +37,12 @@
   let isCommenting = false;
   let commentText = "";
 
+  function editPostId(postId) {
+    return postId.split('/').pop();
+  }
+
+  postId = editPostId(postId);
+
   // Fetch author's information based on authorId
   async function fetchAuthor() {
     try {
@@ -171,6 +177,7 @@
 
   // Define a function to handle post details redirection
   function goToPostDetails(postId) {
+    postId = editPostId(postId);
     navigate(`/posts/${postId}`);
   }
 
