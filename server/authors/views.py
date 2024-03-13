@@ -7,22 +7,32 @@ from .models import Author
 from .serializers import AuthorSerializer
 
 
+# class CommentList(generics.ListCreateAPIView):
+#     queryset = Comment.objects.all()
+    
+#     def get_serializer_class(self):
+#         if self.request.method == 'POST':
+#             return CommentSerializerPost
+#         return CommentSerializer
+
 class AuthorList(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
+    
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
-    def get_serializer_class(self):
-        return AuthorSerializer
+    serializer_class = AuthorSerializer
 
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            serializer = AuthorSerializer(author)
+            base_url = request.build_absolute_uri('/')
+            print("here")
+            serializer = AuthorSerializer(author, context={'base_url': base_url})
+            print(serializer.data)
             return Response(serializer.data)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -41,7 +51,7 @@ class AuthorDetail(generics.RetrieveAPIView):
 
 
 class Profile(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_user_from_id(self, user_id):
         try:

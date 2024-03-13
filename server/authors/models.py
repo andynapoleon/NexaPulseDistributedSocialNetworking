@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin, Group, Permission
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
+import uuid
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -18,9 +19,12 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 class Author(AbstractBaseUser, PermissionsMixin):
+    type = models.CharField(max_length=50, default="author", editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
-    firstName = models.CharField(max_length=50, blank=True)
-    lastName = models.CharField(max_length=50, blank=True)
+    displayName = models.CharField(max_length=25, default="")
+    url = models.URLField(editable=False)
+    host = models.CharField(max_length=50, editable=False)
     github = models.CharField(max_length=100, blank=True)
     profileImage = models.ImageField(upload_to="assets/profile_images/", null=True, blank=True)
     lastUpdated = models.DateTimeField(auto_now=True)
