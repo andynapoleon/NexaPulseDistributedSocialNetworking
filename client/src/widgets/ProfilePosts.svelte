@@ -18,7 +18,12 @@
   async function fetchPosts() {
     console.log("fetching posts");
     try {
-      const response = await fetch(server + `/api/authors/posts/${authorId}/`);
+      const response = await fetch(server + `/api/authors/posts/${authorId}/`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${$authToken}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         profilePosts = data;
@@ -35,7 +40,13 @@
     console.log("fetching posts");
     try {
       const response = await fetch(
-        server + `/api/authors/posts/${authorId}/asHimself`
+        server + `/api/authors/posts/${authorId}/asHimself`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
       );
       if (response.ok) {
         const data = await response.json();
@@ -53,7 +64,13 @@
     console.log("fetching posts as stranger");
     try {
       const response = await fetch(
-        server + `/api/authors/posts/${authorId}/asStranger`
+        server + `/api/authors/posts/${authorId}/asStranger`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
       );
       if (response.ok) {
         const data = await response.json();
@@ -103,14 +120,28 @@
       }
     }
   });
+
+  function handleChange(event) {
+    if (event.detail.changeDetected == true) {
+      if (authorId == get(currentUser).userId) {
+        fetchPostsAsHimself();
+      } else {
+        if (beFriend) {
+          fetchPosts();
+        } else {
+          fetchPostsAsStranger();
+        }
+      }
+    }
+  }
 </script>
 
 <div class="posts">
   {#each profilePosts as post (post.id)}
     {#if !post.isShared}
-      <Post {post} />
+      <Post {post} on:changed={handleChange} />
     {:else}
-      <SharedPost {post} />
+      <SharedPost {post} on:changed={handleChange} />
     {/if}
   {/each}
 </div>

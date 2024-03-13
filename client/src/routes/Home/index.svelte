@@ -8,10 +8,12 @@
     getCurrentUser,
     currentUser,
     server,
+    posts,
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
-  // let isAuthenticated = false;
+
+  let streamType = "Public";
 
   onMount(() => {
     $isLoginPage = false;
@@ -19,10 +21,10 @@
     console.log(get(authToken));
 
     // check if the github link is valid
-    if (isValidGitHubLink(getCurrentUser().github)){
+    if (isValidGitHubLink(getCurrentUser().github)) {
       // get the github username from the link
       const githubUsername = getGitHubUsername(getCurrentUser().github);
-      // get 5 public events of the user from github 
+      // get 5 public events of the user from github
       const response_github = fetch(
         `https://api.github.com/users/${githubUsername}/events/public?per_page=5`,
         {
@@ -34,12 +36,18 @@
       ).then((response) => response.json())
       .then((data) => {
         // filter data by created_at and get the new activity since 
-        const newActivity = data.filter((event) => new Date(event.created_at) > getCurrentUser().lastUpdated);
+        data.forEach((event) => console.log("Past: ", new Date(event.created_at)));
+        const lastUpdated = new Date(getCurrentUser().lastUpdated);
+        console.log("Last Updated: ", getCurrentUser().lastUpdated);
+        console.log("Threshold: ", lastUpdated);
+
+        const newActivity = data.filter((event) => new Date(event.created_at) > lastUpdated);
         
         console.log("github", newActivity);
 
         // if there is new activity, create a new post for each activity
         if (newActivity.length > 0) {
+          console.log("new activity", newActivity);
           newActivity.forEach((event) => {
             const postData = {
               authorId: getCurrentUser().userId,
@@ -66,52 +74,40 @@
                 console.error("Failed to create post:", response.statusText);
               }
             });
-            
+          });     
+          fetchPosts();
+          // get the latest event and update the lastUpdated field
+          const latestEvent = newActivity[0];
+          const updatedLastUpdated = latestEvent.created_at;
+          // update the lastUpdated field with API
+          fetch(
+            server + `/api/authors/${getCurrentUser().userId}/`,
+            {
+              method: "PUT",
+              headers: {
+                Authorization: `Bearer ${get(authToken)}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                lastUpdated: updatedLastUpdated
+              }),
+            }
+          ).then((response) => {
+            if (response.ok) {
+              console.log("lastUpdated field updated successfully");
+              // Update lastUpdated field in currentUser
+              currentUser.update(user => {
+                return { ...user, lastUpdated: updatedLastUpdated };
+              });
+              console.log("Updated lastUpdated: ", getCurrentUser().lastUpdated);
+            } else {
+              console.error("Failed to update lastUpdated field:", response.statusText);
+            }
           });
-        }
-        // update time last updated
-        var updatedUserData = getCurrentUser();
-        updatedUserData.lastUpdated = new Date();
-        currentUser.set(updatedUserData);
-        console.log("updated user", updatedUserData);
-      });
+        } 
+      })
     }
-    // isAuthenticated = $authToken !== "";
-    // console.log(isAuthenticated);
-    // if (!isAuthenticated) {
-    //   $isLoginPage = true;
-    //   navigate("/");
-    // }
   });
-
-  // Array to hold post objects
-  let posts = [
-    {
-      id: 1,
-      userName: "John Doe",
-      postTime: "1h ago",
-      title: "First Post",
-      content: "This is my first post!",
-      visibility: "Public",
-    },
-    {
-      id: 2,
-      userName: "Jane Smith",
-      postTime: "2h ago",
-      title: "Svelte",
-      content: "Svelte is awesome!",
-      visibility: "Public",
-    },
-    {
-      id: 3,
-      userName: "Dave Lee",
-      postTime: "3h ago",
-      title: "New Project",
-      content: "Check out my new project.",
-      visibility: "Public",
-    },
-  ];
-  
   function isValidGitHubLink(link) {
     // Regular expression to match GitHub user profile URLs
     var regex = /^(https?:\/\/)?(www\.)?github\.com\/[a-zA-Z0-9_-]+$/;
@@ -123,9 +119,36 @@
     var regex = /^(?:https?:\/\/)?(?:www\.)?github\.com\/([a-zA-Z0-9_-]+)$/;
     var match = link.match(regex);
     if (match) {
-        return match[1]; // Return the username captured by the regex
+      return match[1]; // Return the username captured by the regex
     } else {
-        return null; // Return null if the link is not a valid GitHub link
+      return null; // Return null if the link is not a valid GitHub link
+    }
+  }
+
+  // Function to fetch public posts from fetchPos backend
+  async function fetchPosts() {
+    try {
+      const response = await fetch(server + "/api/public-posts/", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${$authToken}`,
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Fetched posts:", data); // Log the fetched data
+        $posts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
+
+  function handleSubmit(event) {
+    if (event.detail.currentStream == "Public") {
+      fetchPosts();
     }
   }
 </script>
@@ -133,10 +156,10 @@
 <main class="posts">
   <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
   <br />
-  <CreatePost/>
+  <CreatePost {streamType} on:submit={handleSubmit} />
   <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
   <br />
-  <Posts {posts} />
+  <Posts />
 </main>
 
 <style>

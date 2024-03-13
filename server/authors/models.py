@@ -23,7 +23,8 @@ class Author(AbstractBaseUser, PermissionsMixin):
     lastName = models.CharField(max_length=50, blank=True)
     github = models.CharField(max_length=100, blank=True)
     profileImage = models.ImageField(upload_to="assets/profile_images/", null=True, blank=True)
-    is_active = models.BooleanField(default=False)
+    lastUpdated = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     
     objects = CustomUserManager()

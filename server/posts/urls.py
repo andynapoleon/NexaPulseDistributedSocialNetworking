@@ -4,16 +4,29 @@ from . import views
 urlpatterns = [
     # Endpoint for retrieving the list of posts
     path("posts/", views.PostList.as_view(), name="post_list"),
+    # Endpoint for retrieving a post by id
+    path(
+        "authors/<str:author_id>/posts-by-id/<str:post_id>/",
+        views.PostById.as_view(),
+        name="post_detail",
+    ),
     # Endpoint for retrieving the list of posts with an image
     path(
-        "authors/<str:author_id>/posts/<str:post_id>/image/",
+        "authors/<str:author_id>/posts/<str:post_id>/images/",
         views.PostDetail.as_view(),
         name="image_post_detail",
     ),
+    path(
+        "authors/<str:author_id>/posts/<str:post_id>/image/",
+        views.ImagePost.as_view(),
+        name="image_post",
+    ),
     # Endpoint for retrieving the list of posts
-    path("public-posts/", views.PublicPosts.as_view(), name="post_list"),
+    path("public-posts/", views.PublicPosts.as_view(), name="public_post_list"),
     # Endpoint for retrieving the list of posts of people we're following
-    path("following-posts/", views.FollowingPosts.as_view(), name="post_list"),
+    path(
+        "following-posts/", views.FollowingPosts.as_view(), name="following_post_list"
+    ),
     # Endpoint for retrieving a specific post by its author and post ID
     path(
         "authors/<str:author_id>/posts/<str:post_id>/",
@@ -32,11 +45,6 @@ urlpatterns = [
         name="get_profile_post",
     ),
     # Endpoint for retrieving recent posts by a specific author as a stranger
-    # path(
-    #    "authors/<str:author_id>/posts/asStranger",
-    #    views.AuthorPosts.as_view(),
-    #    name="get_author_posts/create_post",
-    # ),
     path(
         "authors/posts/<str:author_id>/asStranger",
         views.ProfilePostForStranger.as_view(),
@@ -53,5 +61,11 @@ urlpatterns = [
         "authors/<str:author_id>/shared-posts/<str:post_id>/",
         views.SharedPost.as_view(),
         name="share-post",
+    ),
+    # Gets and deletes image post
+    path(
+        "authors/${authorId}/posts/${postId}/image/",
+        views.ImagePost.as_view(),
+        name="image-post",
     ),
 ]

@@ -2,11 +2,11 @@ from django.db import models
 
 # Create your models here.
 from authors.models import Author
-
+import uuid
 
 class Post(models.Model):
 
-    type = models.CharField(max_length=20, default="post")
+    type = models.CharField(default="post", max_length=4, editable=False)
 
     VISIBILITY_CHOICES = [
         ("PUBLIC", "Public"),
@@ -22,7 +22,7 @@ class Post(models.Model):
     # FRIENDS should've already been sent the post so they don't need this
 
     # id of the post
-    id = models.AutoField(primary_key=True)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
     # title of a post
@@ -39,36 +39,27 @@ class Post(models.Model):
     # -- images are POSTS. So you might have a
     # user make 2 posts if a post includes an image!
     # image/jpeg;base64 # this is an embedded jpeg
-    content_type = models.CharField(max_length=50, default="")
+    CONTENT_CHOICES = [
+        ("text/plain", "plain"),
+        ("text/markdown", "markdown"),
+        ("image/png;base64", "png"),
+        ("image/jpeg;base64", "jpeg"),
+    ]
+    contentType = models.CharField(
+        max_length=20, choices=CONTENT_CHOICES, default="text/plain"
+    )
     content = models.TextField(default="")
     originalContent = models.TextField(default="")
 
     image_ref = models.ForeignKey(
-        "self", on_delete=models.CASCADE, null=True, blank=True
+        "self", on_delete=models.SET_NULL, null=True, blank=True
     )
 
     sharedBy = models.ForeignKey(
         "self", on_delete=models.CASCADE, null=True, blank=True
     )
-
-    # total number of comments for this post
-    # count = models.IntegerField(default=0)
-
-    # the first page of comments
-    # comments = models.CharField(max_length=255, default="")
 
     sharedBy = models.ForeignKey(
         Author, on_delete=models.SET_NULL, null=True, related_name="shared_posts"
     )
     isShared = models.BooleanField(default=False)
-
-    # OPTIONAL
-    # commentsSrc is OPTIONAL and can be missing
-    # You should return ~ 5 comments per post.
-    # should be sorted newest(first) to oldest(last)
-    # this is to reduce API call counts
-    # "commentsSrc":{
-    #     "type":"comments",
-    #     "page":1,
-    #     "size":5,
-    #       ...

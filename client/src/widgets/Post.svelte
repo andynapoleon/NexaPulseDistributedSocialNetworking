@@ -5,9 +5,12 @@
   import { posts } from "../stores/stores.js";
   import { onMount } from "svelte";
   import SharedPopUp from "./SharedPopUp.svelte";
+  import { createEventDispatcher } from "svelte";
+  import { navigate } from "svelte-routing";
 
   // Props passed to the component
   export let post;
+  const dispatch = createEventDispatcher();
 
   let userName = ""; // Initialize userName variable for the author's name
   let postTime = post.published;
@@ -15,20 +18,30 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likes = 0;
-  let commentCount = 0;
+  export let likeCount = 0;
+  export let commentCount = 0;
+  let image_base64 = "";
+  let image_type = "";
 
   // Local component states
+  let isLiked = false;
   let isEditing = false;
   let editedContent = post.content;
+  let files;
+  let editInput;
   let postTitle = title;
-  let isCommenting = false;
-  let commentText = "";
   let showPopup = false;
+  let removeImageFlag = false;
 
   function openPopup() {
     showPopup = true;
   }
+
+  function editPostId(postId) {
+    return postId.split('/').pop();
+  }
+
+  postId = editPostId(postId);
 
   function handleConfirm(event) {
     console.log("Shared content:", event.detail.content);
@@ -38,27 +51,6 @@
 
   function handleCancel() {
     showPopup = false; // Close the pop-up if canceled
-  }
-
-  // Function to fetch posts from the backend
-  async function fetchPosts() {
-    try {
-      const response = await fetch(server + "/api/public-posts/", {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${$authToken}`,
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        console.log("Fetched posts:", data); // Log the fetched data
-        $posts = data;
-      } else {
-        console.error("Failed to fetch posts:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error fetching posts:", error.message);
-    }
   }
 
   // Fetch author's information based on authorId
@@ -116,6 +108,7 @@
     // Revert to original content if editing is canceled
     if (!isEditing) {
       post.content = editedContent;
+      removeImageFlag = false;
     }
   }
 
@@ -123,20 +116,56 @@
   async function saveEdit() {
     const editPostEndpoint =
       server + `/api/authors/${authorId}/posts/${postId}/`;
+    let imageData = `data:${image_type}, ${image_base64}`;
+    if (files) {
+      imageData = await readFileAsBase64(files[0]);
+      console.log("Image data sent:", imageData); // Log the image data being sent
+    }
     const response = await fetchWithRefresh(editPostEndpoint, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${get(authToken)}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: postTitle, content: editedContent }),
+      body: JSON.stringify({
+        title: postTitle,
+        content: editedContent,
+        image: imageData,
+      }),
     });
+
+    if (removeImageFlag && post.image_ref) {
+      deleteImagePost();
+      removeImageFlag = true;
+    }
+
+    // Function to read image file as base64
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
     if (response.ok) {
       // Update the component state with edited content
+      if (post.image_ref) {
+        removeImageFlag = false;
+
+        let imageInfo = imageData.split(",");
+        const imageTypePrefixLength = "data:".length;
+        image_type = imageInfo[0].substring(imageTypePrefixLength);
+        image_base64 = imageInfo[1];
+      }
+
       content = editedContent;
       title = postTitle;
       isEditing = false;
+      dispatch("changed", { changeDetected: true });
     } else {
       console.error("Failed to save edited post");
     }
@@ -156,12 +185,11 @@
       });
 
       if (response.ok) {
+        dispatch("changed", { changeDetected: true });
       } else {
         console.error("Failed to delete post:", response.statusText);
       }
     }
-    // After successfully submitting the post, update the posts store
-    fetchPosts();
   }
 
   async function sharePost(content) {
@@ -176,7 +204,7 @@
         body: JSON.stringify({ content: content }),
       });
       if (response.ok) {
-        fetchPosts();
+        dispatch("changed", { changeDetected: true });
       } else {
         console.error("Failed to share post:", response.statusText);
       }
@@ -185,18 +213,148 @@
     }
   }
 
-  // Function to toggle comment mode
-  function toggleCommentMode() {
-    isCommenting = !isCommenting;
+  async function removeImageDisplay() {
+    // Remove the image display by clearing the image data
+    removeImageFlag = true;
   }
 
-  // Function to add a comment
-  async function addComment() {
-    // Add your comment posting logic here
+  async function deleteImagePost() {
+    try {
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts/${postId}/image/`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        dispatch("changed", { changeDetected: true });
+      } else {
+        console.error("Failed to remove image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error removing image:", error.message);
+    }
+  }
+
+  // Define a function to handle post details redirection
+  function goToPostDetails(postId) {
+    postId = editPostId(postId);
+    navigate(`/posts/${postId}`);
+  }
+
+  // Fetch the number of likes for the post
+  async function fetchLikes() {
+    try {
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${authorId}/posts/${postId}/listoflikes`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
+
+      if (response.ok) {
+        const likes = await response.json();
+        likeCount = likes.length;
+        isLiked = likes.some((like) => like.author === authorId);
+      } else {
+        console.error("Failed to fetch likes:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching likes:", error.message);
+    }
+  }
+
+  async function toggleLike() {
+    try {
+      if (isLiked) {
+        // Unlike the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = false;
+          fetchLikes();
+        } else {
+          console.error("Failed to unlike the post:", response.statusText);
+        }
+      } else {
+        // Like the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/inbox`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = true;
+          fetchLikes();
+        } else {
+          console.error("Failed to like the post:", response.statusText);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error.message);
+    }
   }
 
   // Fetch author's information when the component is mounted
   fetchAuthor();
+
+  // Fetch the image associated with the post
+  async function fetchPostImage() {
+    try {
+      const response = await fetch(
+        `${server}/api/authors/${authorId}/posts/${postId}/image`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const post = await response.json();
+        image_base64 = post.content;
+        image_type = post.contentType
+      } else {
+        console.error("Failed to fetch image:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching image:", error.message);
+    }
+  }
+
+  // Fetch the image associated with the post when the component is mounted
+  onMount(() => {
+    if (post.image_ref) {
+      fetchPostImage();
+    }
+  });
+
+  fetchComments();
+  fetchLikes();
 </script>
 
 <div class="post">
@@ -207,25 +365,38 @@
     {#if isEditing}
       <input type="text" bind:value={postTitle} />
     {:else}
-      {title}
+      <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}
+        >{title}</a
+      >
     {/if}
   </div>
   <div class="post-content">
+    {#if post.image_ref && !removeImageFlag}
+      <img src="data:{image_type}, {image_base64}" alt=" " />
+    {/if}
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
+      <input
+        type="file"
+        bind:files
+        bind:this={editInput}
+        class="post-image"
+        accept="image/png, image/jpeg"
+      />
+      {#if post.image_ref}
+        <button on:click={removeImageDisplay}>Remove Image</button>
+      {/if}
     {:else}
       {content}
     {/if}
   </div>
   <div class="actions">
-    <button>Like</button>
-    <button on:click={toggleCommentMode}> Comment </button>
-    {#if isCommenting}
-      <div>
-        <textarea bind:value={commentText}></textarea>
-        <button on:click={addComment}>Add Comment</button>
-      </div>
+    {#if isLiked}
+      <button on:click={toggleLike}>Unlike</button>
+    {:else}
+      <button on:click={toggleLike}>Like</button>
     {/if}
+    <button on:click={() => goToPostDetails(post.id)}> Comment </button>
     {#if authorId != post.authorId && post.visibility == "PUBLIC"}
       <button on:click={openPopup}>Share</button>
       {#if showPopup}
@@ -243,7 +414,7 @@
     {#if post.authorId == authorId}
       <button on:click={deletePost}>Delete</button>
     {/if}
-    <span>Likes: {likes}</span>
+    <span>Likes: {likeCount}</span>
     <span class="ml-4">Comments: {commentCount}</span>
   </div>
 </div>

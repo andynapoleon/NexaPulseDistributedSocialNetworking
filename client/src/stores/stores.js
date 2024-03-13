@@ -12,8 +12,11 @@ const initialUserData = storedUserData
       name: "Andy Tran",
       email: "aqtran@ualberta.ca",
       github: "",
-      lastUpdated: new Date(),
+      lastUpdated: new Date(2024, 0, 3),
     };
+if (initialUserData.lastUpdated === null || initialUserData.lastUpdated === undefined) {
+  initialUserData.lastUpdated = new Date(2024, 0, 3);
+}
 export const currentUser = writable(initialUserData);
 
 // Function to get the current value of currentUser
@@ -37,4 +40,5 @@ export const hasNotifications = writable(false);
 export const isLoginPage = writable(false);
 
 export const posts = writable([]);
+export const followingPosts = writable([]);
 export const followRequests = writable([]);
