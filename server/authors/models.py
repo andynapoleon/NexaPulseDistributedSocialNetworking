@@ -8,6 +8,8 @@ from django.contrib.auth.models import (
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 
+DEFAULT_HOST = "http://127.0.0.1:8000/"
+
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -34,8 +36,10 @@ class Author(AbstractBaseUser, PermissionsMixin):
         upload_to="assets/profile_images/", null=True, blank=True
     )
     lastUpdated = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True)
+    isForeign = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
