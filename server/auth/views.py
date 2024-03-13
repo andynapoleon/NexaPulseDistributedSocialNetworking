@@ -31,6 +31,7 @@ class LoginView(APIView):
                     "name": user.firstName + " " + user.lastName,
                     "github": user.github,
                     "id": user.id,
+                    "is_active": False,
                 }
             )
         return Response(
