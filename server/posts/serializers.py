@@ -1,9 +1,11 @@
 from rest_framework import serializers
 from .models import Post
 from authors.serializers import AuthorSerializer 
+from comments.serializers import CommentSerializer
 
 class PostSerializer(serializers.ModelSerializer):
-    author = AuthorSerializer(source='authorId', context={'base_url': base_url})
+    author = AuthorSerializer(source='authorId')
+    comments = CommentSerializer()
 
     class Meta:
         model = Post

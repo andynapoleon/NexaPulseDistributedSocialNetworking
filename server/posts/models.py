@@ -23,13 +23,20 @@ class Post(models.Model):
 
     # id of the post
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
+
+    comments = models.ForeignKey("comments.Comment", on_delete=models.CASCADE, null=True, blank=True)
 
     # title of a post
     title = models.CharField(max_length=255, default="")
 
     # ISO 8601 TIMESTAMP
     published = models.DateTimeField(auto_now_add=True)
+
+    source = models.CharField(max_length=255, default="", null=True)
+
+    description = models.CharField(max_length=255, default="", null=True)
 
     # The content type of the post assume either
     # text/markdown -- common mark
