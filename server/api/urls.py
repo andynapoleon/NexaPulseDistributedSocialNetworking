@@ -12,7 +12,7 @@ from follow.views import (
 
 urlpatterns = [
     path("api/get/", views.getData),
-    path("api/profile/<uuid:user_id>", Profile.as_view(), name="Profile"),
+    path("api/profile/<str:user_id>", Profile.as_view(), name="Profile"),
     path("api/add/", views.addAuthor),
     path("api/token/", LoginView.as_view(), name="token_obtain_pair"),
     path("api/token/refresh/", TokenRefreshAPIView.as_view(), name="token_refresh"),

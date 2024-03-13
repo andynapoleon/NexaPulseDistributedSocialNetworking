@@ -33,7 +33,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         print(request.data)
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
-        if int(request.data.get("author")) != int(author_id):
+        if str(request.data.get("author")) != author_id:
             return Response(
                 {
                     "error": "You are not authorized to like posts on behalf of other users."
@@ -52,7 +52,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["delete"])
     def unlike_post(self, request, author_id=None, post_id=None):
         print(request.data)
-        if int(request.data.get("author")) != int(author_id):
+        if str(request.data.get("author")) != author_id:
             return Response(
                 {
                     "error": "You are not authorized to unlike posts on behalf of other users."

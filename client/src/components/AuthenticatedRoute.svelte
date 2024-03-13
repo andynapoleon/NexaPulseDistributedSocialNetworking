@@ -9,7 +9,7 @@
   onMount(() => {
     // Check if the user is authenticated before rendering the route
     isAuthenticated = $authToken !== "";
-    console.log(isAuthenticated);
+    console.log(`IsAuthenticated: ${isAuthenticated}`);
     if (!isAuthenticated) {
       $isLoginPage = true;
       navigate("/"); // Redirect to the login page if not authenticated

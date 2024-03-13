@@ -57,7 +57,9 @@ class FollowView(APIView):
 
     def get(self, request, user_id):
         # userId2 is being followed
+        print(user_id)
         target_user_id  = request.query_params.get('userId2')
+        print(target_user_id)
 
         if not (target_user_id ):
             return Response({'error': 'UserId2 must be provided'}, status=status.HTTP_400_BAD_REQUEST)
@@ -101,7 +103,7 @@ class UserFollowingView(APIView):
                 return Response({"error": "User not found"}, status=404)
 
             user_id = user.id
-            full_name = f"{user.firstName} {user.lastName}"
+            full_name = f"{user.displayName}"
             profileImageUrl = user.profileImage # Need to solve
             email = user.email
             context = {
@@ -128,7 +130,7 @@ class UserFollowedView(APIView):
                 return Response({"error": "User not found"}, status=404)
 
             user_id = user.id
-            full_name = f"{user.firstName} {user.lastName}"
+            full_name = f"{user.displayName}"
             profileImageUrl = user.profileImage # Need to solve
             email = user.email
             context = {
@@ -172,7 +174,7 @@ class UserFriendsView(APIView):
                 return Response({"error": "User not found"}, status=404)
 
             user_id = user.id
-            full_name = f"{user.firstName} {user.lastName}"
+            full_name = f"{user.displayName}"
             profileImageUrl = user.profileImage # Need to solve
             email = user.email
             context = {

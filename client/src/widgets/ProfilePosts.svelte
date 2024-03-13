@@ -62,6 +62,7 @@
   // Function to fetch posts from the backend as a STRANGER(can't see FRIENDS posts)
   async function fetchPostsAsStranger() {
     console.log("fetching posts as stranger");
+    console.log(`AUTHORID: ${authorId}`)
     try {
       const response = await fetch(
         server + `/api/authors/posts/${authorId}/asStranger`,

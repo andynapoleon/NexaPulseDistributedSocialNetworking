@@ -15,6 +15,8 @@
           Authorization: `Bearer ${$authToken}`,
         },
       });
+      const authToken1 = response.headers.get('Authorization');
+      console.log(`Auth token: ${authToken1}`);
       if (response.ok) {
         const data = await response.json();
         console.log("Fetched posts:", data); // Log the fetched data

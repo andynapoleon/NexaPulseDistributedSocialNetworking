@@ -61,13 +61,14 @@
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${get(authToken)}`,
+            Authorization: `Bearer ${$authToken}`,
           },
         }
       );
+      console.log(`${$authToken}`);
       if (response.ok) {
         const authorData = await response.json();
-        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+        userName = `${authorData.displayName}`; // Set the userName to the author's display name
       } else {
         console.error(
           "Failed to fetch author information:",
