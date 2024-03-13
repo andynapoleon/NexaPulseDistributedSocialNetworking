@@ -57,6 +57,8 @@ class InboxView(APIView):
         author = get_object_or_404(Author, pk=author_id)
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
+
+        # Post
         if request_type == "post":
             post_id = request.data.pop("postId", None)
             existing_post = Post.objects.filter(id=post_id).first()
@@ -70,14 +72,37 @@ class InboxView(APIView):
                     new_post = serializer.save()
                 inbox.posts.add(new_post)
             return Response({"message": "Post sent!"}, status=status.HTTP_201_CREATED)
-        elif request_type == "comment_like":
-            return Response("add comment like to inbox here")
+
+        # Follow requests
+        elif request_type == "follow":
+            follower_id = request.data.get("userId1")
+            followed_id = request.data.get("userId2")
+            follow = Follows(follower_id=follower_id, followed_id=followed_id)
+            follow.save()
+            inbox.follow_request.add(follow)
+
+            # Send follow request to remote authors
+            # print("Object...", identify_localauthor(followed_id))
+            # if not identify_localauthor(followed_id):
+            #     print("identifying local...", followed_id)
+            #     send_request_to_remoteInbox(follow_request, followed_id)
+
+            return Response(
+                {"detail": "Follow request added to inbox"},
+                status=status.HTTP_201_CREATED,
+            )
+
+        # Likes on posts
         elif request_type == "post_like":
             return Response("add post like to inbox here")
-        elif request_type == "follow":
-            return Response("add follow")
+
+        # Comments
         elif request_type == "comment":
             return Response("add comments")
+
+        # Likes on comments
+        elif request_type == "comment_like":
+            return Response("add comment like to inbox here")
 
         return Response(
             {"detail": "Unsupported request type"}, status=status.HTTP_400_BAD_REQUEST
