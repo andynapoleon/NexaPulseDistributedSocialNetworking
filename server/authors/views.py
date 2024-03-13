@@ -7,32 +7,32 @@ from .models import Author
 from .serializers import AuthorSerializer
 
 
-# class CommentList(generics.ListCreateAPIView):
-#     queryset = Comment.objects.all()
-    
-#     def get_serializer_class(self):
-#         if self.request.method == 'POST':
-#             return CommentSerializerPost
-#         return CommentSerializer
-
 class AuthorList(generics.ListCreateAPIView):
     queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+
+    def get_serializer_class(self):
+        return AuthorSerializer
+    
+    def get(self, request):
+        base_url = request.build_absolute_uri('/')
+        serializer = self.get_serializer(self.queryset.all(), many=True, context={'base_url': base_url})
+        return Response(serializer.data)
+
+    
     
 
 
 class AuthorDetail(generics.RetrieveAPIView):
     permission_classes = [AllowAny]
 
-    serializer_class = AuthorSerializer
+    def get_serializer_class(self):
+        return AuthorSerializer
 
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
             base_url = request.build_absolute_uri('/')
-            print("here")
-            serializer = AuthorSerializer(author, context={'base_url': base_url})
-            print(serializer.data)
+            serializer = self.get_serializer(author, context={'base_url': base_url})
             return Response(serializer.data)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -41,7 +41,7 @@ class AuthorDetail(generics.RetrieveAPIView):
         try:
             author = Author.objects.get(id=author_id)
             serializer = AuthorSerializer(author, data=request.data, partial=True)
-            print(serializer.is_valid())
+            # print(serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=200)
@@ -51,7 +51,7 @@ class AuthorDetail(generics.RetrieveAPIView):
 
 
 class Profile(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_user_from_id(self, user_id):
         try:
@@ -65,7 +65,7 @@ class Profile(APIView):
         if not user:
             return Response({"error": "User not found"}, status=404)
 
-        full_name = f"{user.firstName} {user.lastName}"
+        full_name = user.displayName
         github = user.github
         email = user.email
         context = {
@@ -81,11 +81,11 @@ class Profile(APIView):
         #         {"error": "Authentication credentials were not provided."},
         #         status=status.HTTP_401_UNAUTHORIZED,
         #     )
-        if request.user.id != user_id:
-            return Response(
-                {"error": "You do not have permission to perform this action."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        # if str(request.user.id) != str(user_id):
+        #     return Response(
+        #         {"error": "You do not have permission to perform this action."},
+        #         status=status.HTTP_403_FORBIDDEN,
+        #     )
 
         user = self.get_user_from_id(user_id)
         if not user:
@@ -93,14 +93,10 @@ class Profile(APIView):
 
         # Assuming the request contains data to update the user profile
         # Extract the data from request.data and update the user object
-        full_name = request.data.get("name", "")
+        full_name = request.data.get("full_name", "")
         github = request.data.get("github", "")
         email = request.data.get("email", "")
 
-        # Update user object
-        user.firstName, user.lastName = (
-            full_name.split()
-        )  # Split full name into first and last name
         user.github = github
         user.email = email
         user.save()
