@@ -33,6 +33,7 @@ class InboxView(APIView):
         posts_serializer = PostSerializer(
             inbox.posts.all().order_by("-published"), many=True
         )
+        print(inbox.posts.all())
         post_likes_serializer = LikesSerializerPost(inbox.post_likes.all(), many=True)
         comment_likes_serializer = LikesSerializerComment(
             inbox.comment_likes.all(), many=True
@@ -42,7 +43,7 @@ class InboxView(APIView):
 
         response = {
             "type": "inbox",
-            "author_id": author.user_id,
+            "author_id": author.id,
             "posts": posts_serializer.data,
             "comment_likes": comment_likes_serializer.data,
             "post_likes": post_likes_serializer.data,
@@ -54,19 +55,29 @@ class InboxView(APIView):
 
     def post(self, request, author_id, format=None):
         author = get_object_or_404(Author, pk=author_id)
-        author_serializer = AuthorSerializer(author)
-        author_name = author_serializer.data["firstName"]
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
-
         request_type = request.data.get("type", "").lower()
         if request_type == "post":
-            return Response({"add post to inbox here": author_name})
+            post_id = request.data.pop("postId", None)
+            existing_post = Post.objects.filter(id=post_id).first()
+            if existing_post:
+                for key, value in request.data.items():
+                    setattr(existing_post, key, value)
+                inbox.posts.add(existing_post)
+            else:
+                serializer = PostSerializer(data=request.data, partial=True)
+                if serializer.is_valid():
+                    new_post = serializer.save()
+                inbox.posts.add(new_post)
+            return Response({"message": "Post sent!"}, status=status.HTTP_201_CREATED)
         elif request_type == "comment_like":
             return Response("add comment like to inbox here")
         elif request_type == "post_like":
             return Response("add post like to inbox here")
         elif request_type == "follow":
             return Response("add follow")
+        elif request_type == "comment":
+            return Response("add comments")
 
         return Response(
             {"detail": "Unsupported request type"}, status=status.HTTP_400_BAD_REQUEST
