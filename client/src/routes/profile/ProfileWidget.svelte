@@ -46,10 +46,11 @@
     alreadyFollowedValue = value;
   });
   onMount(async () => {
-    const followEndpoint = server + `/api/follow/${userId}?userId2=${currentUserId}`;
+    const followEndpoint =
+      server + `/api/follow/${userId}?userId2=${currentUserId}`;
 
-    console.log("currentUserId", currentUserId)
-    console.log("target userId", userId)
+    console.log("currentUserId", currentUserId);
+    console.log("target userId", userId);
 
     const response = await fetch(followEndpoint, {
       method: "GET",

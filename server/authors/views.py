@@ -26,7 +26,7 @@ class AuthorList(generics.ListCreateAPIView):
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         return AuthorSerializer
@@ -96,10 +96,11 @@ class Profile(APIView):
 
         # Assuming the request contains data to update the user profile
         # Extract the data from request.data and update the user object
-        full_name = request.data.get("full_name", "")
+        full_name = request.data.get("name", "")
         github = request.data.get("github", "")
         email = request.data.get("email", "")
 
+        user.displayName = full_name
         user.github = github
         user.email = email
         user.save()
