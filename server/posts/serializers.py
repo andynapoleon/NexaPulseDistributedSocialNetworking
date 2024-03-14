@@ -25,3 +25,8 @@ class PostSerializer(serializers.ModelSerializer):
             else:
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}"
         return data
+
+class ServerPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"

@@ -6,12 +6,14 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, AllowAny
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, ServerPostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.db.models import Q
 import uuid
+from authors.models import Author
+from authors.serializers import AuthorSerializer
 
 
 class PostList(generics.ListCreateAPIView):
@@ -223,8 +225,9 @@ class AuthorPosts(APIView):
 
     def post(self, request, author_id):
         request_data = request.data.copy()
+        print("DATA", request_data)
         request_data["authorId"] = author_id
-        if request_data["image"] != None:
+        if request_data["image"]:
             id, response = self.create_image_post(
                 request, author_id, request.data["image"]
             )
@@ -232,11 +235,13 @@ class AuthorPosts(APIView):
                 request_data["image_ref"] = id
                 print("After making | Current image_ref?:", id)
 
-        serializer = PostSerializer(data=request_data)
+        serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
+            print("VALID OR NOT")
             if str(request.user.id) == author_id:
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def create_image_post(self, request, author_id, image_blob):
