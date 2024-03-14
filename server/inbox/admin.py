@@ -1,4 +1,5 @@
 from django.contrib import admin
-from .models import Follows
+from .models import Inbox
+
 # Register your models here.
-admin.site.register(Follows)
+admin.site.register(Inbox)

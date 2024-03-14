@@ -39,11 +39,14 @@
       if (!response.ok) {
         throw new Error("Login failed"); // Handle non-2xx responses
       }
-
       const data = await response.json();
       authToken.update((value) => (value = data.access));
       refreshToken.update((value) => (value = data.refresh));
 
+      console.log("data:", data)
+      if (!data.is_active) {
+        throw new Error("User not actived"); // Handle non-2xx responses
+      }
       currentUser.set({
         userId: data.id,
         name: data.name,

@@ -5,21 +5,24 @@ from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class AuthorList(generics.ListCreateAPIView):
+    authentication_classes = [
+        BasicOrTokenAuthentication
+    ]  # Apply BasicAuthentication only for AuthorList view
     queryset = Author.objects.all()
 
     def get_serializer_class(self):
         return AuthorSerializer
-    
-    def get(self, request):
-        base_url = request.build_absolute_uri('/')
-        serializer = self.get_serializer(self.queryset.all(), many=True, context={'base_url': base_url})
-        return Response(serializer.data)
 
-    
-    
+    def get(self, request):
+        base_url = request.build_absolute_uri("/")
+        serializer = self.get_serializer(
+            self.queryset.all(), many=True, context={"base_url": base_url}
+        )
+        return Response(serializer.data)
 
 
 class AuthorDetail(generics.RetrieveAPIView):
@@ -31,8 +34,8 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            base_url = request.build_absolute_uri('/')
-            serializer = self.get_serializer(author, context={'base_url': base_url})
+            base_url = request.build_absolute_uri("/")
+            serializer = self.get_serializer(author, context={"base_url": base_url})
             return Response(serializer.data)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
