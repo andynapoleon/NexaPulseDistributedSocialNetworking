@@ -34,9 +34,9 @@ class Post(models.Model):
     # ISO 8601 TIMESTAMP
     published = models.DateTimeField(auto_now_add=True)
 
-    source = models.CharField(max_length=255, default="", null=True)
+    source = models.CharField(max_length=255, default="", null=True, blank=True)
 
-    description = models.CharField(max_length=255, default="", null=True)
+    description = models.CharField(max_length=255, default="", null=True, blank=True)
 
     # The content type of the post assume either
     # text/markdown -- common mark

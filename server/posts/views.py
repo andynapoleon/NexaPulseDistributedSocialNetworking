@@ -254,7 +254,7 @@ class AuthorPosts(APIView):
             request_data["authorId"] = author_id
 
             print("image post: ", request_data)
-            serializer = PostSerializer(data=request_data)
+            serializer = ServerPostSerializer(data=request_data)
             print("Serializer validated:", serializer.is_valid())
             if serializer.is_valid():
                 if str(request.user.id) == author_id:
@@ -326,8 +326,9 @@ class SharedPost(APIView):
         except Post.DoesNotExist:
             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
         
+        print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
-            serializer = PostSerializer(post)
+            serializer = ServerPostSerializer(post)
             shared_post = serializer.data
             shared_post["published"] = timezone.now()
             shared_post["isShared"] = True
@@ -343,10 +344,13 @@ class SharedPost(APIView):
             else:
                 shared_post["image_ref"] = None
             print(shared_post)
-            serializer = PostSerializer(data=shared_post)
+            serializer = ServerPostSerializer(data=shared_post)
+            print("VALID?: ",serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
                 {"error": "You are not authorized to share this post"},
