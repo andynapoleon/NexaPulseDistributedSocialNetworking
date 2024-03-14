@@ -5,10 +5,10 @@ from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
-
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 class AuthorList(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
     queryset = Author.objects.all()
     serializer_class = AuthorSerializer
 
