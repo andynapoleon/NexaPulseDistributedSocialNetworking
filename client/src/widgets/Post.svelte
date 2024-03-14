@@ -166,7 +166,6 @@
       content = editedContent;
       title = postTitle;
       isEditing = false;
-      dispatch("changed", { changeDetected: true });
     } else {
       console.error("Failed to save edited post");
     }
