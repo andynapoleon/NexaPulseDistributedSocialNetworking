@@ -18,8 +18,6 @@ credentialForConnect = {
     "username": "hello",
     "password": "world",
 }
-credentialForDelete = {"", "", "", ""}
-
 
 @api_view(["POST"])
 @permission_classes((IsAuthenticatedOrReadOnly,))
@@ -111,12 +109,4 @@ def getNodePosts(request):
 def getRemoteAuthors(request):
     remoteAuthors = fetchRemoteAuthors()
     response = {"type": "authors", "items": remoteAuthors}
-    return Response(response, status=status.HTTP_200_OK)
-
-
-@api_view(["DELETE"])
-def deleteNode(request, host):
-    nodeToDelete = Node.objects.filter(host=host)[0]
-    nodeToDelete.delete()
-    response = {"message": "Node successfully deleted."}
     return Response(response, status=status.HTTP_200_OK)

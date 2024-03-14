@@ -7,3 +7,4 @@ class Node(models.Model):
     username = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
     team = models.IntegerField(default=0)
+    isActive = models.BooleanField(default=True)
