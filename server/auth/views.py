@@ -32,7 +32,7 @@ class LoginView(APIView):
                     "name": user.displayName,
                     "github": user.github,
                     "id": user.id,
-                    "is_active": False,
+                    "is_active": user.is_active,
                 }
             )
         return Response(
