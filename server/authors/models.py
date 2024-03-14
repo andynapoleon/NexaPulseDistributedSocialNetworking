@@ -34,7 +34,7 @@ class Author(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, default="")
     displayName = models.CharField(max_length=25, default="")
     url = models.URLField(editable=False, default="")
-    host = models.CharField(max_length=50, editable=False, default="")
+    # host = models.CharField(max_length=50, editable=False, default="")
     github = models.CharField(max_length=100, blank=True, default="")
     profileImage = models.ImageField(
         upload_to="assets/profile_images/", null=True, blank=True
