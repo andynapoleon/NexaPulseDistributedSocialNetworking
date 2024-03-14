@@ -91,7 +91,7 @@
         content_type: "text/plain",
         comment: commentText,
         author: authorId,
-        post: postId,
+        postId: postId,
       }),
     });
 

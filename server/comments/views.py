@@ -26,7 +26,7 @@ class CommentDetail(generics.RetrieveAPIView):
 
     def get(self, request, author_id, post_id):
         try:
-            comment = Comment.objects.filter(post_id=post_id) # get the comments of the post given post_id
+            comment = Comment.objects.filter(postId=post_id) # get the comments of the post given post_id
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -49,6 +49,7 @@ class CommentDetail(generics.RetrieveAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
 
