@@ -7,6 +7,7 @@ from django.contrib.auth.models import (
 )
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
+import uuid
 
 DEFAULT_HOST = "http://127.0.0.1:8000/"
 
@@ -28,10 +29,13 @@ class CustomUserManager(BaseUserManager):
 
 
 class Author(AbstractBaseUser, PermissionsMixin):
-    email = models.EmailField(unique=True)
-    firstName = models.CharField(max_length=50, blank=True)
-    lastName = models.CharField(max_length=50, blank=True)
-    github = models.CharField(max_length=100, blank=True)
+    type = models.CharField(max_length=50, default="author", editable=False)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True, default="")
+    displayName = models.CharField(max_length=25, default="")
+    url = models.URLField(editable=False, default="")
+    # host = models.CharField(max_length=50, editable=False, default="")
+    github = models.CharField(max_length=100, blank=True, default="")
     profileImage = models.ImageField(
         upload_to="assets/profile_images/", null=True, blank=True
     )

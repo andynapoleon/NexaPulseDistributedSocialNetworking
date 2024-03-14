@@ -13,8 +13,7 @@ class PostViewsTestCase(APITestCase):
 
         # Create an instance of Author and authenticate the client
         self.test_author = Author.objects.create_user(
-            firstName="testuser",
-            lastName="testus er",
+            displayName="testuser",
             github="https://github.com/testuser",
             email="testuser@example.com",
             password="1234",

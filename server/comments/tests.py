@@ -8,10 +8,10 @@ class CommentAPITestCase(APITestCase):
     def setUp(self):
         # Set up test author
         self.client = APIClient()
-        self.author = Author.objects.create(email='test@example.com', firstName='Test', lastName='User', github='testuser')
+        self.author = Author.objects.create(email='test@example.com', displayName='Test', github='testuser')
 
         # Create an instance of Author and authenticate the client
-        self.test_author = Author.objects.create(firstName='testuser', lastName='testuser', github='https://github.com/testuser', email='testuser@example.com')
+        self.test_author = Author.objects.create(displayName='testuser', github='https://github.com/testuser', email='testuser@example.com')
         self.token = AccessToken.for_user(self.test_author)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
 

@@ -4,13 +4,16 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Post
-from .serializers import PostSerializer
+from .serializers import PostSerializer, ServerPostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.db.models import Q
+import uuid
+from authors.models import Author
+from authors.serializers import AuthorSerializer
 
 
 class PostList(generics.ListCreateAPIView):
@@ -47,6 +50,9 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
 
     def get(self, request, author_id):
         try:
+            # Validate author_id as UUID
+            uuid.UUID(author_id)
+            print(author_id, type(author_id))
             # Filter posts by author ID
             queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
             queryset = queryset.exclude(contentType__startswith="image/")
@@ -92,6 +98,7 @@ class PostById(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print(post.visibility)
             if post.visibility != "FRIENDS":
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
@@ -100,8 +107,9 @@ class PostById(APIView):
                     follower_id=author_id, acceptedRequest=True
                 ).values_list("followed_id", flat=True)
                 followed_users_ids = list(followed_users_ids)
-                followed_users_ids.append(int(author_id))
-                if post.authorId.id in followed_users_ids:
+                followed_users_ids = [str(value) for value in followed_users_ids]
+                followed_users_ids.append(author_id)
+                if str(post.authorId.id) in followed_users_ids:
                     serializer = PostSerializer(post)
                     return Response(serializer.data)
                 else:
@@ -119,8 +127,8 @@ class PostDetail(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            base_url = request.build_absolute_uri('/')
-            serializer = PostSerializer(post, context={'base_url': base_url})
+            base_url = request.build_absolute_uri("/")
+            serializer = PostSerializer(post, context={"base_url": base_url})
             return Response(serializer.data)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -130,7 +138,7 @@ class PostDetail(APIView):
             post = Post.objects.get(id=post_id)
 
             request_data = request.data.copy()
-            request_data["authorId"] = int(author_id)
+            request_data["authorId"] = author_id
             print("Current request_data image:", request_data["image"])
             if request_data["image"]:
                 # Delete old image post
@@ -152,7 +160,7 @@ class PostDetail(APIView):
                         print("After making | Current image_ref:", id)
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
-                if request.user.id == int(author_id):
+                if str(request.user.id) == author_id:
                     serializer.save()
                     return Response(serializer.data, status=status.HTTP_200_OK)
             # print(serializer.errors)
@@ -169,14 +177,14 @@ class PostDetail(APIView):
             request_data["contentType"] = image_info[0][5:]
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
-            request_data["authorId"] = int(author_id)
+            request_data["authorId"] = author_id
             # print("New Data created:")
             print(request_data)
 
             serializer = PostSerializer(data=request_data, partial=True)
 
             if serializer.is_valid():
-                if request.user.id == int(author_id):
+                if str(request.user.id) == author_id:
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
@@ -190,7 +198,7 @@ class PostDetail(APIView):
     def delete(self, request, author_id, post_id):
         try:
             regular_post = Post.objects.get(id=post_id)
-            if regular_post.authorId.id == int(author_id):
+            if str(regular_post.authorId.id) == author_id:
                 # Delete the associated image post, if it exists
                 if regular_post.image_ref:
                     regular_post.image_ref.delete()
@@ -214,14 +222,15 @@ class AuthorPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-        base_url = request.build_absolute_uri('/')
-        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
+        base_url = request.build_absolute_uri("/")
+        serializer = PostSerializer(queryset, many=True, context={"base_url": base_url})
         return Response(serializer.data)
 
     def post(self, request, author_id):
         request_data = request.data.copy()
-        request_data["authorId"] = int(author_id)
-        if request_data["image"] != None:
+        print("DATA", request_data)
+        request_data["authorId"] = author_id
+        if request_data["image"]:
             id, response = self.create_image_post(
                 request, author_id, request.data["image"]
             )
@@ -229,11 +238,13 @@ class AuthorPosts(APIView):
                 request_data["image_ref"] = id
                 print("After making | Current image_ref?:", id)
 
-        serializer = PostSerializer(data=request_data)
+        serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
-            if request.user.id == int(author_id):
+            print("VALID OR NOT")
+            if str(request.user.id) == author_id:
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+        print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def create_image_post(self, request, author_id, image_blob):
@@ -243,13 +254,13 @@ class AuthorPosts(APIView):
             request_data["content"] = image_info[1]
             request_data["contentType"] = image_info[0][5:]
             request_data["image"] = None
-            request_data["authorId"] = int(author_id)
+            request_data["authorId"] = author_id
 
             print("image post: ", request_data)
-            serializer = PostSerializer(data=request_data)
+            serializer = ServerPostSerializer(data=request_data)
             print("Serializer validated:", serializer.is_valid())
             if serializer.is_valid():
-                if request.user.id == int(author_id):
+                if str(request.user.id) == author_id:
                     serializer.save()
                     saved_data = serializer.data
                     saved_id = saved_data.get("id", None)
@@ -269,9 +280,9 @@ class PublicPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-        base_url = request.build_absolute_uri('/')
-        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
-        return Response(serializer.data)
+        base_url = request.build_absolute_uri("/")
+        serializer = PostSerializer(queryset, many=True, context={"base_url": base_url})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class FollowingPosts(APIView):
@@ -298,8 +309,10 @@ class FollowingPosts(APIView):
             queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            base_url = request.build_absolute_uri('/')
-            serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
+            base_url = request.build_absolute_uri("/")
+            serializer = PostSerializer(
+                queryset, many=True, context={"base_url": base_url}
+            )
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -319,24 +332,32 @@ class SharedPost(APIView):
             return Response(
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
             )
-        if post.visibility == "PUBLIC" and int(author_id) != post.authorId.id:
-            serializer = PostSerializer(post)
+
+        print("I ENTERED HERE")
+        if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
+            serializer = ServerPostSerializer(post)
             shared_post = serializer.data
             shared_post["published"] = timezone.now()
             shared_post["isShared"] = True
             # sharedBy means original author
             shared_post["sharedBy"] = shared_post["authorId"]
             # authorId is the author sharing the post
-            shared_post["authorId"] = int(author_id)
+            shared_post["authorId"] = author_id
             shared_post["visibility"] = "FRIENDS"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
-            shared_post["image_ref"] = post.image_ref.id
+            if post.image_ref:
+                shared_post["image_ref"] = post.image_ref.id
+            else:
+                shared_post["image_ref"] = None
             print(shared_post)
-            serializer = PostSerializer(data=shared_post)
+            serializer = ServerPostSerializer(data=shared_post)
+            print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            print(serializer.errors)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
                 {"error": "You are not authorized to share this post"},
@@ -351,8 +372,10 @@ class ImagePost(APIView):
         try:
             post = Post.objects.get(id=post_id)
             if post.image_ref != None:
-                base_url = request.build_absolute_uri('/')
-                serializer = PostSerializer(post.image_ref, context={'base_url': base_url})
+                base_url = request.build_absolute_uri("/")
+                serializer = PostSerializer(
+                    post.image_ref, context={"base_url": base_url}
+                )
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -360,7 +383,7 @@ class ImagePost(APIView):
     def delete(self, request, author_id, post_id):
         try:
             regular_post = Post.objects.get(id=post_id)
-            if regular_post.authorId.id == int(author_id):
+            if str(regular_post.authorId.id) == author_id:
                 # Delete the associated image post, if it exists
                 if regular_post.image_ref:
                     regular_post.image_ref.delete()
