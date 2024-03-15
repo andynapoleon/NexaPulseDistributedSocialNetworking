@@ -7,7 +7,7 @@
     let fullName = "";
     let github = "";
     let email = "";
-    let userId = 0;
+    let userId = "";
   
     let isAuthenticated = false;
     

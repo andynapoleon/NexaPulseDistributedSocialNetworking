@@ -9,9 +9,9 @@ from follow.views import (
 )
 
 urlpatterns = [
-    path("follow/<int:user_id>", FollowView.as_view()),
-    path("follow/all/<int:user_id>", FollowAllView.as_view()),
-    path("friends/following/<int:user_id>", UserFollowingView.as_view()),
-    path("friends/followed/<int:user_id>", UserFollowedView.as_view()),
-    path("friends/friends/<int:user_id>", UserFriendsView.as_view()),
+    path("follow/<str:user_id>", FollowView.as_view()),
+    path("follow/all/<str:user_id>", FollowAllView.as_view()),
+    path("friends/following/<str:user_id>", UserFollowingView.as_view()),
+    path("friends/followed/<str:user_id>", UserFollowedView.as_view()),
+    path("friends/friends/<str:user_id>", UserFriendsView.as_view()),
 ]

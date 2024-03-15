@@ -38,7 +38,7 @@
   }
 
   function editPostId(postId) {
-    return postId.split('/').pop();
+    return postId.split("/").pop();
   }
 
   postId = editPostId(postId);
@@ -61,13 +61,14 @@
         {
           method: "GET",
           headers: {
-            Authorization: `Bearer ${get(authToken)}`,
+            Authorization: `Bearer ${$authToken}`,
           },
         }
       );
+      console.log(`${$authToken}`);
       if (response.ok) {
         const authorData = await response.json();
-        userName = `${authorData.firstName} ${authorData.lastName}`; // Set the userName to the author's display name
+        userName = `${authorData.displayName}`; // Set the userName to the author's display name
       } else {
         console.error(
           "Failed to fetch author information:",
@@ -165,7 +166,6 @@
       content = editedContent;
       title = postTitle;
       isEditing = false;
-      dispatch("changed", { changeDetected: true });
     } else {
       console.error("Failed to save edited post");
     }
@@ -231,7 +231,8 @@
       );
 
       if (response.ok) {
-        dispatch("changed", { changeDetected: true });
+        // dispatch("changed", { changeDetected: true });
+        removeImageDisplay();
       } else {
         console.error("Failed to remove image:", response.statusText);
       }
@@ -337,7 +338,7 @@
       if (response.ok) {
         const post = await response.json();
         image_base64 = post.content;
-        image_type = post.contentType
+        image_type = post.contentType;
       } else {
         console.error("Failed to fetch image:", response.statusText);
       }

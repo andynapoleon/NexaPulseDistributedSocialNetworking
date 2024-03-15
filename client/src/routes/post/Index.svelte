@@ -12,7 +12,6 @@
   } from "../../stores/stores.js";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { get } from "svelte/store";
-  import { navigate } from "svelte-routing";
 
   export let params;
   let postId = params.id;
@@ -23,8 +22,10 @@
   let authorId = $currentUser.userId;
   let commentText = ""; // Variable to hold the new comment text
 
-  let commentCount;
-  let likeCount;
+  let commentCount = 0;
+  let likeCount = 0; // for post likes
+  let commentLikeCount = 0;
+  let isLiked = false;
 
   async function fetchPostById() {
     console.log("fetching post by ID");
@@ -90,7 +91,7 @@
         content_type: "text/plain",
         comment: commentText,
         author: authorId,
-        post: postId,
+        postId: postId,
       }),
     });
 
@@ -102,7 +103,117 @@
     }
   }
 
+  // // Function to like a comment
+  // async function likeComment(commentId) {
+  //   //authors/<str:author_id>/comment/inbox
+  //   try {
+  //     const response = await fetch(`${server}/api/authors/${authorId}/comment/inbox`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Authorization': `Bearer ${get(authToken)}`,
+  //         'Content-Type': 'application/json'
+  //       },
+  //       body: JSON.stringify({ author: authorId, post: postId, comment: commentId }) 
+  //     });
+
+  //     if (response.ok) {
+  //       // Optionally, you can fetch comments again to update the like count
+  //       fetchComments();
+  //     } else {
+  //       console.error('Failed to like comment:', response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error liking comment:', error.message);
+  //   }
+  // }
+
+  function parseCommentId(comment){
+    let url = comment.id;
+    let parts = url.split('/');
+    let commentId = parts[parts.length - 1];
+    console.log(`COMMENTID: ${commentId}`)
+    return commentId
+  }
+
+  // Fetch the number of likes for the post
+  async function fetchCommentLikes() {
+    try {
+      for (let comment of comments){
+        let commentId = parseCommentId(comment)
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/posts/${postId}/comments/${commentId}/likes`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+            },
+          }
+        );
+  
+        if (response.ok) {
+          const likes = await response.json();
+          commentLikeCount = likes.length;
+          isLiked = likes.some((like) => like.author === authorId);
+        } else {
+          console.error("Failed to fetch likes:", response.statusText);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching likes:", error.message);
+    }
+  }
+
+  async function toggleCommentLike(commentId) {
+    try {
+      if (isLiked) {
+        // Unlike the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/comment/inbox`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId, comment: commentId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = false;
+          fetchCommentLikes();
+        } else {
+          console.error("Failed to unlike the post:", response.statusText);
+        }
+      } else {
+        // Like the post
+        const response = await fetchWithRefresh(
+          `${server}/api/authors/${authorId}/comment/inbox`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${get(authToken)}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ author: authorId, post: postId, comment: commentId }),
+          }
+        );
+
+        if (response.ok) {
+          isLiked = true;
+          fetchCommentLikes();
+        } else {
+          console.error("Failed to like the post:", response.statusText);
+        }
+      }
+    } catch (error) {
+      console.error("Error toggling like:", error.message);
+    }
+  }
+
+
   onMount(fetchPostById);
+  onMount(fetchComments);
 
   function handleChange(event) {
     if (event.detail.changeDetected == true) {
@@ -127,7 +238,16 @@
     {#if comments.length > 0}
       <ul class="comment-list">
         {#each comments as comment}
-          <li class="comment">{comment.comment}</li>
+          <li class="comment">
+            <div>{comment.comment}</div>
+            <div>Likes: {commentLikeCount}</div>
+            <!-- Add a like button for each comment -->
+            {#if isLiked}
+              <button class="like-button" on:click={() => toggleCommentLike(parseCommentId(comment))}>Unlike</button>
+            {:else}
+              <button class="like-button" on:click={() => toggleCommentLike(parseCommentId(comment))}>Like</button>
+            {/if}
+          </li>
         {/each}
       </ul>
     {:else}
@@ -136,8 +256,7 @@
 
     <!-- Box to add new comment -->
     <div class="new-comment-box">
-      <textarea bind:value={commentText} placeholder="Add your comment"
-      ></textarea>
+      <textarea bind:value={commentText} placeholder="Add your comment"></textarea>
       <button on:click={addComment}>Add Comment</button>
     </div>
   {:else if error}
@@ -193,5 +312,15 @@
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
+  }
+
+  .like-button {
+    background-color: #007bff; /* Blue color */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 5px;
   }
 </style>

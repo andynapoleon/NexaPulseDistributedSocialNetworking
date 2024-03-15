@@ -17,8 +17,8 @@
   let title = post.title;
   let authorId = $currentUser.userId;
   let postId = post.id;
-  let likeCount = 0;
-  let commentCount = 0;
+  export let likeCount = 0;
+  export let commentCount = 0;
   let sharedBy = post.sharedBy;
   let isShared = post.isShared;
   let thoughts = "This post is so good!";
@@ -46,6 +46,8 @@
   // Fetch author's information based on authorId
   async function fetchAuthor() {
     try {
+      // console.log(`I AM HERE???!`);
+      console.log(`${post.authorId}`);
       const response = await fetchWithRefresh(
         `${server}/api/authors/${post.authorId}`,
         {
@@ -57,7 +59,7 @@
       );
       if (response.ok) {
         const authorData = await response.json();
-        userName = `${authorData.firstName} ${authorData.lastName}`;
+        userName = `${authorData.displayName}`;
       } else {
         console.error(
           "Failed to fetch author information:",
@@ -83,7 +85,7 @@
       );
       if (response.ok) {
         const authorData = await response.json();
-        originalAuthor = `${authorData.firstName} ${authorData.lastName}`;
+        originalAuthor = `${authorData.displayName}`;
       } else {
         console.error(
           "Failed to fetch author information:",
@@ -279,13 +281,14 @@
 
   // Fetch the image associated with the post when the component is mounted
   onMount(() => {
+    fetchAuthor();
     if (post.image_ref) {
       fetchPostImage();
     }
   });
 
   // Fetch author's information when the component is mounted
-  fetchAuthor();
+  
   fetchComments();
   fetchOriginalAuthor();
 </script>

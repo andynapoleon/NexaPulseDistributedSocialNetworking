@@ -1,28 +1,22 @@
 from rest_framework import serializers
 from .models import Author
 
+
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = '__all__'
+        fields = ['type', 'id', 'host', 'displayName', 'url', 'github', 'profileImage']
 
-    def create(self, validated_data):
-        """
-        Create and return a new `Authors` instance, given the validated data
-        """
-        return Author.objects.create(**validated_data)
-    
-    def update(self, instance, validated_data):
-        """
-        Update and return an existing `Author` instance, given the validated data
-        """
-        instance.email = validated_data.get('email', instance.email)
-        instance.firstName = validated_data.get('firstName', instance.firstName)
-        instance.lastName = validated_data.get('lastName', instance.lastName)
-        instance.github = validated_data.get('github', instance.github)
-        instance.profileImage = validated_data.get('profileImage', instance.profileImage)
-        instance.lastUpdated = validated_data.get('lastUpdated', instance.lastUpdated)
-        instance.is_active = validated_data.get('is_active', instance.is_active)
-        instance.is_staff = validated_data.get('is_staff', instance.is_staff)
-        instance.save()
-        return instance
+    def to_representation(self, instance):
+        '''Represents the id field as an url'''
+        data = super().to_representation(instance)
+        context = self.context
+        base_url = context.get('base_url')
+        if base_url is not None:
+            author_id = instance.id
+            data['id'] = f"{base_url}authors/{author_id}"
+            data['url'] = f"{base_url}authors/{author_id}"
+            data['host'] = f"{base_url}"
+        return data
+
+   
