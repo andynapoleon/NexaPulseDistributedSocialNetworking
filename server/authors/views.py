@@ -10,9 +10,14 @@ from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 from rest_framework import generics
 
+
 class AuthorList(generics.ListCreateAPIView):
-    serializer_class = AuthorSerializer  # Assuming AuthorSerializer is your serializer class
-    authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
+    serializer_class = (
+        AuthorSerializer  # Assuming AuthorSerializer is your serializer class
+    )
+    authentication_classes = [
+        BasicOrTokenAuthentication
+    ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
         return Author.objects.all()
@@ -34,7 +39,6 @@ class AuthorList(generics.ListCreateAPIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
-
 class AuthorDetail(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
@@ -45,11 +49,8 @@ class AuthorDetail(generics.RetrieveAPIView):
         try:
             author = Author.objects.get(id=author_id)
             serializer = AuthorSerializer(author)
-            response = {
-                "type": "authors",
-                "items": serializer,
-            }
-            return Response(response.data, status=200)
+            response = serializer.data
+            return Response(response, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -60,11 +61,8 @@ class AuthorDetail(generics.RetrieveAPIView):
             # print(serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-                response = {
-                "type": "authors",
-                "items": serializer,
-                }
-                return Response(response.data, status=200)
+                response = serializer.data
+                return Response(response, status=200)
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
