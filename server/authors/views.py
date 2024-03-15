@@ -9,8 +9,21 @@ from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 class AuthorList(generics.ListCreateAPIView):
     authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
-    queryset = Author.objects.all()
-    serializer_class = AuthorSerializer
+    def get(self, request):
+        queryset = Author.objects.all()
+        serializer = AuthorSerializer(queryset, many=True)
+
+        data_with_type = serializer.data
+        for item in data_with_type:
+            item["type"] = "author"
+            item.pop("password", None)
+
+        response = {
+            "type": "authors",
+            "items": data_with_type,
+        }
+        
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class AuthorDetail(generics.RetrieveAPIView):
@@ -23,7 +36,11 @@ class AuthorDetail(generics.RetrieveAPIView):
         try:
             author = Author.objects.get(id=author_id)
             serializer = AuthorSerializer(author)
-            return Response(serializer.data)
+            response = {
+                "type": "authors",
+                "items": serializer,
+            }
+            return Response(response.data, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -34,7 +51,11 @@ class AuthorDetail(generics.RetrieveAPIView):
             print(serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=200)
+                response = {
+                "type": "authors",
+                "items": serializer,
+                }
+                return Response(response.data, status=200)
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
