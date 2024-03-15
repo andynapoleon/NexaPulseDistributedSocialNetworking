@@ -9,6 +9,7 @@
   import Notifications from "./routes/notifications/Index.svelte";
   import Login from "./routes/login/Index.svelte";
   import Friends from "./routes/friends/Index.svelte";
+  import AllUsers from "./routes/allUsers/Index.svelte";
   import ForYou from "./routes/foryou/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import Post from "./routes/post/Index.svelte";
@@ -25,6 +26,7 @@
     { href: "/home", label: "Home" },
     { href: "/foryou", label: "For You" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
+    { href: "/all_users", label: "All Users"},
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
     { href: "/", label: "Log Out" },
   ];
@@ -37,6 +39,7 @@
     "/posts/:id": Post,
     "/notifications/:id": Notifications,
     "/friends/:id": Friends,
+    "/all_users": AllUsers,
   };
 
   // Reactively set isLoginPage based on the current path
@@ -59,6 +62,8 @@
       <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {:else if item.label === "Friends"}
       <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+    {:else if item.label === "All Users"}
+      <Icon.UsersSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
     {:else if item.label === "Notifications"}
       <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
       <!-- If there are notifications, paint a dot -->

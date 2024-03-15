@@ -8,21 +8,31 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
+from rest_framework import generics
+
 class AuthorList(generics.ListCreateAPIView):
-    authentication_classes = [
-        BasicOrTokenAuthentication
-    ]  # Apply BasicAuthentication only for AuthorList view
-    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer  # Assuming AuthorSerializer is your serializer class
+    authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
 
-    def get_serializer_class(self):
-        return AuthorSerializer
+    def get_queryset(self):
+        return Author.objects.all()
 
-    def get(self, request):
-        base_url = request.build_absolute_uri("/")
-        serializer = self.get_serializer(
-            self.queryset.all(), many=True, context={"base_url": base_url}
-        )
-        return Response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        data_with_type = serializer.data
+        for item in data_with_type:
+            item["type"] = "author"
+            item.pop("password", None)
+
+        response = {
+            "type": "authors",
+            "items": data_with_type,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
+
 
 
 class AuthorDetail(generics.RetrieveAPIView):
@@ -34,9 +44,12 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            base_url = request.build_absolute_uri("/")
-            serializer = self.get_serializer(author, context={"base_url": base_url})
-            return Response(serializer.data)
+            serializer = AuthorSerializer(author)
+            response = {
+                "type": "authors",
+                "items": serializer,
+            }
+            return Response(response.data, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -47,7 +60,11 @@ class AuthorDetail(generics.RetrieveAPIView):
             # print(serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=200)
+                response = {
+                "type": "authors",
+                "items": serializer,
+                }
+                return Response(response.data, status=200)
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
