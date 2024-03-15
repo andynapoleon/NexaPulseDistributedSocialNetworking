@@ -4,7 +4,7 @@ from .models import Comment, Author
 class AuthorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
-        fields = ['id', 'email', 'firstName', 'lastName', 'github', 'profileImage']
+        fields = ['type', 'id', 'host', 'displayName', 'url', 'github', 'profileImage']
 
 class CommentSerializer(serializers.ModelSerializer):
     author = AuthorSerializer()
@@ -20,7 +20,7 @@ class CommentSerializer(serializers.ModelSerializer):
         base_url = context.get('base_url')
         if base_url is not None:
             author_id = instance.author.id
-            post_id = instance.post.id
+            post_id = instance.postId.id
             comment_id = instance.id
             data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/comments/{comment_id}"
         return data

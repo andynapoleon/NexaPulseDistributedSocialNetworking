@@ -12,7 +12,7 @@
   export let postTime = "1 min ago";
   export let content = "wanted to follow you.";
 
-  const currentUserId = get(currentUser).userId;
+  const currentUserId = $currentUser.userId;
 
   // Initialize alreadyFollowed as a writable store
   let alreadyFriended = Boolean(false);

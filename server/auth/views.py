@@ -28,10 +28,10 @@ class LoginView(APIView):
                     "refresh": refresh_string,
                     "access": token_string,
                     "email": email,
-                    "name": user.firstName + " " + user.lastName,
+                    "name": user.displayName,
                     "github": user.github,
                     "id": user.id,
-                    "is_active": True,
+                    "is_active": user.is_active,
                 }
             )
         return Response(

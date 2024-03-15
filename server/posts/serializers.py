@@ -1,8 +1,12 @@
 from rest_framework import serializers
 from .models import Post
-
+from authors.serializers import AuthorSerializer 
+from comments.serializers import CommentSerializer
 
 class PostSerializer(serializers.ModelSerializer):
+    author = AuthorSerializer(source='authorId')
+    comments = CommentSerializer()
+
     class Meta:
         model = Post
         fields = "__all__"
@@ -15,8 +19,14 @@ class PostSerializer(serializers.ModelSerializer):
         if base_url is not None:
             author_id = instance.authorId.id
             post_id = instance.id
+            data['comments'] = f"{base_url}authors/{author_id}/posts/{post_id}/comments"
             if data['contentType'] == "image/png;base64" or data['contentType'] == "image/jpeg;base64":
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/image"
             else:
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}"
         return data
+
+class ServerPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = "__all__"

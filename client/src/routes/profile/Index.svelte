@@ -16,7 +16,7 @@
   let fullName = "";
   let github = "";
   let email = "";
-  let userId = 0;
+  let userId = "";
 
   let isAuthenticated = false;
   export let params;
@@ -30,13 +30,16 @@
     // get the id from the URL
     const path = window.location.pathname;
     const pathSegments = path.split("/");
-    userId = parseInt(pathSegments[pathSegments.length - 1]);
+    console.log(pathSegments)
+    userId = pathSegments[pathSegments.length - 1];
     // if the user is looking at their on profile
     if (userId == getCurrentUser().userId) {
       fullName = getCurrentUser().name;
       github = getCurrentUser().github;
       email = getCurrentUser().email;
     } else {
+      userId = pathSegments.pop();
+      console.log(`${userId}`)
       const profileEndpoint = server + `/api/profile/${userId}`;
       const response = await fetch(profileEndpoint, {
         method: "GET",

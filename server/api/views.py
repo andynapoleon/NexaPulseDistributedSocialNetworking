@@ -10,7 +10,8 @@ from rest_framework_simplejwt.tokens import AccessToken
 @api_view(["GET"])
 def getData(request):
     authors = Author.objects.all()
-    serializer = AuthorSerializer(authors, many=True)
+    base_url = request.build_absolute_uri('/')
+    serializer = AuthorSerializer(authors, many=True, context={'base_url': base_url})
     return Response(serializer.data)
 
 
