@@ -87,7 +87,7 @@
       userId2: userId, //target user
     };
     const followEndpoint =
-      server + `/api/follow/${currentUserId}?userId2=${userId}`;
+      server + `/api/follow/${userId}?userId2=${currentUserId}`;
     const headers = {
       Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
       "Content-Type": "application/json",
@@ -97,6 +97,7 @@
       headers: headers,
       body: JSON.stringify(followRequest),
     });
+    console.log("DELETE", response);
     if (!response.ok) {
       throw new Error("Failed to delete follow request");
     }
