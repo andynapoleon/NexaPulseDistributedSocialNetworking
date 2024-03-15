@@ -31,7 +31,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
-        print(request.data)
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
         if str(request.data.get("author")) != author_id:
             return Response(
@@ -42,6 +41,9 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             )
 
         try:
+            print(request.data)
+            print("author_id", author_id, "of_type", type(author_id))
+            print("post_id", request.data.get('post'), "of_type", type(request.data.get('post')))
             like = PostLikes.objects.create(author_id=author_id, post_id=request.data.get('post'))
             base_url = request.build_absolute_uri('/')
             serializer = self.get_serializer(like, context={'base_url': base_url})
