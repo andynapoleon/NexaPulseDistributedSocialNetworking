@@ -10,9 +10,10 @@ class BasicOrTokenAuthentication(BaseAuthentication):
         # Check if basic authentication credentials are provided
         auth = request.headers.get('Authorization')
         sender_host = request.META.get('HTTP_HOST', '')
+        print(sender_host)
         sender_host = "http://" + sender_host + "/"
         # print(auth)
-        # print(sender_host)
+        print(sender_host)
         if auth:
             print("auth provided")
             # Parse basic auth header
