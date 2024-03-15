@@ -162,7 +162,8 @@ class PostDetail(APIView):
                         print("After making | Current image_ref:", id)
 
             # serializer accepts CommonMark content
-            request_data['content'] = markdownify(request_data['content'])
+            if request_data['contentType'] == "text/markdown":
+                request_data['content'] = markdownify(request_data['content'])
 
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
@@ -245,7 +246,8 @@ class AuthorPosts(APIView):
                 print("After making | Current image_ref?:", id)
 
         # serializer accepts CommonMark content
-        request_data['content'] = markdownify(request_data['content'])
+        if request_data['contentType'] == "text/markdown":
+            request_data['content'] = markdownify(request_data['content'])
 
         serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():

@@ -7,6 +7,8 @@
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
+  import { marked } from '../../node_modules/marked';
+  
 
   // Props passed to the component
   export let post;
@@ -388,7 +390,12 @@
         <button on:click={removeImageDisplay}>Remove Image</button>
       {/if}
     {:else}
-      {@html post.content}
+      {#if post.contentType === "text/plain"}
+        {post.content}
+      {:else}
+        {@html marked(post.content)}
+        <!-- {@html renderMarkdown(post.content)} -->
+      {/if}
     {/if}
   </div>
   <div class="actions">

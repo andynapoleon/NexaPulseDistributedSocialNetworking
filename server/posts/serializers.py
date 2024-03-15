@@ -27,7 +27,8 @@ class PostSerializer(serializers.ModelSerializer):
             else:
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}"
 
-            data['content'] = markdownify(data['content'])
+            if data['contentType'] == "text/markdown":
+                data['content'] = markdownify(data['content'])
 
         return data
 

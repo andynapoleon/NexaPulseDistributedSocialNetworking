@@ -5,8 +5,6 @@
   import { server } from "../stores/stores.js";
   import { posts } from "../stores/stores.js";
   import { authToken } from "../stores/stores.js";
-  import marked from 'marked';
-
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
@@ -29,11 +27,6 @@
     } catch (error) {
       console.error("Error fetching posts:", error.message);
     }
-  }
-
-  // Render CommonMark
-  function renderMarkdown(markdownContent) {
-    return marked(markdownContent);
   }
 
   // Fetch posts when the component is mounted

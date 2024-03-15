@@ -6,6 +6,8 @@
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
   import { onMount } from "svelte";
+  import { marked } from '../../node_modules/marked';
+
 
   // Props passed to the component
   export let post;
@@ -301,7 +303,7 @@
     {#if isEditing}
       <textarea class="edit-content" bind:value={editedContent}></textarea>
     {:else}
-      {content}
+      {@html marked(post.content)}
     {/if}
   </div>
   <div class="post-header">
