@@ -42,6 +42,7 @@ class Author(AbstractBaseUser): # PermissionsMixin
     lastUpdated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
     host = models.URLField(blank=True, default=DEFAULT_HOST, null=True)
     isForeign = models.BooleanField(default=False)
 
@@ -55,7 +56,12 @@ class Author(AbstractBaseUser): # PermissionsMixin
 
     # def check_password(self, client_password):
     #     return self.password == client_password
-
+    def has_module_perms(self, app_label):
+        # For simplicity, let's assume all authors have permission to all modules
+        return True
+    def has_perm(self, perm, obj=None):
+        # For simplicity, let's assume all authors have all permissions
+        return True
     @property
     def token(self):
         refresh = RefreshToken.for_user(self)
