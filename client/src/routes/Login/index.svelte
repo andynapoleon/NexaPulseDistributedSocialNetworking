@@ -24,7 +24,7 @@
 
   async function handleLogin() {
     const loginEndpoint = server + "/api/token/";
-    console.log(loginEndpoint);
+    console.log(loginEndpoint); 
     const credentials = { email, password };
 
     try {

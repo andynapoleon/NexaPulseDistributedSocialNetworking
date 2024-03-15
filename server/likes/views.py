@@ -8,20 +8,20 @@ from .serializers import LikesSerializerComment, LikesSerializerPost
 
 
 class PostLikeViewSet(viewsets.ModelViewSet):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     queryset = PostLikes.objects.all()
     serializer_class = LikesSerializerPost
     lookup_field = "post_id"
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def list_of_post(self, request, author_id, post_id):
         # Query to retrieve likes on the specified post excluding the likes made by the post author
         likes = PostLikes.objects.filter(post_id=post_id)
         serializer = self.get_serializer(likes, many=True)
         return Response(serializer.data, status=200)
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def post_likes(self, request, author_id, post_id):
         # Query to retrieve likes on the specified post excluding the likes made by the post author
         likes = PostLikes.objects.filter(post_id=post_id).exclude(author_id=author_id)
@@ -41,13 +41,15 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            like = PostLikes.objects.create(author_id=author_id, post_id=request.data.get('post'))
-            base_url = request.build_absolute_uri('/')
-            serializer = self.get_serializer(like, context={'base_url': base_url})
+            like = PostLikes.objects.create(
+                author_id=author_id, post_id=request.data.get("post")
+            )
+            base_url = request.build_absolute_uri("/")
+            serializer = self.get_serializer(like, context={"base_url": base_url})
             return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-        
+
     @action(detail=False, methods=["delete"])
     def unlike_post(self, request, author_id=None, post_id=None):
         print(request.data)
@@ -59,7 +61,9 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
         try:
-            like = PostLikes.objects.get(author_id=author_id, post_id=request.data.get('post'))
+            like = PostLikes.objects.get(
+                author_id=author_id, post_id=request.data.get("post")
+            )
             like.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PostLikes.DoesNotExist:
@@ -70,7 +74,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 
 
 class CommentLikeViewSet(viewsets.ModelViewSet):
-    permission_class = [AllowAny]
+    permission_class = [IsAuthenticated]
 
     queryset = CommentLikes.objects.all()
     serializer_class = LikesSerializerComment
@@ -93,7 +97,7 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
         ).exclude(author_id=author_id)
         serializer = self.get_serializer(likes, many=True)
         return Response(serializer.data, status=200)
-    
+
     @action(detail=False, methods=["post"])
     def like_comment(self, request, author_id=None, post_id=None, comment_id=None):
         serializer = self.get_serializer(data=request.data)
@@ -108,13 +112,17 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
             )
 
         try:
-            like = CommentLikes.objects.create(author_id=author_id, post_id=request.data.get('post'), comment_id=request.data.get('comment'))
-            base_url = request.build_absolute_uri('/')
-            serializer = self.get_serializer(like, context={'base_url': base_url})
+            like = CommentLikes.objects.create(
+                author_id=author_id,
+                post_id=request.data.get("post"),
+                comment_id=request.data.get("comment"),
+            )
+            base_url = request.build_absolute_uri("/")
+            serializer = self.get_serializer(like, context={"base_url": base_url})
             return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
-        
+
     @action(detail=False, methods=["delete"])
     def unlike_comment(self, request, author_id=None, post_id=None, comment_id=None):
         print(request.data)
@@ -126,7 +134,11 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN,
             )
         try:
-            like = CommentLikes.objects.get(author_id=author_id, post_id=request.data.get('post'), comment_id=request.data.get('comment'))
+            like = CommentLikes.objects.get(
+                author_id=author_id,
+                post_id=request.data.get("post"),
+                comment_id=request.data.get("comment"),
+            )
             like.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except CommentLikes.DoesNotExist:
@@ -134,7 +146,7 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                 {"error": "The specified like does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
-        
+
     @action(detail=True, methods=['get'])
     def list_of_comment_likes(self, request, author_id, post_id, comment_id):
         try:
@@ -144,4 +156,3 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status=200)
         except CommentLikes.DoesNotExist:
             return Response({"error": "No likes found for the specified comment."}, status=status.HTTP_404_NOT_FOUND)
-

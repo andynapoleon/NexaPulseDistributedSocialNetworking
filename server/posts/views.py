@@ -4,7 +4,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics
-from rest_framework.permissions import AllowAny, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Post
 from .serializers import PostSerializer, ServerPostSerializer
 from follow.models import Follows
@@ -22,7 +22,7 @@ class PostList(generics.ListCreateAPIView):
 
 
 class ProfilePost(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -46,7 +46,7 @@ class ProfilePost(generics.ListCreateAPIView):
 
 
 class ProfilePostForStranger(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -71,7 +71,7 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
 
 
 class ProfilePostForHimself(generics.ListCreateAPIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         try:
@@ -93,7 +93,7 @@ class ProfilePostForHimself(generics.ListCreateAPIView):
 
 
 class PostById(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:
@@ -103,8 +103,11 @@ class PostById(APIView):
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                followed_users_ids = Follows.objects.filter(follower_id=author_id, acceptedRequest=True).values_list("followed_id", flat=True)
+                followed_users_ids = Follows.objects.filter(
+                    follower_id=author_id, acceptedRequest=True
+                ).values_list("followed_id", flat=True)
                 followed_users_ids = list(followed_users_ids)
+                followed_users_ids = [str(value) for value in followed_users_ids]
                 followed_users_ids.append(author_id)
                 if str(post.authorId.id) in followed_users_ids:
                     serializer = PostSerializer(post)
@@ -116,7 +119,7 @@ class PostById(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -124,8 +127,8 @@ class PostDetail(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            base_url = request.build_absolute_uri('/')
-            serializer = PostSerializer(post, context={'base_url': base_url})
+            base_url = request.build_absolute_uri("/")
+            serializer = PostSerializer(post, context={"base_url": base_url})
             return Response(serializer.data)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -211,7 +214,7 @@ class PostDetail(APIView):
 
 
 class AuthorPosts(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id):
         queryset = Post.objects.filter(authorId=author_id)
@@ -219,8 +222,8 @@ class AuthorPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-        base_url = request.build_absolute_uri('/')
-        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
+        base_url = request.build_absolute_uri("/")
+        serializer = PostSerializer(queryset, many=True, context={"base_url": base_url})
         return Response(serializer.data)
 
     def post(self, request, author_id):
@@ -268,7 +271,7 @@ class AuthorPosts(APIView):
 
 
 class PublicPosts(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
@@ -277,8 +280,8 @@ class PublicPosts(APIView):
 
         # Order by published date
         queryset = queryset.order_by("-published")
-        base_url = request.build_absolute_uri('/')
-        serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
+        base_url = request.build_absolute_uri("/")
+        serializer = PostSerializer(queryset, many=True, context={"base_url": base_url})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -306,8 +309,10 @@ class FollowingPosts(APIView):
             queryset = queryset.order_by("-published")
 
             # Serialize the queryset to JSON
-            base_url = request.build_absolute_uri('/')
-            serializer = PostSerializer(queryset, many=True, context={'base_url': base_url})
+            base_url = request.build_absolute_uri("/")
+            serializer = PostSerializer(
+                queryset, many=True, context={"base_url": base_url}
+            )
 
             # Return serialized data as JSON response
             return Response(serializer.data)
@@ -318,14 +323,16 @@ class FollowingPosts(APIView):
 
 
 class SharedPost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
         except Post.DoesNotExist:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
-        
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
             serializer = ServerPostSerializer(post)
@@ -345,7 +352,7 @@ class SharedPost(APIView):
                 shared_post["image_ref"] = None
             print(shared_post)
             serializer = ServerPostSerializer(data=shared_post)
-            print("VALID?: ",serializer.is_valid())
+            print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -359,14 +366,16 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
             if post.image_ref != None:
-                base_url = request.build_absolute_uri('/')
-                serializer = PostSerializer(post.image_ref, context={'base_url': base_url})
+                base_url = request.build_absolute_uri("/")
+                serializer = PostSerializer(
+                    post.image_ref, context={"base_url": base_url}
+                )
                 return Response(serializer.data, status=status.HTTP_200_OK)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
