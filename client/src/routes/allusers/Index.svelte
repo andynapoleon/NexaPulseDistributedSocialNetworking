@@ -43,7 +43,8 @@
                 },
             });
             const remoteAuthors = await res2.json();
-            allAuthors.push(...remoteAuthors.items);
+            if (remoteAuthors.items)
+                allAuthors.push(...remoteAuthors.items);
         }
         res_json.items.push(...allAuthors);
         console.log(res_json);
