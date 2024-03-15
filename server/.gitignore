@@ -299,11 +299,3 @@ profile_images/
 # ignore all sqlite files
 *.sqlite3
 
-
-
-authors/migrations
-posts/migrations
-comments/migrations
-likes/migrations
-auth/migrations
-follow/migrations
