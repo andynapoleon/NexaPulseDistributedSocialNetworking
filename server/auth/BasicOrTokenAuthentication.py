@@ -3,14 +3,20 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 from node.models import Node
 from base64 import b64decode
+import socket
 
 
 class BasicOrTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # Check if basic authentication credentials are provided
         auth = request.headers.get('Authorization')
-        sender_host = request.META.get('HTTP_HOST', '')
-        print(sender_host)
+        client_ip = request.META.get('REMOTE_ADDR', '')
+        sender_host = None
+        try:
+            sender_host = socket.gethostbyaddr(client_ip)[0]
+        except socket.herror:
+            sender_host = 'Unknown.com'
+        # print(sender_host)
         sender_host = "http://" + sender_host + "/"
         # print(auth)
         print(sender_host)
