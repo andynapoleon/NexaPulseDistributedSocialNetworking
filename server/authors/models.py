@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class Author(AbstractBaseUser, PermissionsMixin):
+class Author(AbstractBaseUser): # PermissionsMixin
     type = models.CharField(max_length=50, default="author", editable=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, default="")
@@ -66,10 +66,10 @@ class Author(AbstractBaseUser, PermissionsMixin):
 
 
 # Add related_name to avoid clashes
-Group.add_to_class(
-    "authors_group", models.ManyToManyField(Author, related_name="author_groups")
-)
-Permission.add_to_class(
-    "authors_permission",
-    models.ManyToManyField(Author, related_name="author_permissions"),
-)
+# Group.add_to_class(
+#     "authors_group", models.ManyToManyField(Author, related_name="author_groups")
+# )
+# Permission.add_to_class(
+#     "authors_permission",
+#     models.ManyToManyField(Author, related_name="author_permissions"),
+# )
