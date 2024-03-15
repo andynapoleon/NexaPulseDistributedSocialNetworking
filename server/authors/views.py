@@ -8,11 +8,18 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
+from rest_framework import generics
+
 class AuthorList(generics.ListCreateAPIView):
+    serializer_class = AuthorSerializer  # Assuming AuthorSerializer is your serializer class
     authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
-    def get(self, request):
-        queryset = Author.objects.all()
-        serializer = AuthorSerializer(queryset, many=True)
+
+    def get_queryset(self):
+        return Author.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
 
         data_with_type = serializer.data
         for item in data_with_type:
@@ -23,8 +30,9 @@ class AuthorList(generics.ListCreateAPIView):
             "type": "authors",
             "items": data_with_type,
         }
-        
+
         return Response(response, status=status.HTTP_200_OK)
+
 
 
 class AuthorDetail(generics.RetrieveAPIView):
