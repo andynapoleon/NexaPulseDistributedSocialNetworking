@@ -2,6 +2,8 @@ from rest_framework import serializers
 from .models import Post
 from authors.serializers import AuthorSerializer 
 from comments.serializers import CommentSerializer
+from markdownx.utils import markdownify
+
 
 class PostSerializer(serializers.ModelSerializer):
     author = AuthorSerializer(source='authorId')
@@ -24,6 +26,9 @@ class PostSerializer(serializers.ModelSerializer):
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}/image"
             else:
                 data['id'] = f"{base_url}authors/{author_id}/posts/{post_id}"
+
+            data['content'] = markdownify(data['content'])
+
         return data
 
 class ServerPostSerializer(serializers.ModelSerializer):

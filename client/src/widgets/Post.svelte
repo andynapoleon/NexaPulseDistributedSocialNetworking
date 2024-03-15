@@ -388,7 +388,7 @@
         <button on:click={removeImageDisplay}>Remove Image</button>
       {/if}
     {:else}
-      {content}
+      {@html post.content}
     {/if}
   </div>
   <div class="actions">

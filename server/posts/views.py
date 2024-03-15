@@ -14,6 +14,8 @@ from django.db.models import Q
 import uuid
 from authors.models import Author
 from authors.serializers import AuthorSerializer
+from markdownx.utils import markdownify
+
 
 
 class PostList(generics.ListCreateAPIView):
@@ -158,6 +160,10 @@ class PostDetail(APIView):
                     if response:
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
+
+            # serializer accepts CommonMark content
+            request_data['content'] = markdownify(request_data['content'])
+
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
                 if str(request.user.id) == author_id:
@@ -237,6 +243,9 @@ class AuthorPosts(APIView):
             if response:
                 request_data["image_ref"] = id
                 print("After making | Current image_ref?:", id)
+
+        # serializer accepts CommonMark content
+        request_data['content'] = markdownify(request_data['content'])
 
         serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
