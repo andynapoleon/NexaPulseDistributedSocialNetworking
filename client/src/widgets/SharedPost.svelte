@@ -290,6 +290,7 @@
   // Fetch author's information when the component is mounted
   
   fetchComments();
+  fetchLikes();
   fetchOriginalAuthor();
 </script>
 
