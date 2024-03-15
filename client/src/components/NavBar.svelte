@@ -26,9 +26,11 @@
     <Icon.ArrowUpOutline id="icon" />
     <Icon.UserSettingsSolid id="icon" />
     <div>
-      <button on:click={navigateProfile}>
-        <img src="../../fake_profile.png" alt="fake profile" />
-      </button>
+      <a href={`/profile/${id}`}>
+        <button>
+          <img src="../../fake_profile.png" alt="fake profile" />
+        </button>
+      </a>
     </div>
   </div>
 </nav>
