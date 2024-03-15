@@ -468,4 +468,7 @@
     width: 100%;
     margin-bottom: 12px;
   }
+  em {
+    font-style: italic;
+  } 
 </style>
