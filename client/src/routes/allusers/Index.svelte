@@ -39,8 +39,10 @@
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${encodedAuthString}`,
-          host: server,
         },
+        body: JSON.stringify({
+            host: server,
+        }),
       });
       const remoteAuthors = await res2.json();
       if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
