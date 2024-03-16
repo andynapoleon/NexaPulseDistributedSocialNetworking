@@ -10,6 +10,8 @@ from follow.models import Follows
 from rest_framework.decorators import api_view
 from .serializers import FollowsSerializer
 from rest_framework.decorators import action
+import requests
+from node.models import Node
 
 
 class FollowView(APIView):
@@ -46,22 +48,51 @@ class FollowView(APIView):
             )
 
     def post(self, request, user_id):
-        userId2 = request.data.get("userId2")
-        if user_id == userId2:
+        sender_host = request.data.get("senderHost")
+        receiver_host = request.data.get("receiverHost")[0:-1]
+        print(sender_host)
+        print(receiver_host)
+        # local
+        if sender_host == receiver_host:
+            print("LOCAL")
+            userId2 = request.data.get("userId2")
+            if user_id == userId2:
+                return Response(
+                    {"error": "UserId2 and UserId1 must be unique"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not (userId2):
+                return Response(
+                    {"error": "UserId2 must be provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            follow = Follows(follower_id=user_id, followed_id=userId2)
+            follow.save()
             return Response(
-                {"error": "UserId2 and UserId1 must be unique"},
-                status=status.HTTP_400_BAD_REQUEST,
+                {"success": "Now following userId2"}, status=status.HTTP_200_OK
             )
-
-        if not (userId2):
-            return Response(
-                {"error": "UserId2 must be provided"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        follow = Follows(follower_id=user_id, followed_id=userId2)
-        follow.save()
-        return Response({"success": "Now following userId2"}, status=status.HTTP_200_OK)
+        # remote
+        else:
+            print("REMOTE")
+            userId2 = request.data.get("userId2")
+            node = Node.objects.filter(host=receiver_host)
+            request_url = f"{node.host}/service/authors{userId2}/inbox/"
+            try:
+                response = requests.post(
+                    request_url, json=request.data, auth=(node.username, node.password)
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 200:
+                    print("Succeeded sening friend requests")
+                    return Response(
+                        {"success": "Now following userId2"}, status=status.HTTP_200_OK
+                    )
+            except requests.exceptions.RequestException as e:
+                print(f"couldnt sent friend request to remote inbox: {e}")
+                return Response(
+                    {"error": f"Couldnt sent friend request to remote inbox: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
 
     def delete(self, request, user_id):
         # target_user_id is being followed

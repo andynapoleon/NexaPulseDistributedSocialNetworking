@@ -8,8 +8,7 @@ from django.contrib.auth.models import (
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
-
-DEFAULT_HOST = "http://localhost:8000"
+from SocialDistribution.settings import SERVER
 
 
 class CustomUserManager(BaseUserManager):
@@ -43,7 +42,7 @@ class Author(AbstractBaseUser):  # PermissionsMixin
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True)
+    host = models.URLField(blank=True, default=SERVER, null=True)
     isForeign = models.BooleanField(default=False)
 
     objects = CustomUserManager()
