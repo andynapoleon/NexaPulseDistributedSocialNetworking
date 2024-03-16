@@ -32,17 +32,15 @@
 
     // TODO:loop through other nodes to get remote authors
     for (let node of nodes.items) {
+      console.log(node);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
       const res2 = await fetch(node.host + "/api/authors", {
-        method: "GET",
+        method: "GET",  
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${encodedAuthString}`,
         },
-        body: JSON.stringify({
-            host: server,
-        }),
       });
       const remoteAuthors = await res2.json();
       if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
