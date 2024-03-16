@@ -13,8 +13,7 @@
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${$authToken}`,
-        host: server,
+        Authorization: `Bearer ${$authToken}`
       },
     });
     // Array of host, password, username
@@ -40,6 +39,7 @@
         headers: {
           "Content-Type": "application/json",
           Authorization: `Basic ${encodedAuthString}`,
+          host: server,
         },
       });
       const remoteAuthors = await res2.json();
