@@ -9,7 +9,7 @@ from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
 
-DEFAULT_HOST = "http://127.0.0.1:8000/"
+DEFAULT_HOST = "http://localhost:8000"
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class Author(AbstractBaseUser): # PermissionsMixin
+class Author(AbstractBaseUser):  # PermissionsMixin
     type = models.CharField(max_length=50, default="author", editable=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, default="")
@@ -59,9 +59,11 @@ class Author(AbstractBaseUser): # PermissionsMixin
     def has_module_perms(self, app_label):
         # For simplicity, let's assume all authors have permission to all modules
         return True
+
     def has_perm(self, perm, obj=None):
         # For simplicity, let's assume all authors have all permissions
         return True
+
     @property
     def token(self):
         refresh = RefreshToken.for_user(self)
