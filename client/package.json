@@ -22,6 +22,7 @@
     "vite": "^5.0.8"
   },
   "dependencies": {
+    "dompurify": "^3.0.9",
     "marked": "^12.0.1",
     "package.json": "^2.0.1",
     "svelte-icons": "^2.1.0",

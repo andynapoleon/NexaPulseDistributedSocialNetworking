@@ -8,7 +8,13 @@
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
   import { marked } from '../../node_modules/marked';
+  import SvelteMarkdown  from 'svelte-markdown'
+
+  let md = "# title ## title ### title **bold** __bold__"
   
+  function markdownToHTML(markdown) {
+    return marked(markdown);
+  }
 
   // Props passed to the component
   export let post;
@@ -350,7 +356,8 @@
   }
 
   // Fetch the image associated with the post when the component is mounted
-  onMount(() => {
+  onMount(async () => {
+
     if (post.image_ref) {
       fetchPostImage();
     }
@@ -358,9 +365,11 @@
 
   fetchComments();
   fetchLikes();
+
+  const source = `*ita*`;
 </script>
 
-<div class="post">
+<span class="post">
   <div class="post-header">
     <i>Posted by {userName} {postTime}</i>
     <strong>Posted by {userName} {postTime}</strong>
@@ -374,7 +383,7 @@
       >
     {/if}
   </div>
-  <div class="post-content">
+  <span class="post-content">
     {#if post.image_ref && !removeImageFlag}
       <img src="data:{image_type}, {image_base64}" alt=" " />
     {/if}
@@ -394,11 +403,20 @@
       {#if post.contentType === "text/plain"}
         {post.content}
       {:else}
-        {@html post.content}
+        <div>
+
+          {@html post.content}
+
+        </div>
+        <div>
+
+          {@html marked(post.content)}
+
+        </div>
         <!-- {@html renderMarkdown(post.content)} -->
       {/if}
     {/if}
-  </div>
+  </span>
   <div class="actions">
     {#if isLiked}
       <button on:click={toggleLike}>Unlike</button>
@@ -426,7 +444,7 @@
     <span>Likes: {likeCount}</span>
     <span class="ml-4">Comments: {commentCount}</span>
   </div>
-</div>
+</span>
 
 <style>
   .post {
@@ -468,8 +486,5 @@
   .edit-content {
     width: 100%;
     margin-bottom: 12px;
-  }
-  em {
-    font-style: italic;
   }
 </style>
