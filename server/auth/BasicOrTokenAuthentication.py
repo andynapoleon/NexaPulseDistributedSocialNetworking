@@ -10,9 +10,7 @@ class BasicOrTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # Check if basic authentication credentials are provided
         auth = request.headers.get("Authorization")
-        body_unicode = request.body.decode('utf-8')
-        body = json.loads(body_unicode)
-        sender_host = body['host']
+        sender_host = request.body.get("host")
         print(sender_host)
         if auth:
             print("auth provided")
