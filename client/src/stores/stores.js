@@ -1,9 +1,10 @@
 import { writable, get, readable } from "svelte/store";
 
 export const mode = writable("light");
-export const server = "http://localhost:8000";
+export const server = "https://nexapulse1-7fbca99d2d7b.herokuapp.com";
 // http://localhost:8000
-// https://nexapulse-25959148b934.herokuapp.com
+// https://nexapulse-25959148b934.herokuapp.com (viet)
+// https://nexapulse1-7fbca99d2d7b.herokuapp.com (andy)
 // Retrieve user data from localStorage if available
 const storedUserData = localStorage.getItem("userData");
 const initialUserData = storedUserData
@@ -15,7 +16,10 @@ const initialUserData = storedUserData
       github: "",
       lastUpdated: new Date(2024, 0, 3),
     };
-if (initialUserData.lastUpdated === null || initialUserData.lastUpdated === undefined) {
+if (
+  initialUserData.lastUpdated === null ||
+  initialUserData.lastUpdated === undefined
+) {
   initialUserData.lastUpdated = new Date(2024, 0, 3);
 }
 export const currentUser = writable(initialUserData);
