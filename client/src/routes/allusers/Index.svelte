@@ -2,10 +2,9 @@
   import { onMount } from "svelte";
   import { authToken, server } from "../../stores/stores.js";
 
-  onMount(async () => {
-    // fetch
-    const allUsers = await getAllUsers();
-  });
+  // Define reactive variables
+  let loading = true;
+  let allUsers = [];
 
   // Get all users
   async function getAllUsers() {
@@ -53,4 +52,66 @@
 
     return res_json;
   }
+
+  // Fetch all users when the component is mounted
+  onMount(async () => {
+    // Fetch all users
+    allUsers = await getAllUsers();
+    // Update loading state
+    loading = false;
+  });
 </script>
+
+<h1>Hi</h1>
+
+<div class="all-users">
+  {#if loading}
+    <p>Loading...</p>
+  {:else}
+    {#each allUsers.items as user}
+      <div class="user">
+        <h3><strong>{user.displayName}</strong></h3>
+        <p>Host: {user.host}</p>
+        <img src={user.profileImage} alt={user.displayName + " profile pic"} />
+        <button class="follow-button">Follow</button>
+      </div>
+    {/each}
+  {/if}
+</div>
+
+<style>
+  .all-users {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    color: black;
+    padding-left: 25%;
+    padding-top: 10%;
+  }
+
+  .user {
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 300px;
+    color: black;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  .follow-button {
+    background-color: teal;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  .follow-button:hover {
+    background-color: darkcyan;
+  }
+</style>
