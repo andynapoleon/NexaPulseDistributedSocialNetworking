@@ -362,6 +362,7 @@
 
 <div class="post">
   <div class="post-header">
+    <i>Posted by {userName} {postTime}</i>
     <strong>Posted by {userName} {postTime}</strong>
   </div>
   <div class="post-title">
@@ -393,7 +394,7 @@
       {#if post.contentType === "text/plain"}
         {post.content}
       {:else}
-        {@html marked(post.content)}
+        {@html post.content}
         <!-- {@html renderMarkdown(post.content)} -->
       {/if}
     {/if}
@@ -470,5 +471,5 @@
   }
   em {
     font-style: italic;
-  } 
+  }
 </style>
