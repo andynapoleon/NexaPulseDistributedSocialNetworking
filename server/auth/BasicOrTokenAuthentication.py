@@ -26,6 +26,7 @@ class BasicOrTokenAuthentication(BaseAuthentication):
                     username, password = (
                         b64decode(auth_string.encode()).decode().split(":")
                     )
+                    print("stuff", username, password)
                     # print("Basic auth found", sender_host, username, password)
                     # check if the user exists in the database
                     node = Node.objects.get(
