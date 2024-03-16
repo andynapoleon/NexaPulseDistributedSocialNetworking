@@ -10,9 +10,8 @@ class BasicOrTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # Check if basic authentication credentials are provided
         auth = request.headers.get("Authorization")
-        sender_host = request.body.get('host')
-       
-        print(sender_host)
+        sender_host = None
+        print("Auth", auth)
         if auth:
             print("auth provided")
             # Parse basic auth header
@@ -31,6 +30,7 @@ class BasicOrTokenAuthentication(BaseAuthentication):
                         isActive=True,
                     )
                     # if authentication is successful, return success response
+                    print("Node", node)
                     if node:
                         print("Basic auth successful")
                         return (node, None)

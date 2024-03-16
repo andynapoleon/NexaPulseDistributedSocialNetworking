@@ -11,7 +11,7 @@ class NodeList(APIView):
     permission_classes = [IsAuthenticated]
     
     def get(self, request):
-        nodes = Node.objects.all()
+        nodes = Node.objects.all().filter(isActive = True)
         serializer = NodeSerializer(nodes, many=True)
         response = {
             "type": "nodes",
