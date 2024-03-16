@@ -9,7 +9,7 @@ from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
 
-DEFAULT_HOST = "https://nexapulse1-7fbca99d2d7b.herokuapp.com/"
+DEFAULT_HOST = "http://localhost:8000"
 
 
 class CustomUserManager(BaseUserManager):
