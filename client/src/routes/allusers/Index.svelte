@@ -13,7 +13,7 @@
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${$authToken}`
+        Authorization: `Bearer ${$authToken}`,
       },
     });
     // Array of host, password, username
@@ -35,13 +35,16 @@
       console.log(node);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
-      const res2 = await fetch(node.host + "/api/authors", {
-        method: "GET",  
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Basic ${encodedAuthString}`,
-        },
-      });
+      const res2 = await fetch(
+        node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${encodedAuthString}`,
+          },
+        }
+      );
       const remoteAuthors = await res2.json();
       if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
     }
