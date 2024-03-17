@@ -9,12 +9,11 @@
   import { navigate } from "svelte-routing";
   import { marked } from '../../node_modules/marked';
   import SvelteMarkdown  from 'svelte-markdown'
-
-  let md = "# title ## title ### title **bold** __bold__"
   
   function markdownToHTML(markdown) {
     return marked(markdown);
   }
+  
 
   // Props passed to the component
   export let post;
@@ -366,10 +365,14 @@
   fetchComments();
   fetchLikes();
 
-  const source = `*ita*`;
+  let lemon = `# title1
+  ## title2
+  ### thtil1231
+  *ita*`;
+  let banana = post.content;
 </script>
 
-<span class="post">
+<div class="post">
   <div class="post-header">
     <i>Posted by {userName} {postTime}</i>
     <strong>Posted by {userName} {postTime}</strong>
@@ -383,7 +386,7 @@
       >
     {/if}
   </div>
-  <span class="post-content">
+  <div class="post-content">
     {#if post.image_ref && !removeImageFlag}
       <img src="data:{image_type}, {image_base64}" alt=" " />
     {/if}
@@ -403,20 +406,13 @@
       {#if post.contentType === "text/plain"}
         {post.content}
       {:else}
-        <div>
-
-          {@html post.content}
-
-        </div>
-        <div>
-
-          {@html marked(post.content)}
-
-        </div>
+      <div>
+        {@html marked(post.content)}
+      </div>
         <!-- {@html renderMarkdown(post.content)} -->
       {/if}
     {/if}
-  </span>
+  </div>
   <div class="actions">
     {#if isLiked}
       <button on:click={toggleLike}>Unlike</button>
@@ -444,7 +440,7 @@
     <span>Likes: {likeCount}</span>
     <span class="ml-4">Comments: {commentCount}</span>
   </div>
-</span>
+</div>
 
 <style>
   .post {
@@ -486,5 +482,10 @@
   .edit-content {
     width: 100%;
     margin-bottom: 12px;
+  }
+  .applejuice {
+    color: red;
+    font-weight: unset !important; 
+    font-size: unset !important; 
   }
 </style>
