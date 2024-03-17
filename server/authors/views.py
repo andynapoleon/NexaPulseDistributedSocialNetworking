@@ -66,12 +66,33 @@ class AuthorDetail(generics.RetrieveAPIView):
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
+class AuthorCreate(APIView):
+    permission_classes = [AllowAny]
+
+    # create a new author manually
     def post(self, request):
-        serializer = AuthorSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        data = request.data
+        try:
+            author = Author.objects.get(email=data["email"])
+            return Response(
+                {"error": "User with this email already exists"}, status=400
+            )
+        except Author.DoesNotExist:
+            new_author = Author.objects.create_user(
+                email=data["email"],
+                password=data["password"],
+                displayName=data["displayName"],
+                github=data["github"],
+            )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+            return Response(response, status=201)
+    
+    
+        
+        
 
 
 class Profile(APIView):

@@ -10,6 +10,7 @@ class AuthorSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         '''Represents the id field as an url'''
         data = super().to_representation(instance)
+        print(data)
         context = self.context
         base_url = context.get('base_url')
         if base_url is not None:
