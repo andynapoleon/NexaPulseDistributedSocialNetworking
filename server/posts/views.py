@@ -14,6 +14,7 @@ from django.db.models import Q
 import uuid
 from authors.models import Author
 from authors.serializers import AuthorSerializer
+from markdownx.utils import markdownify
 from node.models import Node
 import requests
 from SocialDistribution.settings import SERVER
@@ -163,8 +164,13 @@ class PostDetail(APIView):
                     if response:
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
+
+            # serializer accepts CommonMark content
+            if request_data["contentType"] == "text/markdown":
+                request_data["content"] = markdownify(request_data["content"])
+
             serializer = PostSerializer(post, data=request_data, partial=True)
-            
+
             if serializer.is_valid():
                 if str(request.user.id) == author_id:
                     serializer.save()
@@ -284,11 +290,15 @@ class AuthorPosts(APIView):
                 request_data["image_ref"] = id
                 print("After making | Current image_ref?:", id)
 
+        # serializer accepts CommonMark content
+        if request_data["contentType"] == "text/markdown":
+            request_data["content"] = markdownify(request_data["content"])
+
         serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
             print("VALID OR NOT")
             if str(request.user.id) == author_id:
-                # update 
+                # update
                 serializer.save()
                 print("SERIALIZER DATA", serializer.data)
 
@@ -306,20 +316,29 @@ class AuthorPosts(APIView):
                 # get all nodes
                 node = Node.objects.all()
                 print("NODES", node)
-                
+
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
                     # /api/authors?request_host=${encodeURIComponent(server)}
                     url = n.host + f"/api/authors"
                     print("URL", url)
-                    response = requests.get(url, auth=(n.username, n.password), params={"request_host": SERVER})
+                    response = requests.get(
+                        url,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
                     remoteAuthors = response.json().get("items", [])
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
                         url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
-                        response = requests.post(url, json=remoteData, auth=(n.username, n.password), params={"request_host": SERVER})
+                        response = requests.post(
+                            url,
+                            json=remoteData,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
                         print(response)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)

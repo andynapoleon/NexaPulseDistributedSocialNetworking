@@ -7,6 +7,13 @@
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
+  import { marked } from '../../node_modules/marked';
+  import SvelteMarkdown  from 'svelte-markdown'
+  
+  function markdownToHTML(markdown) {
+    return marked(markdown);
+  }
+  
 
   // Props passed to the component
   export let post;
@@ -348,7 +355,8 @@
   }
 
   // Fetch the image associated with the post when the component is mounted
-  onMount(() => {
+  onMount(async () => {
+
     if (post.image_ref) {
       fetchPostImage();
     }
@@ -356,10 +364,17 @@
 
   fetchComments();
   fetchLikes();
+
+  let lemon = `# title1
+  ## title2
+  ### thtil1231
+  *ita*`;
+  let banana = post.content;
 </script>
 
 <div class="post">
   <div class="post-header">
+    <i>Posted by {userName} {postTime}</i>
     <strong>Posted by {userName} {postTime}</strong>
   </div>
   <div class="post-title">
@@ -388,7 +403,14 @@
         <button on:click={removeImageDisplay}>Remove Image</button>
       {/if}
     {:else}
-      {content}
+      {#if post.contentType === "text/plain"}
+        {post.content}
+      {:else}
+      <div>
+        {@html marked(post.content)}
+      </div>
+        <!-- {@html renderMarkdown(post.content)} -->
+      {/if}
     {/if}
   </div>
   <div class="actions">
@@ -460,5 +482,10 @@
   .edit-content {
     width: 100%;
     margin-bottom: 12px;
+  }
+  .applejuice {
+    color: red;
+    font-weight: unset !important; 
+    font-size: unset !important; 
   }
 </style>
