@@ -12,6 +12,7 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.db.models import Q
 import uuid
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from authors.models import Author
 from authors.serializers import AuthorSerializer
 from markdownx.utils import markdownify
@@ -125,7 +126,7 @@ class PostById(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -141,6 +142,7 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
+            print("request.data", request.data)
             post = Post.objects.get(id=post_id)
 
             request_data = request.data.copy()
@@ -168,51 +170,29 @@ class PostDetail(APIView):
             # serializer accepts CommonMark content
             # if request_data["contentType"] == "text/markdown":
             #     request_data["content"] = markdownify(request_data["content"])
-
             serializer = PostSerializer(post, data=request_data, partial=True)
-
             if serializer.is_valid():
-                if str(request.user.id) == author_id:
+                if str(request.user.id) == author_id or request.GET.get("request_host"):
                     serializer.save()
 
-                    remoteData = {
-                        "type": "post",
-                        "postId": serializer.data["id"],
-                        "authorId": author_id,
-                        "title": serializer.data["title"],
-                        "content": serializer.data["content"],
-                        "contentType": serializer.data["contentType"],
-                        "visibility": serializer.data["visibility"],
-                        "image_ref": serializer.data["image_ref"],
-                    }
-
-                    # get all nodes
                     node = Node.objects.all()
                     print("NODES", node)
-
-                    # make a request to all nodes api/authors/<str:author_id>/inbox/
-                    for n in node:
-                        # send the post to the inbox of every other author
-                        # /api/authors?request_host=${encodeURIComponent(server)}
-                        url = n.host + f"/api/authors"
-                        print("URL", url)
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        remoteAuthors = response.json().get("items", [])
-
-                        for remoteAuthor in remoteAuthors:
-                            print("REMOTE AUTHOR", remoteAuthor)
-                            url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
-                            response = requests.post(
+                    query_set = Author.objects.get(id=author_id)
+                    serializer = AuthorSerializer(query_set)
+                    author = serializer.data
+                    print("AUTHOR", author)
+                    
+                    if author["host"] == SERVER:
+                        # make a request to all nodes api/authors/<str:author_id>/posts/<str:post_id>/
+                        for n in node:
+                            url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
+                            
+                            response = requests.put(
                                 url,
-                                json=remoteData,
+                                json=request_data,
                                 auth=(n.username, n.password),
                                 params={"request_host": SERVER},
                             )
-                            print(response)
 
                     return Response(serializer.data, status=status.HTTP_200_OK)
             # print(serializer.errors)
@@ -321,14 +301,17 @@ class AuthorPosts(APIView):
                 for n in node:
                     # send the post to the inbox of every other author
                     # /api/authors?request_host=${encodeURIComponent(server)}
-                    url = n.host + f"/api/authors"
-                    print("URL", url)
-                    response = requests.get(
-                        url,
-                        auth=(n.username, n.password),
-                        params={"request_host": SERVER},
-                    )
-                    remoteAuthors = response.json().get("items", [])
+                    if request.data.get("visibility") == "PUBLIC":
+                        url = n.host + f"/api/authors"
+                        print("URL", url)
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        remoteAuthors = response.json().get("items", [])
+                    elif request.data.get("visibility") == "FRIENDS":
+                        return Response("Not yet implemented",status=status.HTTP_400_BAD_REQUEST)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
