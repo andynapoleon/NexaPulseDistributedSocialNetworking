@@ -15,8 +15,7 @@ import uuid
 from authors.models import Author
 from authors.serializers import AuthorSerializer
 from markdownx.utils import markdownify
-
-from node.models import Node  
+from node.models import Node
 import requests
 from SocialDistribution.settings import SERVER
 import urllib.parse
@@ -305,7 +304,7 @@ class AuthorPosts(APIView):
 
                 remoteData = {
                     "type": "post",
-                    "postId": serializer.data["id"],
+                    "id": serializer.data["id"],
                     "authorId": author_id,
                     "title": serializer.data["title"],
                     "content": serializer.data["content"],
