@@ -160,5 +160,17 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_HEADERS = (
+    "content-disposition",
+    "accept-encoding",
+    "content-type",
+    "accept",
+    "origin",
+    "authorization",
+    "body",
+)
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
+
+APPEND_SLASH = False
 
 django_on_heroku.settings(locals())  # bottom of the file

@@ -84,6 +84,7 @@ class InboxView(APIView):
         elif request_type == "follow":
             follower_id = request.data.get("userId1")
             followed_id = request.data.get("userId2")
+            print("EHREREOHFOSDFOSFDOJO")
             if followed_id == author_id:
                 follow = Follows(follower_id=follower_id, followed_id=followed_id)
                 follow.save()
@@ -122,12 +123,14 @@ class InboxView(APIView):
         # # Likes on comments
         elif request_type == "comment_like":
             like = CommentLikes.objects.create(
-                author_id=request.data.get("author"), comment_id=request.data.get("comment"),
-                post_id=request.data.get("post")
+                author_id=request.data.get("author"),
+                comment_id=request.data.get("comment"),
+                post_id=request.data.get("post"),
             )
             inbox.comment_likes.add(like)
             return Response(
-                {"message": "Comment like added to inbox!"}, status=status.HTTP_201_CREATED
+                {"message": "Comment like added to inbox!"},
+                status=status.HTTP_201_CREATED,
             )
 
         return Response(

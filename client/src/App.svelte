@@ -9,7 +9,7 @@
   import Notifications from "./routes/notifications/Index.svelte";
   import Login from "./routes/login/Index.svelte";
   import Friends from "./routes/friends/Index.svelte";
-  import AllUsers from "./routes/allUsers/Index.svelte";
+  import AllUsers from "./routes/allusers/Index.svelte";
   import ForYou from "./routes/foryou/Index.svelte";
   import AuthenticatedRoute from "./components/AuthenticatedRoute.svelte";
   import Post from "./routes/post/Index.svelte";
@@ -26,7 +26,7 @@
     { href: "/home", label: "Home" },
     { href: "/foryou", label: "For You" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
-    { href: "/all_users", label: "All Users"},
+    { href: "/all_users", label: "All Users" },
     { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
     { href: "/", label: "Log Out" },
   ];

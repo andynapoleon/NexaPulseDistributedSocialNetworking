@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from SocialDistribution.settings import SERVER
 from rest_framework import generics
 from SocialDistribution.settings import SERVER
 
@@ -18,7 +19,6 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        # 
         return Author.objects.all().filter(host=SERVER)
 
     def list(self, request, *args, **kwargs):
@@ -39,7 +39,7 @@ class AuthorList(generics.ListCreateAPIView):
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get_serializer_class(self):
         return AuthorSerializer
@@ -65,6 +65,42 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class AuthorCreate(APIView):
+    permission_classes = [AllowAny]
+
+    # create a new author manually
+    def post(self, request):
+        data = request.data
+        try:
+            author = Author.objects.get(email=data["email"])
+            return Response(
+                {"error": "User with this email already exists"}, status=400
+            )
+        except Author.DoesNotExist:
+            if data["id"] == None:
+                new_author = Author.objects.create_user(
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                    isForeign=data["isForeign"],
+                )
+            else:
+                new_author = Author.objects.create_user(
+                    id=data["id"],
+                    host=data["host"],
+                    isForeign=data["isForeign"],
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+            return Response(response, status=201)
 
 
 class Profile(APIView):

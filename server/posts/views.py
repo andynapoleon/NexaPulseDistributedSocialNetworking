@@ -101,6 +101,7 @@ class PostById(APIView):
 
     def get(self, request, author_id, post_id):
         try:
+            print("I ENTERED HERE")
             post = Post.objects.get(id=post_id)
             print(post.visibility)
             if post.visibility != "FRIENDS":
