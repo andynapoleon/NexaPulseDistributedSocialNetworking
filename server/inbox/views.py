@@ -17,10 +17,12 @@ from likes.models import PostLikes
 from likes.models import CommentLikes
 from comments.models import Comment
 from comments.serializers import CommentSerializerPost
-
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 class InboxView(APIView):
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, format=None):
         """
@@ -56,11 +58,14 @@ class InboxView(APIView):
         author = get_object_or_404(Author, pk=author_id)
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
-
+        sender_host = request.query_params.get("request_host", None)
+        
         # Post
         if request_type == "post":
+            print("HERE", request.data)
             post_id = request.data.pop("postId", None)
             existing_post = Post.objects.filter(id=post_id).first()
+            
             if existing_post:
                 for key, value in request.data.items():
                     setattr(existing_post, key, value)
@@ -70,6 +75,7 @@ class InboxView(APIView):
                 if serializer.is_valid():
                     new_post = serializer.save()
                 inbox.posts.add(new_post)
+
             return Response(
                 {"message": "Post sent to inbox!"}, status=status.HTTP_201_CREATED
             )
@@ -132,6 +138,7 @@ class InboxView(APIView):
         """
         Deletes the inbox of the specified Author on a server.
         """
+        sender_host = request.query_params.get("request_host", None)
         author = get_object_or_404(Author, pk=author_id)
         inbox = get_object_or_404(Inbox, authorId=author)
         inbox.posts.clear()
