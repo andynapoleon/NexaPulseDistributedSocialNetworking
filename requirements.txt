@@ -20,6 +20,8 @@ typing_extensions==4.9.0
 tzdata==2023.4
 urllib3==2.2.1
 whitenoise==6.6.0
+django-markdownx
+marked
 
 # Set-ExecutionPolicy RemoteSigned -Scope Process
 # .\venv\Scripts\activate

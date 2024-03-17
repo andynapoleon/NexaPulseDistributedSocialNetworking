@@ -9,7 +9,7 @@
   let postTitle = "";
   let postContent = "";
   let visibility = "Public";
-  let contentType = "text/plain";
+  let contentType = "text/plain"; // or text/markdown
   let files, input;
   export let streamType;
   const dispatch = createEventDispatcher();
@@ -107,11 +107,17 @@
       <button class="remove-file-button" on:click={removeInputFile}>Remove</button>
     {/if}
   </div>
-  <select class="visibility-select" bind:value={visibility}>
-    <option value="Public">Public</option>
-    <option value="Unlisted">Unlisted</option>
-    <option value="Friends">Friends</option>
-  </select>
+  <div class="select-container">
+    <select class="visibility-select" bind:value={visibility}>
+      <option value="Public">Public</option>
+      <option value="Unlisted">Unlisted</option>
+      <option value="Friends">Friends</option>
+    </select>
+    <select class="format-select" bind:value={contentType}>
+      <option value="text/plain">Normal</option>
+      <option value="text/markdown">CommonMark</option>
+    </select>
+  </div>
   <button class="post-button" on:click={submitPost}>Post</button>
 </div>
 
@@ -151,6 +157,20 @@
     margin-top: 0;
     text-align: center;
   }
+  .format-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: gray;
+    border: 1px solid #ccc;
+    padding: 8px;
+    border-radius: 4px;
+    width: 10%;
+    font-size: 16px;
+    margin-bottom: 0;
+    margin-top: 0;
+    text-align: center;
+  }
   button {
     padding: 8px 16px;
     border: none;
@@ -173,5 +193,12 @@
     margin-top: 0;
     margin-left: 5px; /* Move the button to the right */
     cursor: pointer; /* Show pointer cursor when hovering over the button */
+  }
+  .select-container {
+  display: flex;
+  }
+
+  .select-container select {
+    margin-right: 10px; /* Adjust spacing between selects as needed */
   }
 </style>
