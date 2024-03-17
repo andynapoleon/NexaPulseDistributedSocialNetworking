@@ -69,7 +69,7 @@
     const signUpEndpoint = server + "/api/authors/new/";
     console.log(signUpEndpoint);
     const credentials = { 
-      "id": null
+      "id": null,
       "email":email,
       "password": password,
       "displayName": displayName,
