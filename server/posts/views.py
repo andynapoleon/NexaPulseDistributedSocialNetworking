@@ -251,15 +251,15 @@ class AuthorPosts(APIView):
                 print("SERIALIZER DATA", serializer.data)
 
                 remoteData = {
-                        "type": "post",
-                        "postId": serializer.data["id"],
-                        "authorId": author_id,
-                        "title": serializer.data["title"],
-                        "content": serializer.data["content"],
-                        "contentType": serializer.data["contentType"],
-                        "visibility": serializer.data["visibility"],
-                        "image_ref": serializer.data["image_ref"],
-                    }
+                    "type": "post",
+                    "postId": serializer.data["id"],
+                    "authorId": author_id,
+                    "title": serializer.data["title"],
+                    "content": serializer.data["content"],
+                    "contentType": serializer.data["contentType"],
+                    "visibility": serializer.data["visibility"],
+                    "image_ref": serializer.data["image_ref"],
+                }
 
                 # get all nodes
                 node = Node.objects.all()

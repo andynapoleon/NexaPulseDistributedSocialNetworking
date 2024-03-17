@@ -6,10 +6,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
-
-
 from rest_framework import generics
-
+from SocialDistribution.settings import SERVER
 
 class AuthorList(generics.ListCreateAPIView):
     serializer_class = (
@@ -20,7 +18,8 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        return Author.objects.all()
+        # 
+        return Author.objects.all().filter(host=SERVER)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
