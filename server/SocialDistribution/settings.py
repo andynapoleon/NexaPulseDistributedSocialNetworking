@@ -171,6 +171,6 @@ CORS_ALLOW_HEADERS = (
 )
 CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
 
-APPEND_SLASH = False
+# APPEND_SLASH = False
 
 django_on_heroku.settings(locals())  # bottom of the file
