@@ -36,21 +36,21 @@
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
       // Send info of author to the server in the node
-      authorData = {
-        id: $currentUser.id,
-        name: $currentUser.name,
+      let authorData = {
+        id: $currentUser.userId,
+        displayName: $currentUser.name,
         email: $currentUser.email,
         github: $currentUser.github,
-        host: $currentUser.host,
-        isForeign: true
       }
+      console.log(authorData)
       const sendAuthorResponse = await fetch(
-        node.host + `/api/authors/${$currentUser.id}}`,
+        node.host + `/api/authors/create/?request_host=${encodeURIComponent(server)}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Basic ${encodedAuthString}`,
+            body: JSON.stringify(authorData)
           },
         }
       );
