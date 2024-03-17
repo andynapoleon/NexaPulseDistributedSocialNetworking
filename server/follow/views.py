@@ -97,8 +97,8 @@ class FollowView(APIView):
                     params={"request_host": sender_host},
                 )
                 print("status code response", response.status_code)
-                if response.status_code == 200:
-                    print("Succeeded sening friend requests")
+                if response.status_code == 201:
+                    print("Succeeded sending friend requests")
                     return Response(
                         {"success": "Now following userId2"}, status=status.HTTP_200_OK
                     )
