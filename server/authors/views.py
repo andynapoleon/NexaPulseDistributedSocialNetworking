@@ -79,20 +79,25 @@ class AuthorCreate(APIView):
                 {"error": "User with this email already exists"}, status=400
             )
         except Author.DoesNotExist:
-            new_author = Author.objects.create_user(
-                email=data["email"],
-                password=data["password"],
-                displayName=data["displayName"],
-                github=data["github"],
-            )
+            if data["id"] == None:
+                new_author = Author.objects.create_user(
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                )
+            else:
+                new_author = Author.objects.create_user(
+                    id=data["id"],
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                )
             new_author.save()
             serializer = AuthorSerializer(new_author)
             response = serializer.data
             return Response(response, status=201)
-    
-    
-        
-        
 
 
 class Profile(APIView):

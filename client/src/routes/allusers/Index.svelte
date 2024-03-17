@@ -40,16 +40,16 @@
         id: $currentUser.userId,
         displayName: $currentUser.name,
         email: $currentUser.email,
+        password: "i450959540943809",
         github: $currentUser.github,
       }
       console.log(authorData)
       const sendAuthorResponse = await fetch(
-        node.host + `/api/authors/create/?request_host=${encodeURIComponent(server)}`,
+        node.host + `/api/authors/new/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Basic ${encodedAuthString}`,
             body: JSON.stringify(authorData)
           },
         }
