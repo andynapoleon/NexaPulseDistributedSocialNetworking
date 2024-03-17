@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { authToken, server, currentUser } from "../../stores/stores.js";
-  import User from "./User.svelte"
+  import User from "./User.svelte";
 
   // Define reactive variables
   let loading = true;
@@ -35,7 +35,7 @@
       console.log("SERVER HERE: ", node.host);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
-      // Get all remote authors 
+      // Get all remote authors
       const res2 = await fetch(
         node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
         {
