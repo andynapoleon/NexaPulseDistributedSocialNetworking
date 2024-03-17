@@ -16,7 +16,7 @@
 
     onMount(async () => {
         const followEndpoint =
-        server + `/api/follow/${userId}?userId2=${currentUserId}`;
+        `${server}/api/follow/${userId}?userId2=${currentUserId}&senderHost=${server}&receiverHost=${user.host}`;
         console.log("currentUserId", currentUserId);
         console.log("target userId", userId);
         const response = await fetch(followEndpoint, {

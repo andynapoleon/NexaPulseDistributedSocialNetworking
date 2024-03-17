@@ -32,7 +32,7 @@
 
     // TODO:loop through other nodes to get remote authors
     for (let node of nodes.items) {
-      console.log(node);
+      console.log("SERVER HERE: ", node.host);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
       const res2 = await fetch(
