@@ -304,7 +304,7 @@ class AuthorPosts(APIView):
 
                 remoteData = {
                     "type": "post",
-                    "postId": serializer.data["id"],
+                    "id": serializer.data["id"],
                     "authorId": author_id,
                     "title": serializer.data["title"],
                     "content": serializer.data["content"],
