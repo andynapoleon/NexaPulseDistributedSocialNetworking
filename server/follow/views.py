@@ -52,29 +52,21 @@ class FollowView(APIView):
     def post(self, request, user_id):
         sender_host = request.data.get("senderHost")
         receiver_host = request.data.get("receiverHost")[0:-1]
-        print(sender_host)
-        print(receiver_host)
-        # local
-        if sender_host == receiver_host:
-            print("LOCAL")
-            userId2 = request.data.get("userId2")
-            if user_id == userId2:
-                return Response(
-                    {"error": "UserId2 and UserId1 must be unique"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            if not (userId2):
-                return Response(
-                    {"error": "UserId2 must be provided"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            follow = Follows(follower_id=user_id, followed_id=userId2)
-            follow.save()
+        userId2 = request.data.get("userId2")
+        if user_id == userId2:
             return Response(
-                {"success": "Now following userId2"}, status=status.HTTP_200_OK
+                {"error": "UserId2 and UserId1 must be unique"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
+        if not (userId2):
+            return Response(
+                {"error": "UserId2 must be provided"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        follow = Follows(follower_id=user_id, followed_id=userId2)
+        follow.save()
         # remote
-        else:
+        if sender_host != receiver_host:
             print("REMOTE")
             userId2 = request.data.get("userId2")
             queryset = Node.objects.get(
@@ -108,6 +100,7 @@ class FollowView(APIView):
                     {"error": f"Couldnt sent friend request to remote inbox: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+        return Response({"success": "Now following userId2"}, status=status.HTTP_200_OK)
 
     def delete(self, request, user_id):
         # target_user_id is being followed
