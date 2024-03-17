@@ -33,6 +33,25 @@
     // TODO:loop through other nodes to get remote authors
     for (let node of nodes.items) {
       console.log("SERVER HERE: ", node.host);
+      // Send info of author to the server in the node
+      authorData = {
+        id: $currentUser.id,
+        name: $currentUser.name,
+        email: $currentUser.email,
+        github: $currentUser.github,
+        host: $currentUser.host
+      }
+      const sendAuthorResponse = await fetch(
+        node.host + `/api/authors/${$currentUser.id}}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Basic ${encodedAuthString}`,
+          },
+        }
+      );
+      // Get all remote authors 
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
       const res2 = await fetch(

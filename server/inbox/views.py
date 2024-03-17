@@ -22,7 +22,7 @@ from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 # Create your views here.
 class InboxView(APIView):
-    # authentication_classes = [BasicOrTokenAuthentication]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, format=None):
         """

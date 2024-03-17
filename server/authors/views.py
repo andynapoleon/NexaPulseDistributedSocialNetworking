@@ -6,8 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
-
-
+from SocialDistribution.settings import SERVER
 from rest_framework import generics
 
 
@@ -20,7 +19,7 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        return Author.objects.all()
+        return Author.objects.all().filter(host=SERVER)
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -66,6 +65,13 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def post(self, request):
+        serializer = AuthorSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Profile(APIView):

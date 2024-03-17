@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 
 class FollowView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
 
     def put(self, request, user_id):
         userId1 = request.data.get("userId1")
@@ -88,10 +88,14 @@ class FollowView(APIView):
                 data_to_send = {
                     "type": "follow",
                     "userId1": request.data["userId1"],
-                    "userId1": request.data["userId2"],
+                    "userId2": request.data["userId2"],
                 }
-                print(request_url)
-                response = requests.post(request_url, json=data_to_send)
+                response = requests.post(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": sender_host},
+                )
                 print("status code response", response.status_code)
                 if response.status_code == 200:
                     print("Succeeded sening friend requests")
