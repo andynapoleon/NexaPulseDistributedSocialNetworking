@@ -14,6 +14,7 @@ import requests
 from node.models import Node
 from node.serializers import NodeSerializer
 from django.core.exceptions import ObjectDoesNotExist
+from SocialDistribution.settings import SERVER
 
 
 class FollowView(APIView):
@@ -41,13 +42,45 @@ class FollowView(APIView):
         if requestObj:
             requestObj.acceptedRequest = True
             requestObj.save()
-            return Response(
-                {"success": "Follow request accepted"}, status=status.HTTP_200_OK
-            )
         else:
             return Response(
                 {"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST
             )
+
+        query_set = Author.objects.get(id=userId1)
+        serializer = AuthorSerializer(query_set)
+        following_author = serializer.data
+        if following_author.isForeign:
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=following_author.host
+            )
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            host = node["host"]
+            request_url = f"{host}/api/authors/{userId1}/inbox/"
+            try:
+                data_to_send = {
+                    "userId1": userId1,
+                    "userId2": userId2,
+                }
+                response = requests.put(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": SERVER},
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 200:
+                    print("Succeeded accepting friend requests")
+                    return Response({"success": "Accepted"}, status=status.HTTP_200_OK)
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    {"error": f"Accept unsuccessfyl {e}!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(
+            {"success": "Follow request accepted"}, status=status.HTTP_200_OK
+        )
 
     def post(self, request, user_id):
         sender_host = request.data.get("senderHost")
