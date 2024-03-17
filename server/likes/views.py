@@ -9,10 +9,12 @@ from node.models import Node
 import requests
 from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from authors.models import Author
+from authors.serializers import AuthorSerializer
 
 
 class PostLikeViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     queryset = PostLikes.objects.all()
     serializer_class = LikesSerializerPost
@@ -96,6 +98,35 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                 author_id=author_id, post_id=request.data.get("post")
             )
             like.delete()
+
+            remoteData = {
+                "author": request.data["author"],
+                "post": request.data["post"],
+            }
+
+            # get all nodes
+            query_set = Author.objects.get(id=author_id)
+            serializer = AuthorSerializer(query_set)
+            author = serializer.data
+            if author["host"] == SERVER:
+                node = Node.objects.all()
+                for n in node:
+                    url = n.host + f"/api/authors"
+                    print("URL", url)
+                    response = requests.get(
+                        url,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
+
+                    url = n.host + f"/api/authors/{author_id}/inbox"
+                    response = requests.delete(
+                        url,
+                        json=remoteData,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
+                    print(response)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except PostLikes.DoesNotExist:
             return Response(
