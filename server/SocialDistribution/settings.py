@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "posts",
     "node",
     "inbox",
+    "markdownx",
 ]
 
 MIDDLEWARE = [

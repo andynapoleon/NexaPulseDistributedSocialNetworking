@@ -35,27 +35,6 @@
       console.log("SERVER HERE: ", node.host);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
-      // Send info of author to the server in the node
-      let authorData = {
-        id: $currentUser.userId,
-        displayName: $currentUser.name,
-        email: $currentUser.email,
-        password: "i450959540943809",
-        github: $currentUser.github,
-        host: server,
-        isForeign: true
-      }
-      console.log("AUTHOR DATA", authorData)
-      const sendAuthorResponse = await fetch(
-        node.host + `/api/authors/new/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(authorData),
-        }
-      );
       // Get all remote authors 
       const res2 = await fetch(
         node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
