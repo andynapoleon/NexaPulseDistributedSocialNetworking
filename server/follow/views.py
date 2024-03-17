@@ -58,7 +58,7 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            request_url = f"{host}/api/follow/{userId1}/"
+            request_url = f"{host}/api/follow/{userId1}"
             try:
                 data_to_send = {
                     "userId1": userId1,
