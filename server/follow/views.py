@@ -50,9 +50,9 @@ class FollowView(APIView):
         query_set = Author.objects.get(id=userId1)
         serializer = AuthorSerializer(query_set)
         following_author = serializer.data
-        if following_author.isForeign:
+        if following_author["host"] != SERVER:
             queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author.host
+                username="remote", password="123456", host=following_author["host"]
             )
             serializer = NodeSerializer(queryset)
             node = serializer.data
