@@ -21,6 +21,7 @@ from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from SocialDistribution.settings import SERVER
 
+
 # Create your views here.
 class InboxView(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
@@ -60,21 +61,22 @@ class InboxView(APIView):
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
         sender_host = request.query_params.get("request_host", None)
-        
+
         # Post
         if request_type == "post":
             print("HERE", request.data)
             post_id = request.data.pop("postId", None)
             existing_post = Post.objects.filter(id=post_id).first()
-            
+
             if existing_post:
                 for key, value in request.data.items():
                     setattr(existing_post, key, value)
                 inbox.posts.add(existing_post)
             else:
-                serializer = PostSerializer(data=request.data, partial=True)
-                if serializer.is_valid():
-                    new_post = serializer.save()
+                author = Author.objects.get(id=request.data["authorId"])
+                request.data["authorId"] = author
+                id = request.data.pop("id")
+                new_post = Post.objects.create(id=id, **request.data)
                 inbox.posts.add(new_post)
 
             return Response(
