@@ -27,7 +27,7 @@
     console.log("fetching post by ID");
     try {
       const response = await fetch(
-        `${server}/api/authors/${authorId}/posts-by-id/${postId}`,
+        `${server}/api/authors/${authorId}/posts-by-id/${postId}/`,
         {
           method: "GET",
           headers: {
