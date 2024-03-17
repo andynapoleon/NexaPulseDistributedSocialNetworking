@@ -26,10 +26,10 @@
   });
 
   async function handleLogin() {
+    // Handle Login
     const loginEndpoint = server + "/api/token/";
     console.log(loginEndpoint); 
     const credentials = { email, password };
-
     try {
       const response = await fetch(loginEndpoint, {
         method: "POST",
@@ -45,7 +45,6 @@
       const data = await response.json();
       authToken.update((value) => (value = data.access));
       refreshToken.update((value) => (value = data.refresh));
-
       console.log("data:", data)
       if (!data.is_active) {
         throw new Error("User not activated"); // Handle non-2xx responses
@@ -61,6 +60,38 @@
       navigate("/home");
     } catch (error) {
       errorMessage = error.message;
+    }
+    
+    // Handle creating remote copies
+    const res_nodes = await fetch(server + "/api/nodes", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${$authToken}`,
+      },
+    });
+    const nodes = await res_nodes.json();
+    for (let node of nodes.items) {
+      let authorData = {
+          id: $currentUser.userId,
+          displayName: $currentUser.name,
+          email: $currentUser.email,
+          password: "i450959540943809",
+          github: $currentUser.github,
+          host: server,
+          isForeign: true
+        }
+        console.log("AUTHOR DATA", authorData)
+        const sendAuthorResponse = await fetch(
+          node.host + `/api/authors/new/`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(authorData),
+          }
+        );
     }
   }
 
