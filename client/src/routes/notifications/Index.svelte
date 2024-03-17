@@ -13,12 +13,15 @@
   // Fetch author's information based on authorId
   async function fetchAuthor(id) {
     try {
-      const response = await fetchWithRefresh(`${server}/api/authors/${id.split('/').pop()}`, {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${get(authToken)}`,
-        },
-      });
+      const response = await fetchWithRefresh(
+        `${server}/api/authors/${id.split("/").pop()}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${get(authToken)}`,
+          },
+        }
+      );
       if (response.ok) {
         const authorData = await response.json();
         let userName = `${authorData.displayName}`; // Set the userName to the author's display name
@@ -56,8 +59,8 @@
         try {
           const name = await fetchAuthor(item.follower);
           const followRequest = {
-            id: item.follower.split('/').pop(),
-            userId: item.follower.split('/').pop(),
+            id: item.follower.split("/").pop(),
+            userId: item.follower.split("/").pop(),
             profileImageUrl:
               "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
             userName: name,

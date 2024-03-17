@@ -45,7 +45,7 @@ class CommentDetail(generics.RetrieveAPIView):
 
     def post(self, request, author_id, post_id):
         serializer = self.get_serializer(data=request.data)
-
+        print(request.data)
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
         if str(request.data.get("author")) != str(author_id):
             return Response(

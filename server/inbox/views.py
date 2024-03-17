@@ -17,10 +17,12 @@ from likes.models import PostLikes
 from likes.models import CommentLikes
 from comments.models import Comment
 from comments.serializers import CommentSerializerPost
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 # Create your views here.
 class InboxView(APIView):
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, format=None):
         """
@@ -78,15 +80,11 @@ class InboxView(APIView):
         elif request_type == "follow":
             follower_id = request.data.get("userId1")
             followed_id = request.data.get("userId2")
+            print("EHREREOHFOSDFOSFDOJO")
             if followed_id == author_id:
                 follow = Follows(follower_id=follower_id, followed_id=followed_id)
                 follow.save()
                 inbox.follow_requests.add(follow)
-                # Send follow request to remote authors
-                # print("Object...", identify_localauthor(followed_id))
-                # if not identify_localauthor(followed_id):
-                #     print("identifying local...", followed_id)
-                #     send_request_to_remoteInbox(follow_request, followed_id)
                 return Response(
                     {"message": "Follow request sent to inbox!"},
                     status=status.HTTP_201_CREATED,
@@ -110,6 +108,7 @@ class InboxView(APIView):
         # Comments
         elif request_type == "comment":
             serializer = CommentSerializerPost(data=request.data)
+            new_comment = None
             if serializer.is_valid():
                 new_comment = serializer.save()
             inbox.comments.add(new_comment)
@@ -118,8 +117,17 @@ class InboxView(APIView):
             )
 
         # # Likes on comments
-        # elif request_type == "comment_like":
-        #     return Response("add comment like to inbox here")
+        elif request_type == "comment_like":
+            like = CommentLikes.objects.create(
+                author_id=request.data.get("author"),
+                comment_id=request.data.get("comment"),
+                post_id=request.data.get("post"),
+            )
+            inbox.comment_likes.add(like)
+            return Response(
+                {"message": "Comment like added to inbox!"},
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(
             {"message": "Unsupported request type!"}, status=status.HTTP_400_BAD_REQUEST

@@ -6,27 +6,40 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Author
 from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from SocialDistribution.settings import SERVER
+from rest_framework import generics
 
 
 class AuthorList(generics.ListCreateAPIView):
+    serializer_class = (
+        AuthorSerializer  # Assuming AuthorSerializer is your serializer class
+    )
     authentication_classes = [
         BasicOrTokenAuthentication
     ]  # Apply BasicAuthentication only for AuthorList view
-    queryset = Author.objects.all()
 
-    def get_serializer_class(self):
-        return AuthorSerializer
+    def get_queryset(self):
+        return Author.objects.all().filter(host=SERVER)
 
-    def get(self, request):
-        base_url = request.build_absolute_uri("/")
-        serializer = self.get_serializer(
-            self.queryset.all(), many=True, context={"base_url": base_url}
-        )
-        return Response(serializer.data)
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+
+        data_with_type = serializer.data
+        for item in data_with_type:
+            item["type"] = "author"
+            item.pop("password", None)
+
+        response = {
+            "type": "authors",
+            "items": data_with_type,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
 
 
 class AuthorDetail(generics.RetrieveAPIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get_serializer_class(self):
         return AuthorSerializer
@@ -34,9 +47,9 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            base_url = request.build_absolute_uri("/")
-            serializer = self.get_serializer(author, context={"base_url": base_url})
-            return Response(serializer.data)
+            serializer = AuthorSerializer(author)
+            response = serializer.data
+            return Response(response, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -47,10 +60,47 @@ class AuthorDetail(generics.RetrieveAPIView):
             # print(serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=200)
+                response = serializer.data
+                return Response(response, status=200)
             return Response(serializer.errors, status=400)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
+
+class AuthorCreate(APIView):
+    permission_classes = [AllowAny]
+
+    # create a new author manually
+    def post(self, request):
+        data = request.data
+        try:
+            author = Author.objects.get(email=data["email"])
+            return Response(
+                {"error": "User with this email already exists"}, status=400
+            )
+        except Author.DoesNotExist:
+            if data["id"] == None:
+                new_author = Author.objects.create_user(
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                    isForeign=data["isForeign"],
+                )
+            else:
+                new_author = Author.objects.create_user(
+                    id=data["id"],
+                    host=data["host"],
+                    isForeign=data["isForeign"],
+                    email=data["email"],
+                    password=data["password"],
+                    displayName=data["displayName"],
+                    github=data["github"],
+                )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+            return Response(response, status=201)
 
 
 class Profile(APIView):

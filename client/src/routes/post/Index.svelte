@@ -2,6 +2,7 @@
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Post from "../../widgets/Post.svelte";
   import SharedPost from "../../widgets/SharedPost.svelte";
+  import Comment from "./Comment.svelte";
   import { onMount, beforeUpdate } from "svelte";
   import {
     authToken,
@@ -22,16 +23,11 @@
   let authorId = $currentUser.userId;
   let commentText = ""; // Variable to hold the new comment text
 
-  let commentCount = 0;
-  let likeCount = 0; // for post likes
-  let commentLikeCount = 0;
-  let isLiked = false;
-
   async function fetchPostById() {
     console.log("fetching post by ID");
     try {
       const response = await fetch(
-        `${server}/api/authors/${authorId}/posts-by-id/${postId}`,
+        `${server}/api/authors/${authorId}/posts-by-id/${postId}/`,
         {
           method: "GET",
           headers: {
@@ -67,7 +63,13 @@
       );
       if (response.ok) {
         comments = await response.json();
-        commentCount = comments.length;
+        comments.forEach((comment) => {
+          let comment_arg = comment.id.split("/");
+          comment.id = comment_arg.pop()
+          console.log(`1. ${comment.id}`);
+        } )
+        // let comment_arguments = comments.comment.split("/")
+        // comments.id = comment_arguments.pop()
       } else {
         console.error("Failed to fetch comments:", response.statusText);
       }
@@ -103,114 +105,13 @@
     }
   }
 
-  // // Function to like a comment
-  // async function likeComment(commentId) {
-  //   //authors/<str:author_id>/comment/inbox
-  //   try {
-  //     const response = await fetch(`${server}/api/authors/${authorId}/comment/inbox`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Authorization': `Bearer ${get(authToken)}`,
-  //         'Content-Type': 'application/json'
-  //       },
-  //       body: JSON.stringify({ author: authorId, post: postId, comment: commentId }) 
-  //     });
-
-  //     if (response.ok) {
-  //       // Optionally, you can fetch comments again to update the like count
-  //       fetchComments();
-  //     } else {
-  //       console.error('Failed to like comment:', response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error liking comment:', error.message);
-  //   }
+  // function parseCommentId(comment){
+  //   let url = comment.id;
+  //   let parts = url.split('/');
+  //   let commentId = parts[parts.length - 1];
+  //   console.log(`COMMENTID: ${commentId}`)
+  //   return commentId
   // }
-
-  function parseCommentId(comment){
-    let url = comment.id;
-    let parts = url.split('/');
-    let commentId = parts[parts.length - 1];
-    console.log(`COMMENTID: ${commentId}`)
-    return commentId
-  }
-
-  // Fetch the number of likes for the post
-  async function fetchCommentLikes() {
-    try {
-      for (let comment of comments){
-        let commentId = parseCommentId(comment)
-        const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/posts/${postId}/comments/${commentId}/likes`,
-          {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${get(authToken)}`,
-            },
-          }
-        );
-  
-        if (response.ok) {
-          const likes = await response.json();
-          commentLikeCount = likes.length;
-          isLiked = likes.some((like) => like.author === authorId);
-        } else {
-          console.error("Failed to fetch likes:", response.statusText);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching likes:", error.message);
-    }
-  }
-
-  async function toggleCommentLike(commentId) {
-    try {
-      if (isLiked) {
-        // Unlike the post
-        const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/comment/inbox`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${get(authToken)}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ author: authorId, post: postId, comment: commentId }),
-          }
-        );
-
-        if (response.ok) {
-          isLiked = false;
-          fetchCommentLikes();
-        } else {
-          console.error("Failed to unlike the post:", response.statusText);
-        }
-      } else {
-        // Like the post
-        const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/comment/inbox`,
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${get(authToken)}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ author: authorId, post: postId, comment: commentId }),
-          }
-        );
-
-        if (response.ok) {
-          isLiked = true;
-          fetchCommentLikes();
-        } else {
-          console.error("Failed to like the post:", response.statusText);
-        }
-      }
-    } catch (error) {
-      console.error("Error toggling like:", error.message);
-    }
-  }
-
 
   onMount(fetchPostById);
   onMount(fetchComments);
@@ -225,29 +126,15 @@
 <main class="posts">
   {#if post}
     {#if !post.isShared}
-      <Post {post} bind:commentCount bind:likeCount on:changed={handleChange} />
+      <Post {post} on:changed={handleChange} />
     {:else}
-      <SharedPost
-        {post}
-        bind:commentCount
-        bind:likeCount
-        on:changed={handleChange}
-      />
+      <SharedPost {post} on:changed={handleChange} />
     {/if}
     <h2>Comments:</h2>
     {#if comments.length > 0}
       <ul class="comment-list">
         {#each comments as comment}
-          <li class="comment">
-            <div>{comment.comment}</div>
-            <div>Likes: {commentLikeCount}</div>
-            <!-- Add a like button for each comment -->
-            {#if isLiked}
-              <button class="like-button" on:click={() => toggleCommentLike(parseCommentId(comment))}>Unlike</button>
-            {:else}
-              <button class="like-button" on:click={() => toggleCommentLike(parseCommentId(comment))}>Like</button>
-            {/if}
-          </li>
+          <Comment {comment} {authorId} {postId} />
         {/each}
       </ul>
     {:else}

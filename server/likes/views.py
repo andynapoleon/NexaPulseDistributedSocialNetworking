@@ -31,7 +31,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
-        print(request.data)
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
         if str(request.data.get("author")) != author_id:
             return Response(
@@ -93,7 +92,6 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
         #     return Response(status=404)
 
         # Query to retrieve likes on the specified comment excluding the likes made by the author who posted
-        print("HEREHERHEHREHREH")
         likes = CommentLikes.objects.filter(
             post_id=post_id, comment_id=comment_id
         ).exclude(author_id=author_id)
@@ -148,3 +146,13 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                 {"error": "The specified like does not exist."},
                 status=status.HTTP_404_NOT_FOUND,
             )
+
+    @action(detail=True, methods=['get'])
+    def list_of_comment_likes(self, request, author_id, post_id, comment_id):
+        try:
+            # Query to retrieve likes on the specified comment
+            likes = CommentLikes.objects.filter(post_id=post_id, comment_id=comment_id)
+            serializer = self.get_serializer(likes, many=True)
+            return Response(serializer.data, status=200)
+        except CommentLikes.DoesNotExist:
+            return Response({"error": "No likes found for the specified comment."}, status=status.HTTP_404_NOT_FOUND)

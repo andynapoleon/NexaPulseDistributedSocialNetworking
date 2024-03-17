@@ -8,8 +8,7 @@ from django.contrib.auth.models import (
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
 import uuid
-
-DEFAULT_HOST = "http://127.0.0.1:8000/"
+from SocialDistribution.settings import SERVER
 
 
 class CustomUserManager(BaseUserManager):
@@ -28,7 +27,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, password, **extra_fields)
 
 
-class Author(AbstractBaseUser, PermissionsMixin):
+class Author(AbstractBaseUser):  # PermissionsMixin
     type = models.CharField(max_length=50, default="author", editable=False)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True, default="")
@@ -40,9 +39,10 @@ class Author(AbstractBaseUser, PermissionsMixin):
         upload_to="assets/profile_images/", null=True, blank=True
     )
     lastUpdated = models.DateTimeField(auto_now=True)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True)
+    is_superuser = models.BooleanField(default=False)
+    host = models.URLField(blank=True, default=SERVER, null=True)
     isForeign = models.BooleanField(default=False)
 
     objects = CustomUserManager()
@@ -55,6 +55,13 @@ class Author(AbstractBaseUser, PermissionsMixin):
 
     # def check_password(self, client_password):
     #     return self.password == client_password
+    def has_module_perms(self, app_label):
+        # For simplicity, let's assume all authors have permission to all modules
+        return True
+
+    def has_perm(self, perm, obj=None):
+        # For simplicity, let's assume all authors have all permissions
+        return True
 
     @property
     def token(self):
@@ -66,10 +73,10 @@ class Author(AbstractBaseUser, PermissionsMixin):
 
 
 # Add related_name to avoid clashes
-Group.add_to_class(
-    "authors_group", models.ManyToManyField(Author, related_name="author_groups")
-)
-Permission.add_to_class(
-    "authors_permission",
-    models.ManyToManyField(Author, related_name="author_permissions"),
-)
+# Group.add_to_class(
+#     "authors_group", models.ManyToManyField(Author, related_name="author_groups")
+# )
+# Permission.add_to_class(
+#     "authors_permission",
+#     models.ManyToManyField(Author, related_name="author_permissions"),
+# )

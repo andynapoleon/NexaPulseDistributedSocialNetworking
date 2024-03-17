@@ -46,6 +46,14 @@ class AuthorAPITestCase(TestCase):
         self.token = AccessToken.for_user(self.test_author)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
         
+    def test_create_author(self):
+        url = reverse('Create Author')
+        data = {'email': "asc@gmail.com", 'password': "password", 'displayName': "asc", 'github': "https://github.com/"}
+        response = self.client.post(url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        
     def test_author_list(self):
         url = reverse('Author List')
         response = self.client.get(url)

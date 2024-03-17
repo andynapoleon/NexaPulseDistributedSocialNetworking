@@ -40,7 +40,7 @@
   let commentText = "";
 
   function editPostId(postId) {
-    return postId.split('/').pop();
+    return postId.split("/").pop();
   }
 
   postId = editPostId(postId);
@@ -272,7 +272,7 @@
       if (response.ok) {
         const post = await response.json();
         image_base64 = post.content;
-        image_type = post.contentType
+        image_type = post.contentType;
       } else {
         console.error("Failed to fetch image:", response.statusText);
       }
@@ -290,8 +290,9 @@
   });
 
   // Fetch author's information when the component is mounted
-  
+
   fetchComments();
+  fetchLikes();
   fetchOriginalAuthor();
 </script>
 
