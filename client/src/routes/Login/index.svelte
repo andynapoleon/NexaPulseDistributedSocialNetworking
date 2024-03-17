@@ -70,6 +70,8 @@
     console.log(signUpEndpoint);
     const credentials = { 
       "id": null,
+      "host": null,
+      "isForeign": false,
       "email":email,
       "password": password,
       "displayName": displayName,

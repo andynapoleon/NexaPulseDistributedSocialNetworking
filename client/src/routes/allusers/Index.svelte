@@ -42,16 +42,18 @@
         email: $currentUser.email,
         password: "i450959540943809",
         github: $currentUser.github,
+        host: server,
+        isForeign: true
       }
-      console.log(authorData)
+      console.log("AUTHOR DATA", authorData)
       const sendAuthorResponse = await fetch(
         node.host + `/api/authors/new/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            body: JSON.stringify(authorData)
           },
+          body: JSON.stringify(authorData),
         }
       );
       // Get all remote authors 

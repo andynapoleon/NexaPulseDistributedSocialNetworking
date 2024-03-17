@@ -85,10 +85,13 @@ class AuthorCreate(APIView):
                     password=data["password"],
                     displayName=data["displayName"],
                     github=data["github"],
+                    isForeign=data["isForeign"],
                 )
             else:
                 new_author = Author.objects.create_user(
                     id=data["id"],
+                    host=data["host"],
+                    isForeign=data["isForeign"],
                     email=data["email"],
                     password=data["password"],
                     displayName=data["displayName"],
