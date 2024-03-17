@@ -11,8 +11,12 @@ from rest_framework import generics
 
 
 class AuthorList(generics.ListCreateAPIView):
-    serializer_class = AuthorSerializer  # Assuming AuthorSerializer is your serializer class
-    authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
+    serializer_class = (
+        AuthorSerializer  # Assuming AuthorSerializer is your serializer class
+    )
+    authentication_classes = [
+        BasicOrTokenAuthentication
+    ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
         queryset = Author.objects.all().filter(host=SERVER)
@@ -33,7 +37,6 @@ class AuthorList(generics.ListCreateAPIView):
         }
 
         return Response(response, status=status.HTTP_200_OK)
-
 
 
 class AuthorDetail(generics.RetrieveAPIView):
