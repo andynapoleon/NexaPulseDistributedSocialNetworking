@@ -1,6 +1,7 @@
 <script>
   import { onMount } from "svelte";
-  import { authToken, server } from "../../stores/stores.js";
+  import { authToken, server, currentUser } from "../../stores/stores.js";
+  import User from "./User.svelte"
 
   // Define reactive variables
   let loading = true;
@@ -31,9 +32,10 @@
 
     // TODO:loop through other nodes to get remote authors
     for (let node of nodes.items) {
-      console.log(node);
+      console.log("SERVER HERE: ", node.host);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
+      // Get all remote authors 
       const res2 = await fetch(
         node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
         {
@@ -62,19 +64,12 @@
   });
 </script>
 
-<h1>Hi</h1>
-
 <div class="all-users">
   {#if loading}
     <p>Loading...</p>
   {:else}
     {#each allUsers.items as user}
-      <div class="user">
-        <h3><strong>{user.displayName}</strong></h3>
-        <p>Host: {user.host}</p>
-        <img src={user.profileImage} alt={user.displayName + " profile pic"} />
-        <button class="follow-button">Follow</button>
-      </div>
+      <User {user} />
     {/each}
   {/if}
 </div>
@@ -87,31 +82,5 @@
     color: black;
     padding-left: 25%;
     padding-top: 10%;
-  }
-
-  .user {
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 300px;
-    color: black;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .follow-button {
-    background-color: teal;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .follow-button:hover {
-    background-color: darkcyan;
   }
 </style>

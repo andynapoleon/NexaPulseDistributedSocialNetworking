@@ -14,6 +14,8 @@ class BasicOrTokenAuthentication(BaseAuthentication):
         sender_host_list = request.GET.getlist("request_host")
         if sender_host_list:
             sender_host = sender_host_list[0]
+            if sender_host[-1] == "/":
+                sender_host = sender_host[0:-1]
             print("SENDER HOST", sender_host)
         else:
             print("No request host provided")

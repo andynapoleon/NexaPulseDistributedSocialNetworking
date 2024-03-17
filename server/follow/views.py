@@ -10,10 +10,16 @@ from follow.models import Follows
 from rest_framework.decorators import api_view
 from .serializers import FollowsSerializer
 from rest_framework.decorators import action
+import requests
+from node.models import Node
+from node.serializers import NodeSerializer
+from django.core.exceptions import ObjectDoesNotExist
+from SocialDistribution.settings import SERVER
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class FollowView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # [IsAuthenticated]
 
     def put(self, request, user_id):
         userId1 = request.data.get("userId1")
@@ -37,30 +43,97 @@ class FollowView(APIView):
         if requestObj:
             requestObj.acceptedRequest = True
             requestObj.save()
-            return Response(
-                {"success": "Follow request accepted"}, status=status.HTTP_200_OK
-            )
         else:
             return Response(
                 {"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST
             )
 
+        query_set = Author.objects.get(id=userId1)
+        serializer = AuthorSerializer(query_set)
+        following_author = serializer.data
+        if following_author["host"] != SERVER:
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=following_author["host"]
+            )
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            host = node["host"]
+            request_url = f"{host}/api/follow/{userId1}"
+            try:
+                data_to_send = {
+                    "userId1": userId1,
+                    "userId2": userId2,
+                }
+                response = requests.put(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": SERVER},
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 200:
+                    print("Succeeded accepting friend requests")
+                    return Response({"success": "Accepted"}, status=status.HTTP_200_OK)
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    {"error": f"Accept unsuccessfyl {e}!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(
+            {"success": "Follow request accepted"}, status=status.HTTP_200_OK
+        )
+
     def post(self, request, user_id):
+        sender_host = request.data.get("senderHost")
+        receiver_host = request.data.get("receiverHost")[0:-1]
         userId2 = request.data.get("userId2")
         if user_id == userId2:
             return Response(
                 {"error": "UserId2 and UserId1 must be unique"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         if not (userId2):
             return Response(
                 {"error": "UserId2 must be provided"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         follow = Follows(follower_id=user_id, followed_id=userId2)
         follow.save()
+        # remote
+        if sender_host != receiver_host:
+            print("REMOTE")
+            userId2 = request.data.get("userId2")
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=receiver_host
+            )
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            host = node["host"]
+            request_url = f"{host}/api/authors/{userId2}/inbox/"
+            try:
+                data_to_send = {
+                    "type": "follow",
+                    "userId1": request.data["userId1"],
+                    "userId2": request.data["userId2"],
+                }
+                response = requests.post(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": sender_host},
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 201:
+                    print("Succeeded sending friend requests")
+                    return Response(
+                        {"success": "Now following userId2"}, status=status.HTTP_200_OK
+                    )
+            except requests.exceptions.RequestException as e:
+                print(f"couldnt sent friend request to remote inbox: {e}")
+                return Response(
+                    {"error": f"Couldnt sent friend request to remote inbox: {e}"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response({"success": "Now following userId2"}, status=status.HTTP_200_OK)
 
     def delete(self, request, user_id):
@@ -82,33 +155,21 @@ class FollowView(APIView):
         )
 
     def get(self, request, user_id):
-        # userId2 is being followed
-        print(user_id)
         target_user_id = request.query_params.get("userId2")
-        print(target_user_id)
-
         if not (target_user_id):
             return Response(
                 {"error": "UserId2 must be provided"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        user1 = Author.objects.get(id=user_id)
-        user2 = Author.objects.get(id=target_user_id)  # NOT WORKING!!!
-
-        # Check if the follow relationship exists
-        ####
-        requestObj = Follows.objects.filter(followed=user1, follower=user2).first()
-
+        requestObj = Follows.objects.filter(
+            followed_id=user_id, follower_id=target_user_id
+        ).first()
         if requestObj:
             follow_exists = True
-            accepted_request = (
-                requestObj.acceptedRequest
-            )  # Assuming acceptedRequest is a field of the Follows model
+            accepted_request = requestObj.acceptedRequest
         else:
             follow_exists = False
             accepted_request = None
-
         return Response(
             {"following": follow_exists, "acceptedRequest": accepted_request},
             status=status.HTTP_200_OK,
