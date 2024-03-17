@@ -8,7 +8,7 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from SocialDistribution.settings import SERVER
 from rest_framework import generics
-from SocialDistribution.settings import SERVER
+
 
 class AuthorList(generics.ListCreateAPIView):
     serializer_class = (
