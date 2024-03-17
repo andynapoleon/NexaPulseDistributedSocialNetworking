@@ -11,15 +11,12 @@ from rest_framework import generics
 
 
 class AuthorList(generics.ListCreateAPIView):
-    serializer_class = (
-        AuthorSerializer  # Assuming AuthorSerializer is your serializer class
-    )
-    authentication_classes = [
-        BasicOrTokenAuthentication
-    ]  # Apply BasicAuthentication only for AuthorList view
+    serializer_class = AuthorSerializer  # Assuming AuthorSerializer is your serializer class
+    authentication_classes = [BasicOrTokenAuthentication]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        return Author.objects.all().filter(host=SERVER)
+        queryset = Author.objects.all().filter(host=SERVER)
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -29,13 +26,14 @@ class AuthorList(generics.ListCreateAPIView):
         for item in data_with_type:
             item["type"] = "author"
             item.pop("password", None)
-
+        print(data_with_type)
         response = {
             "type": "authors",
             "items": data_with_type,
         }
 
         return Response(response, status=status.HTTP_200_OK)
+
 
 
 class AuthorDetail(generics.RetrieveAPIView):
@@ -80,6 +78,7 @@ class AuthorCreate(APIView):
             )
         except Author.DoesNotExist:
             if data["id"] == None:
+                print(data)
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
@@ -88,6 +87,7 @@ class AuthorCreate(APIView):
                     isForeign=data["isForeign"],
                 )
             else:
+                # print(data)
                 new_author = Author.objects.create_user(
                     id=data["id"],
                     host=data["host"],

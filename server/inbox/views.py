@@ -19,6 +19,7 @@ from comments.models import Comment
 from comments.serializers import CommentSerializerPost
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from SocialDistribution.settings import SERVER
 
 # Create your views here.
 class InboxView(APIView):
@@ -84,7 +85,6 @@ class InboxView(APIView):
         elif request_type == "follow":
             follower_id = request.data.get("userId1")
             followed_id = request.data.get("userId2")
-            print("EHREREOHFOSDFOSFDOJO")
             if followed_id == author_id:
                 follow = Follows(follower_id=follower_id, followed_id=followed_id)
                 follow.save()

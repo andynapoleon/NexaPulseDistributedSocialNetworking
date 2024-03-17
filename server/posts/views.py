@@ -164,9 +164,50 @@ class PostDetail(APIView):
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
             serializer = PostSerializer(post, data=request_data, partial=True)
+            
             if serializer.is_valid():
                 if str(request.user.id) == author_id:
                     serializer.save()
+
+                    remoteData = {
+                        "type": "post",
+                        "postId": serializer.data["id"],
+                        "authorId": author_id,
+                        "title": serializer.data["title"],
+                        "content": serializer.data["content"],
+                        "contentType": serializer.data["contentType"],
+                        "visibility": serializer.data["visibility"],
+                        "image_ref": serializer.data["image_ref"],
+                    }
+
+                    # get all nodes
+                    node = Node.objects.all()
+                    print("NODES", node)
+
+                    # make a request to all nodes api/authors/<str:author_id>/inbox/
+                    for n in node:
+                        # send the post to the inbox of every other author
+                        # /api/authors?request_host=${encodeURIComponent(server)}
+                        url = n.host + f"/api/authors"
+                        print("URL", url)
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        remoteAuthors = response.json().get("items", [])
+
+                        for remoteAuthor in remoteAuthors:
+                            print("REMOTE AUTHOR", remoteAuthor)
+                            url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
+                            response = requests.post(
+                                url,
+                                json=remoteData,
+                                auth=(n.username, n.password),
+                                params={"request_host": SERVER},
+                            )
+                            print(response)
+
                     return Response(serializer.data, status=status.HTTP_200_OK)
             # print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -278,7 +319,7 @@ class AuthorPosts(APIView):
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
                         url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
-                        response = requests.post(url, data=remoteData, auth=(n.username, n.password), params={"request_host": SERVER})
+                        response = requests.post(url, json=remoteData, auth=(n.username, n.password), params={"request_host": SERVER})
                         print(response)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
