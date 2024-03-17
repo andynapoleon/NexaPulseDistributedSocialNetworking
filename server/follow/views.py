@@ -15,10 +15,11 @@ from node.models import Node
 from node.serializers import NodeSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from SocialDistribution.settings import SERVER
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class FollowView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # [IsAuthenticated]
 
     def put(self, request, user_id):
         userId1 = request.data.get("userId1")
@@ -57,7 +58,7 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            request_url = f"{host}/api/authors/{userId1}/inbox/"
+            request_url = f"{host}/api/follow/{userId1}/"
             try:
                 data_to_send = {
                     "userId1": userId1,
