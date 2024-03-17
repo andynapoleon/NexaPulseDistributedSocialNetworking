@@ -5,6 +5,10 @@ from rest_framework import viewsets, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import CommentLikes, PostLikes
 from .serializers import LikesSerializerComment, LikesSerializerPost
+from node.models import Node
+import requests
+from SocialDistribution.settings import SERVER
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class PostLikeViewSet(viewsets.ModelViewSet):
@@ -46,6 +50,33 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             )
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
+
+            remoteData = {
+                "type": "post_like",
+                "author": request.data["author"],
+                "post": request.data["post"],
+            }
+
+            # get all nodes
+            node = Node.objects.all()
+            for n in node:
+                url = n.host + f"/api/authors"
+                print("URL", url)
+                response = requests.get(
+                    url,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+
+                url = n.host + f"/api/authors/{author_id}/inbox/"
+                response = requests.post(
+                    url,
+                    json=remoteData,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+                print(response)
+
             return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
@@ -147,7 +178,7 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
-    @action(detail=True, methods=['get'])
+    @action(detail=True, methods=["get"])
     def list_of_comment_likes(self, request, author_id, post_id, comment_id):
         try:
             # Query to retrieve likes on the specified comment
@@ -155,4 +186,7 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(likes, many=True)
             return Response(serializer.data, status=200)
         except CommentLikes.DoesNotExist:
-            return Response({"error": "No likes found for the specified comment."}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "No likes found for the specified comment."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
