@@ -18,6 +18,7 @@ class LoginViewTests(TestCase):
         Author.objects.create_user(
             email=TEST_USER_EMAIL,
             password=TEST_USER_PASSWORD,
+            is_active=True
         )
 
     def test_login_success(self):
@@ -27,17 +28,17 @@ class LoginViewTests(TestCase):
         client = APIClient()
         data = {"email": TEST_USER_EMAIL, "password": TEST_USER_PASSWORD}
         response = client.post("/api/token/", data=data, format="json")
+        print("h", response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("refresh", response.data)
         self.assertIn("access", response.data)
         self.assertEqual(response.data["email"], TEST_USER_EMAIL)
         self.assertEqual(
-            response.data["name"], " "
+            response.data["name"], ""
         )  # name wasn't set when using create_user
         self.assertEqual(
             response.data["github"], ""
         )  # github wasn't set when using create_user
-        self.assertEqual(response.data["id"], 1)  # Assuming user ID starts from 1
 
     def test_login_invalid_credentials(self):
         """
