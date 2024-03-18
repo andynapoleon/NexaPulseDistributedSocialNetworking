@@ -1,11 +1,13 @@
-from django.test import TestCase, Client
+from rest_framework.test import APITestCase, APIClient
 from django.urls import reverse
 from rest_framework import status
 from .models import Node
 from rest_framework_simplejwt.tokens import AccessToken
+from authors.models import Author
 
-class NodeListGetTest(TestCase):
+class NodeListGetTest(APITestCase):
     def setUp(self):
+
         # Create some sample active nodes
         self.active_node1 = Node.objects.create(
             host="http://example1.com",
@@ -38,15 +40,16 @@ class NodeListGetTest(TestCase):
             isActive=False
         )
 
-        self.client = Client()
-        self.token = AccessToken.for_user(self.active_node1)
+        self.client = APIClient()
+
+        # Create a JWT token for an active node
+        self.test_author = Author.objects.create(displayName='testuser testuser', github='https://github.com/testuser', email='testuser@example.com', is_active=True)
+        self.token = AccessToken.for_user(self.test_author)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
 
     def test_get_active_nodes(self):
         # Send a GET request to the NodeList endpoint
         response = self.client.get(reverse('node-list'))
-
-        print(response.content)
 
         # Check that the response status code is 200 OK
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -56,6 +59,6 @@ class NodeListGetTest(TestCase):
 
         # Check that each item in the response is an active node
         for node_data in response.data['items']:
-            node_id = node_data['id']
-            node = Node.objects.get(id=node_id)
+            host = node_data['host']
+            node = Node.objects.get(host=host)
             self.assertTrue(node.isActive)

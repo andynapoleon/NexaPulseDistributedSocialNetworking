@@ -54,8 +54,9 @@
               type: "post",
               title: `New ${event.type} event on GitHub!`,
               content: `${event.repo.name}: ${event.payload.commits && event.payload.commits.length > 0 ? event.payload.commits[0].message : ''}`,
-              content_type: "text/markdown",
+              contentType: "text/markdown",
               visibility: "Public".toUpperCase(),
+              image: null,
             };
             fetchWithRefresh(
               server + `/api/authors/${getCurrentUser().userId}/posts/`,
