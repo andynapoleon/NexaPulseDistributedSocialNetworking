@@ -22,6 +22,7 @@ from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 import string
 
+
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-published")
     serializer_class = PostSerializer
@@ -322,6 +323,8 @@ class AuthorPosts(APIView):
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
                     "image_ref": str(serializer.data["image_ref"]),
+                    "sharedBy": None,
+                    "isShared": False,
                 }
 
                 # get all nodes
@@ -358,8 +361,7 @@ class AuthorPosts(APIView):
                         try:
                             id = remoteAuthor["id"]
                         except KeyError:
-                            id = remoteAuthor['user_id']
-
+                            id = remoteAuthor["user_id"]
 
                         url = n.host + f"/api/authors/{str(id)}/inbox/"
 
@@ -482,26 +484,73 @@ class SharedPost(APIView):
             shared_post["sharedBy"] = shared_post["authorId"]
             # authorId is the author sharing the post
             shared_post["authorId"] = author_id
-            shared_post["visibility"] = "FRIENDS"
+            shared_post["visibility"] = "PUBLIC"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
             else:
                 shared_post["image_ref"] = None
-            print(shared_post)
             serializer = ServerPostSerializer(data=shared_post)
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
+                # get all nodes
+                publish = shared_post.pop("published")
+                shared_post["id"] = serializer.data["id"]
+                shared_post["sharedBy"] = str(shared_post["sharedBy"])
+                shared_post["image_ref"] = str(shared_post["image_ref"])
+                node = Node.objects.all()
+                print(shared_post)
+                remoteAuthors = []
+                # make a request to all nodes api/authors/<str:author_id>/inbox/
+                for n in node:
+                    # send the post to the inbox of every other author
+                    # /api/authors?request_host=${encodeURIComponent(server)}
+                    if shared_post["visibility"] == "PUBLIC":
+                        url = n.host + f"/api/authors"
+                        print("URL", url)
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        remoteAuthors = response.json().get("items", [])
+                    elif shared_post["visibility"] == "FRIENDS":
+                        url = n.host + f"/api/friends/friends/{author_id}"
+
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        print("RESPONSE", response.json())
+                        remoteAuthors = response.json()
+                        print("REMOTE AUTHORS", remoteAuthors)
+
+                    for remoteAuthor in remoteAuthors:
+                        print("REMOTE AUTHOR", remoteAuthor)
+                        try:
+                            id = remoteAuthor["id"]
+                        except KeyError:
+                            id = remoteAuthor["user_id"]
+
+                        url = n.host + f"/api/authors/{str(id)}/inbox/"
+
+                        response = requests.post(
+                            url,
+                            json=shared_post,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
                 {"error": "You are not authorized to share this post"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+
 
 # authors/<str:author_id>/posts/<str:post_id>/image/
 class ImagePost(APIView):
