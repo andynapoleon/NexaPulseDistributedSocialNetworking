@@ -282,7 +282,7 @@ class UserFollowingView(APIView):
 
 
 class UserFollowedView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication] # [IsAuthenticated]
 
     def get(self, request, user_id):
         return_package = []
@@ -310,7 +310,7 @@ class UserFollowedView(APIView):
 
 
 class UserFriendsView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # [IsAuthenticated]
 
     def get(self, request, user_id):
 

@@ -324,7 +324,7 @@ class AuthorPosts(APIView):
                 # get all nodes
                 node = Node.objects.all()
                 print("NODES", node)
-
+                remoteAuthors = []
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -339,11 +339,25 @@ class AuthorPosts(APIView):
                         )
                         remoteAuthors = response.json().get("items", [])
                     elif request.data.get("visibility") == "FRIENDS":
-                        return Response("Not yet implemented",status=status.HTTP_400_BAD_REQUEST)
+                        url = n.host + f"/api/friends/friends/{author_id}"
+
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        print("RESPONSE", response.json())
+                        remoteAuthors = response.json()
+                        print("REMOTE AUTHORS", remoteAuthors)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
-                        url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
+                        try:
+                            id = remoteAuthor['id']
+                        except KeyError:
+                            id = remoteAuthor['user_id']
+                            
+                        url = n.host + f"/api/authors/{id}/inbox/"
                         response = requests.post(
                             url,
                             json=remoteData,
