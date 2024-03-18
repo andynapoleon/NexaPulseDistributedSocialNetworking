@@ -20,7 +20,7 @@ from node.models import Node
 import requests
 from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
-
+import string
 
 class PostList(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by("-published")
@@ -312,13 +312,13 @@ class AuthorPosts(APIView):
 
                 remoteData = {
                     "type": "post",
-                    "id": serializer.data["id"],
+                    "id": str(serializer.data["id"]),
                     "authorId": author_id,
                     "title": serializer.data["title"],
                     "content": serializer.data["content"],
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
-                    "image_ref": serializer.data["image_ref"],
+                    "image_ref": str(serializer.data["image_ref"]),
                 }
 
                 # get all nodes
@@ -356,15 +356,17 @@ class AuthorPosts(APIView):
                             id = remoteAuthor['id']
                         except KeyError:
                             id = remoteAuthor['user_id']
-                            
-                        url = n.host + f"/api/authors/{id}/inbox/"
+
+
+                        url = n.host + f"/api/authors/{str(id)}/inbox/"
+
                         response = requests.post(
                             url,
                             json=remoteData,
                             auth=(n.username, n.password),
                             params={"request_host": SERVER},
                         )
-                        print(response)
+                        print("sfhd", response)
 
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         print(serializer.errors)
@@ -489,7 +491,7 @@ class SharedPost(APIView):
 
 
 class ImagePost(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, post_id):
         try:
