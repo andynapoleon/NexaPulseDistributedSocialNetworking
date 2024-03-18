@@ -11,6 +11,7 @@
   export let email;
   export let github;
   export let userId; // The user ID passed into the component
+  export let host;
 
   // Get the current user's ID from the store
   const currentUserId = get(currentUser).userId;
@@ -73,14 +74,17 @@
     const followRequest = {
       userId1: currentUserId,
       userId2: userId, //target user
+      receiverHost: host + "/",
+      senderHost: server,
     };
+    console.log("FOLLOW REQUEST:", followRequest);
     const headers = {
       Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
       "Content-Type": "application/json",
     };
     if (alreadyFollowedValue) {
       const response = await fetchWithRefresh(
-        server + `/api/follow/${currentUserId}?userId2=${userId}`, //////////////////////////
+        server + `/api/follow/${currentUserId}?userId2=${userId}`,
         {
           method: "DELETE",
           headers: headers,
