@@ -26,3 +26,7 @@ Contributors:
     Sheikh Safwan Hossain (sheikhsa)
     Viet Chu (vchu1)
     Bohan Yao (byao2)
+
+References:
+
+    https://github.com/uofa-cmput404/404f23project-http-academy
