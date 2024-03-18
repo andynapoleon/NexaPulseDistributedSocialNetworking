@@ -31,6 +31,7 @@ class InboxViewTests(APITestCase):
             'type': 'post',
             'id': 1,  # Assuming postId exists
             'authorId': self.author2.id,
+            'sharedBy': None,
         }
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
