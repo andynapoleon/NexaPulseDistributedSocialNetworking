@@ -36,6 +36,17 @@ class InboxViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Add additional assertions as needed
 
+    def test_follow_request(self):
+        url = reverse('inbox', kwargs={'author_id': self.author1.id})
+        data = {
+            'type': 'follow',
+            'userId1': self.author2.id,  # Assuming userId1 is follower
+            'userId2': self.author1.id,  # Assuming userId2 is followed
+        }
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Add additional assertions as needed
+
     def test_delete_inbox(self):
         url = reverse('inbox', kwargs={'author_id': self.author1.id})
         response = self.client.delete(url)
