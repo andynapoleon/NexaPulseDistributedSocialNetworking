@@ -362,7 +362,10 @@ class AuthorPosts(APIView):
                 for n in node:
                     # send the post to the inbox of every other author
                     # /api/authors?request_host=${encodeURIComponent(server)}
-                    if request.data.get("visibility") == "PUBLIC":
+                    if (
+                        request.data.get("visibility") == "PUBLIC"
+                        or request.data.get("visibility") == "UNLISTED"
+                    ):
                         url = n.host + f"/api/authors"
                         print("URL", url)
                         response = requests.get(
