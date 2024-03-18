@@ -103,20 +103,23 @@ class PostById(APIView):
 
     def get(self, request, author_id, post_id):
         try:
-            print("I ENTERED HERE")
             post = Post.objects.get(id=post_id)
-            print(post.visibility)
             if post.visibility != "FRIENDS":
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                followed_users_ids = Follows.objects.filter(
-                    follower_id=author_id, acceptedRequest=True
-                ).values_list("followed_id", flat=True)
-                followed_users_ids = list(followed_users_ids)
-                followed_users_ids = [str(value) for value in followed_users_ids]
-                followed_users_ids.append(author_id)
-                if str(post.authorId.id) in followed_users_ids:
+                # Check if the user is friends with the author
+                follower = Follows.objects.filter(
+                    follower_id=author_id,
+                    followed_id=post.authorId.id,
+                    acceptedRequest=True,
+                ).exists()
+                followed = Follows.objects.filter(
+                    follower_id=post.authorId.id,
+                    followed_id=author_id,
+                    acceptedRequest=True,
+                ).exists()
+                if follower and followed:
                     serializer = PostSerializer(post)
                     return Response(serializer.data)
                 else:
