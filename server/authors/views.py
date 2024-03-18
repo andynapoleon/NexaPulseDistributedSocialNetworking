@@ -84,6 +84,7 @@ class AuthorCreate(APIView):
                     email=data["email"],
                     password=data["password"],
                     displayName=data["displayName"],
+                    profileImage=data["profileImage"],
                     github=data["github"],
                     isForeign=data["isForeign"],
                 )
@@ -95,6 +96,7 @@ class AuthorCreate(APIView):
                     email=data["email"],
                     password=data["password"],
                     displayName=data["displayName"],
+                    profileImage=data["profileImage"],
                     github=data["github"],
                 )
             new_author.save()
@@ -121,10 +123,12 @@ class Profile(APIView):
         full_name = user.displayName
         github = user.github
         email = user.email
+        profileImage = user.profileImage
         context = {
             "full_name": full_name,
             "github": github,
             "email": email,
+            "profileImage": profileImage,
         }
         return Response(context)
 
@@ -149,10 +153,12 @@ class Profile(APIView):
         full_name = request.data.get("name", "")
         github = request.data.get("github", "")
         email = request.data.get("email", "")
+        profileImage = request.data.get("profileImage", "")
 
         user.displayName = full_name
         user.github = github
         user.email = email
+        user.profileImage = profileImage
         user.save()
 
         # Return updated user data
@@ -160,5 +166,6 @@ class Profile(APIView):
             "full_name": full_name,
             "github": github,
             "email": email,
+            "profileImage": profileImage,
         }
         return Response(updated_data)

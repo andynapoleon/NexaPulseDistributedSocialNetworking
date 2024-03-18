@@ -17,6 +17,7 @@
   let github = "";
   let email = "";
   let userId = "";
+  let profileImage = "";
 
   let isAuthenticated = false;
   export let params;
@@ -37,6 +38,7 @@
       fullName = getCurrentUser().name;
       github = getCurrentUser().github;
       email = getCurrentUser().email;
+      profileImage = getCurrentUser().profileImage;
     } else {
       userId = pathSegments.pop();
       console.log(`${userId}`)
@@ -55,6 +57,7 @@
       fullName = data.full_name;
       github = data.github;
       email = data.email;
+      profileImage = data.profileImage;
     }
   });
 </script>
@@ -63,7 +66,7 @@
   <div class="profile-layout">
     <div class="profile-widget">
       <ProfileWidget
-        profileImageUrl="../../../fake_profile.png"
+        profileImage={profileImage}
         name={fullName}
         {email}
         {github}

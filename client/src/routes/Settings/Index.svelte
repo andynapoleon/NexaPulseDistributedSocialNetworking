@@ -8,6 +8,7 @@
     let github = "";
     let email = "";
     let userId = "";
+    let profileImage = "";
   
     let isAuthenticated = false;
     
@@ -24,6 +25,7 @@
         fullName = getCurrentUser().name;
         github = getCurrentUser().github;
         email = getCurrentUser().email;
+        profileImage = getCurrentUser().profileImage;
     });
   </script>
   
@@ -31,7 +33,7 @@
     <div class="profile-layout">
       <div class="profile-widget">
         <EditProfileWidget
-          profileImageUrl="../../../fake_profile.png"
+          profileImage={profileImage}
           name={fullName}
           email={email}
           github={github}

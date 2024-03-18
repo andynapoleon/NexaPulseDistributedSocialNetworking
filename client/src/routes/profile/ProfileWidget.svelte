@@ -6,7 +6,7 @@
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
 
   // Props passed to the component
-  export let profileImageUrl; // A default image if none is provided
+  export let profileImage; // A default image if none is provided
   export let name;
   export let email;
   export let github;
@@ -33,6 +33,7 @@
     name: name,
     email: email,
     github: github,
+    profileImage: profileImage,
   });
   let formDataValue;
   formData.subscribe((value) => {
@@ -130,6 +131,7 @@
     name = formDataValue.name;
     email = formDataValue.email;
     github = formDataValue.github;
+    profileImage = formDataValue.profileImage;
 
     isEditMode.set(false); // Close edit mode
     currentUser.update((value) => {
@@ -138,6 +140,7 @@
         name: formDataValue.name,
         email: formDataValue.email,
         github: formDataValue.github,
+        profileImage: formDataValue.profileImage,
       };
     });
   }
@@ -148,7 +151,7 @@
 </script>
 
 <div class="profile-widget">
-  <img class="profile-image" src={profileImageUrl} alt="Profile Avatar" />
+  <img class="profile-image" src={profileImage} alt="Profile Avatar" />
   <div class="profile-info">
     {#if !isCurrentUser}
       <div class="profile-name">{name}</div>
@@ -176,6 +179,7 @@
               name: name,
               email: email,
               github: github,
+              profileImage: profileImage,
             });
             isEditMode.set(true);
           }}>Edit Profile</button
@@ -205,6 +209,12 @@
           bind:value={formDataValue.github}
           placeholder="Github"
           required
+        />
+        <input
+          type="text"
+          class="profile-input"
+          bind:value={formDataValue.profileImage}
+          placeholder="Profile Image Url"
         />
         <div class="flex justify-center">
           <button class="save-button">Save Changes</button>

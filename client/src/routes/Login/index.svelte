@@ -11,6 +11,7 @@
   let email = "";
   let password = "";
   let displayName = "";
+  let profileImage = "";
   let github = "";
   let errorMessage = ""; // To display login errors
   let isLoggingIn = true; // Track whether the user is logging in or signing up
@@ -54,6 +55,7 @@
         name: data.name,
         email: data.email,
         github: data.github,
+        profileImage: data.profileImage,
         lastUpdated: data.lastUpdated,
       });
       console.log("DATA ACCESS: " + data.access);
@@ -78,6 +80,7 @@
           email: $currentUser.email,
           password: "i450959540943809",
           github: $currentUser.github,
+          profileImage: $currentUser.profileImage,
           host: server,
           isForeign: true
         }
@@ -106,7 +109,8 @@
       "email":email,
       "password": password,
       "displayName": displayName,
-      "github": github
+      "github": github,
+      "profileImage": profileImage,
     };
     console.log(credentials);
     try {
@@ -171,6 +175,7 @@
       <input type="text" class="login-input" placeholder="Display Name" bind:value={displayName} required />
       <input type="email" class="login-input" placeholder="Email" bind:value={email} required/>
       <input type="password" class="login-input" placeholder="Password" bind:value={password} required/>
+      <input type="profileImage" class="login-input" placeholder="Profile Image Url" bind:value={profileImage}/>
       <input type="url" class="login-input" placeholder="Github" bind:value={github} required/>
       <button type="submit" class="login-button">Sign Up</button>
       <div class="h-4"></div>
