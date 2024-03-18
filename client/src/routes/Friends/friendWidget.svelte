@@ -1,12 +1,12 @@
 <script>
   // Props passed to the component
-  export let profileImageUrl = "default-profile.png"; // A default image if none is provided
+  export let profileImage = "default-profile.png"; // A default image if none is provided
   export let name = "John Doe";
   export let email = "john.doe@example.com";
 </script>
 
 <div class="profile-widget">
-  <img class="profile-image" src={profileImageUrl} alt="Profile Avatar" />
+  <img class="profile-image" src={profileImage} alt="Profile Avatar" />
   <div class="profile-info">
     <div class="profile-name">{name}</div>
     <div class="profile-email">{email}</div>
