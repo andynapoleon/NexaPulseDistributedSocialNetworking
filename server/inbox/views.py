@@ -66,7 +66,7 @@ class InboxView(APIView):
         if request_type == "post":
             print("HERE", request.data)
             post_id = request.data.pop("postId", None)
-            print("post_id",post_id)
+            print("post_id", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
             if existing_post:
@@ -114,17 +114,20 @@ class InboxView(APIView):
 
         # Comments
         elif request_type == "comment":
-            serializer = CommentSerializerPost(data=request.data)
-            new_comment = None
-            if serializer.is_valid():
-                new_comment = serializer.save()
+            post = Post.objects.get(id=request.data["postId"])
+            author = Author.objects.get(id=request.data["author"])
+            request.data["postId"] = post
+            request.data["author"] = author
+            id = request.data.pop("id")
+            new_comment = Comment.objects.create(id=id, **request.data)
             inbox.comments.add(new_comment)
             return Response(
                 {"message": "Comment added to inbox!"}, status=status.HTTP_201_CREATED
             )
 
-        # # Likes on comments
+        # Likes on comments
         elif request_type == "comment_like":
+            print(request.data)
             like = CommentLikes.objects.create(
                 author_id=request.data.get("author"),
                 comment_id=request.data.get("comment"),
