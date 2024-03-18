@@ -346,14 +346,18 @@ class AuthorPosts(APIView):
                             auth=(n.username, n.password),
                             params={"request_host": SERVER},
                         )
-                        print("RESPONSE", response)
-                        remoteAuthors = response.json().get("items", [])
+                        print("RESPONSE", response.json())
+                        remoteAuthors = response.json()
                         print("REMOTE AUTHORS", remoteAuthors)
-                        return Response("Not yet implemented",status=status.HTTP_400_BAD_REQUEST)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
-                        url = n.host + f"/api/authors/{remoteAuthor['id']}/inbox/"
+                        try:
+                            id = remoteAuthor['id']
+                        except KeyError:
+                            id = remoteAuthor['user_id']
+                            
+                        url = n.host + f"/api/authors/{id}/inbox/"
                         response = requests.post(
                             url,
                             json=remoteData,
