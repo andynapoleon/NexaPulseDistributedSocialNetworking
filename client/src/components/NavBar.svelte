@@ -7,11 +7,19 @@
   import { navigate } from "svelte-routing";
 
   let id = $currentUser.userId;
+  let profileImage = $currentUser.profileImage;
+
+  $: {
+    const user = $currentUser;
+    id = user.userId;
+    profileImage = user.profileImage;
+  }
 
   const navigateProfile = () => {
     navigate(`/profile/${id}`);
     location.reload();
   };
+  
 </script>
 
 <nav>
@@ -28,7 +36,7 @@
     <div>
       <a href={`/profile/${id}`}>
         <button>
-          <img src="../../fake_profile.png" alt="fake profile" />
+          <img class=profile-image src={profileImage} alt="fake profile" />
         </button>
       </a>
     </div>
@@ -49,6 +57,7 @@
   img {
     width: 3em;
     height: 3em;
+    border-radius: 50%;
   }
 
   :global(#icon) {
@@ -64,4 +73,5 @@
     column-gap: 1em;
     padding: 0 1em;
   }
+
 </style>

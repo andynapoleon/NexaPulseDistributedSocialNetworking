@@ -103,20 +103,23 @@ class PostById(APIView):
 
     def get(self, request, author_id, post_id):
         try:
-            print("I ENTERED HERE")
             post = Post.objects.get(id=post_id)
-            print(post.visibility)
             if post.visibility != "FRIENDS":
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                followed_users_ids = Follows.objects.filter(
-                    follower_id=author_id, acceptedRequest=True
-                ).values_list("followed_id", flat=True)
-                followed_users_ids = list(followed_users_ids)
-                followed_users_ids = [str(value) for value in followed_users_ids]
-                followed_users_ids.append(author_id)
-                if str(post.authorId.id) in followed_users_ids:
+                # Check if the user is friends with the author
+                follower = Follows.objects.filter(
+                    follower_id=author_id,
+                    followed_id=post.authorId.id,
+                    acceptedRequest=True,
+                ).exists()
+                followed = Follows.objects.filter(
+                    follower_id=post.authorId.id,
+                    followed_id=author_id,
+                    acceptedRequest=True,
+                ).exists()
+                if follower and followed:
                     serializer = PostSerializer(post)
                     return Response(serializer.data)
                 else:
@@ -181,12 +184,12 @@ class PostDetail(APIView):
                     serializer = AuthorSerializer(query_set)
                     author = serializer.data
                     print("AUTHOR", author)
-                    
+
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/posts/<str:post_id>/
                         for n in node:
                             url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
-                            
+
                             response = requests.put(
                                 url,
                                 json=request_data,
@@ -353,7 +356,7 @@ class AuthorPosts(APIView):
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
                         try:
-                            id = remoteAuthor['id']
+                            id = remoteAuthor["id"]
                         except KeyError:
                             id = remoteAuthor['user_id']
 
@@ -425,7 +428,7 @@ class FollowingPosts(APIView):
             followed_users_ids.append(user_id)
 
             queryset = Post.objects.filter(
-                Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
+                visibility="PUBLIC",
                 authorId__in=followed_users_ids,
             ).exclude(contentType__startswith="image/")
             # queryset = queryset.exclude(contentType__startswith="image/")
