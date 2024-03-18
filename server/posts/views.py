@@ -426,13 +426,24 @@ class FollowingPosts(APIView):
             followed_users_ids.append(user_id)
 
             queryset = Post.objects.filter(
-                visibility="PUBLIC",
+                visibility__in=["PUBLIC", "FRIENDS"],
                 authorId__in=followed_users_ids,
             ).exclude(contentType__startswith="image/")
             # queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
             queryset = queryset.order_by("-published")
+
+            # Filter FRIENDS-only posts further to include only posts from users who are friends
+            if "FRIENDS" in queryset.values_list("visibility", flat=True):
+                friends_ids = Follows.objects.filter(
+                    follower_id=user_id,
+                    followed_id__in=queryset.filter(visibility="FRIENDS").values_list(
+                        "authorId", flat=True
+                    ),
+                    acceptedRequest=True,
+                ).values_list("followed_id", flat=True)
+                queryset = queryset.filter(authorId__in=list(friends_ids) + [user_id])
 
             # Serialize the queryset to JSON
             base_url = request.build_absolute_uri("/")
