@@ -19,7 +19,7 @@ from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SERVER = "http://127.0.0.1:5000/"
+SERVER = "http://127.0.0.1:8000/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -170,7 +170,7 @@ CORS_ALLOW_HEADERS = (
     "authorization",
     "body",
 )
-CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:5000/"]
+CSRF_TRUSTED_ORIGINS = ["http://127.0.0.1:8000/"]
 
 # APPEND_SLASH = False
 
