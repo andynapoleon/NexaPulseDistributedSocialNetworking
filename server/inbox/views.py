@@ -66,6 +66,7 @@ class InboxView(APIView):
         if request_type == "post":
             print("HERE", request.data)
             post_id = request.data.pop("postId", None)
+            print("post_id",post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
             if existing_post:
