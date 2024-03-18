@@ -49,7 +49,7 @@
         };
         if (alreadyFollowedValue) {
         const response = await fetchWithRefresh(
-            server + `/api/follow/${currentUserId}?userId2=${userId}`, //////////////////////////
+            server + `/api/follow/${currentUserId}?userId2=${userId}`, 
             {
             method: "DELETE",
             headers: headers,

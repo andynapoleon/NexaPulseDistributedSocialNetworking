@@ -18,6 +18,8 @@ from likes.models import CommentLikes
 from comments.models import Comment
 from comments.serializers import CommentSerializerPost
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from rest_framework.permissions import IsAuthenticated
+from SocialDistribution.settings import SERVER
 
 
 # Create your views here.
@@ -58,20 +60,26 @@ class InboxView(APIView):
         author = get_object_or_404(Author, pk=author_id)
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
+        sender_host = request.query_params.get("request_host", None)
 
         # Post
         if request_type == "post":
+            print("HERE", request.data)
             post_id = request.data.pop("postId", None)
+            print("post_id", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
+
             if existing_post:
                 for key, value in request.data.items():
                     setattr(existing_post, key, value)
                 inbox.posts.add(existing_post)
             else:
-                serializer = PostSerializer(data=request.data, partial=True)
-                if serializer.is_valid():
-                    new_post = serializer.save()
+                author = Author.objects.get(id=request.data["authorId"])
+                request.data["authorId"] = author
+                id = request.data.pop("id")
+                new_post = Post.objects.create(id=id, **request.data)
                 inbox.posts.add(new_post)
+
             return Response(
                 {"message": "Post sent to inbox!"}, status=status.HTTP_201_CREATED
             )
@@ -80,7 +88,6 @@ class InboxView(APIView):
         elif request_type == "follow":
             follower_id = request.data.get("userId1")
             followed_id = request.data.get("userId2")
-            print("EHREREOHFOSDFOSFDOJO")
             if followed_id == author_id:
                 follow = Follows(follower_id=follower_id, followed_id=followed_id)
                 follow.save()
@@ -107,17 +114,20 @@ class InboxView(APIView):
 
         # Comments
         elif request_type == "comment":
-            serializer = CommentSerializerPost(data=request.data)
-            new_comment = None
-            if serializer.is_valid():
-                new_comment = serializer.save()
+            post = Post.objects.get(id=request.data["postId"])
+            author = Author.objects.get(id=request.data["author"])
+            request.data["postId"] = post
+            request.data["author"] = author
+            id = request.data.pop("id")
+            new_comment = Comment.objects.create(id=id, **request.data)
             inbox.comments.add(new_comment)
             return Response(
                 {"message": "Comment added to inbox!"}, status=status.HTTP_201_CREATED
             )
 
-        # # Likes on comments
+        # Likes on comments
         elif request_type == "comment_like":
+            print(request.data)
             like = CommentLikes.objects.create(
                 author_id=request.data.get("author"),
                 comment_id=request.data.get("comment"),
@@ -137,6 +147,7 @@ class InboxView(APIView):
         """
         Deletes the inbox of the specified Author on a server.
         """
+        sender_host = request.query_params.get("request_host", None)
         author = get_object_or_404(Author, pk=author_id)
         inbox = get_object_or_404(Inbox, authorId=author)
         inbox.posts.clear()
