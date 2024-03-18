@@ -127,11 +127,13 @@ class Profile(APIView):
         github = user.github
         email = user.email
         profileImage = user.profileImage
+        host = user.host
         context = {
             "full_name": full_name,
             "github": github,
             "email": email,
             "profileImage": profileImage,
+            "host": host,
         }
         return Response(context)
 

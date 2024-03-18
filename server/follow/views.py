@@ -155,7 +155,10 @@ class FollowView(APIView):
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
         following_author = serializer.data
+        if following_author["host"][-1] != "/":
+            following_author["host"] += "/"
         if following_author["host"] != SERVER:
+            print("REMOTE REMOTE REMOTE", following_author["host"])
             queryset = Node.objects.get(
                 username="remote", password="123456", host=following_author["host"]
             )
@@ -189,9 +192,14 @@ class FollowView(APIView):
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            try:
+                queryset = Node.objects.get(
+                    username="remote", password="123456", host=following_author["host"]
+                )
+            except:
+                return Response(
+                    {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
+                )
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
@@ -282,7 +290,7 @@ class UserFollowingView(APIView):
 
 
 class UserFollowedView(APIView):
-    authentication_classes = [BasicOrTokenAuthentication] # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # [IsAuthenticated]
 
     def get(self, request, user_id):
         return_package = []

@@ -56,6 +56,12 @@ urlpatterns = [
         views.ProfilePostForHimself.as_view(),
         name="get_profile_post_as_himself",
     ),
+    # Endpoint for retrieving recent posts by a specific author as a follower
+    path(
+        "authors/posts/<str:author_id>/asFollower",
+        views.ProfilePostFollowing.as_view(),
+        name="get_profile_post_as_follower",
+    ),
     # Endpoint for sharing posts
     path(
         "authors/<str:author_id>/shared-posts/<str:post_id>/",
