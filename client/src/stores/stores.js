@@ -1,10 +1,11 @@
 import { writable, get, readable } from "svelte/store";
 
 export const mode = writable("light");
-export const server = "https://nexapulse1-7fbca99d2d7b.herokuapp.com";
+export const server = "https://nexapulse2-389a49c0c9f8.herokuapp.com";
 // http://127.0.0.1:5000
 // https://nexapulse-25959148b934.herokuapp.com (viet)
 // https://nexapulse1-7fbca99d2d7b.herokuapp.com (andy)
+// https://nexapulse2-389a49c0c9f8.herokuapp.com (sheikh)
 // Retrieve user data from localStorage if available
 const storedUserData = localStorage.getItem("userData");
 const initialUserData = storedUserData
