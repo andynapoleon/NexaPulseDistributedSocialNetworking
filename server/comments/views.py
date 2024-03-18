@@ -35,6 +35,8 @@ class CommentDetail(generics.RetrieveAPIView):
             comment = Comment.objects.filter(
                 postId=post_id
             )  # get the comments of the post given post_id
+            if (len(comment) == 0):
+                return Response(status=status.HTTP_404_NOT_FOUND)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -65,6 +67,7 @@ class CommentDetail(generics.RetrieveAPIView):
 
             remoteData = {
                 "type": "comment",
+                "id": serializer.data["id"],
                 "content_type": request.data["content_type"],
                 "comment": request.data["comment"],
                 "author": request.data["author"],

@@ -181,6 +181,34 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
             )
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
+
+            remoteData = {
+                "type": "comment_like",
+                "author": author_id,
+                "post": request.data["post"],
+                "comment": request.data["comment"],
+            }
+
+            # get all nodes
+            node = Node.objects.all()
+            for n in node:
+                url = n.host + f"/api/authors"
+                print("URL", url)
+                response = requests.get(
+                    url,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+
+                url = n.host + f"/api/authors/{author_id}/inbox/"
+                response = requests.post(
+                    url,
+                    json=remoteData,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+                print(response)
+
             return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
@@ -202,6 +230,36 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                 comment_id=request.data.get("comment"),
             )
             like.delete()
+
+            remoteData = {
+                "author": request.data["author"],
+                "post": request.data["post"],
+                "comment": request.data["comment"],
+            }
+
+            # get all nodes
+            query_set = Author.objects.get(id=author_id)
+            serializer = AuthorSerializer(query_set)
+            author = serializer.data
+            if author["host"] == SERVER:
+                node = Node.objects.all()
+                for n in node:
+                    url = n.host + f"/api/authors"
+                    print("URL", url)
+                    response = requests.get(
+                        url,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
+
+                    url = n.host + f"/api/authors/{author_id}/comment/inbox"
+                    response = requests.delete(
+                        url,
+                        json=remoteData,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
+                    print(response)
             return Response(status=status.HTTP_204_NO_CONTENT)
         except CommentLikes.DoesNotExist:
             return Response(

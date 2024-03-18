@@ -269,12 +269,12 @@ class UserFollowingView(APIView):
 
             user_id = user.id
             full_name = f"{user.displayName}"
-            profileImageUrl = user.profileImage  # Need to solve
+            profileImage = user.profileImage  # Need to solve
             email = user.email
             context = {
                 "user_id": user_id,
                 "full_name": full_name,
-                "profileImageUrl": "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+                "profileImage": profileImage,
                 "email": email,
             }
             return_package.append(context)
@@ -297,12 +297,12 @@ class UserFollowedView(APIView):
 
             user_id = user.id
             full_name = f"{user.displayName}"
-            profileImageUrl = user.profileImage  # Need to solve
+            profileImage = user.profileImage  # Need to solve
             email = user.email
             context = {
                 "user_id": user_id,
                 "full_name": full_name,
-                "profileImageUrl": "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+                "profileImage": profileImage,
                 "email": email,
             }
             return_package.append(context)
@@ -341,12 +341,12 @@ class UserFriendsView(APIView):
 
             user_id = user.id
             full_name = f"{user.displayName}"
-            profileImageUrl = user.profileImage  # Need to solve
+            profileImage = user.profileImage  # Need to solve
             email = user.email
             context = {
                 "user_id": user_id,
                 "full_name": full_name,
-                "profileImageUrl": "https://seeded-session-images.scdn.co/v2/img/122/secondary/artist/4tmoBDLDleElXopuhDljGR/en",
+                "profileImage": profileImage,
                 "email": email,
             }
             return_package.append(context)

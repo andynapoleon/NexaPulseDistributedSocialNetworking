@@ -125,8 +125,8 @@
           <Link to="/profile/{currentList[rowIndex * 5 + colIndex].user_id}">
             <div class="profile-widget">
               <FriendWidget
-                profileImageUrl={currentList[rowIndex * 5 + colIndex]
-                  .profileImageUrl}
+                profileImage={currentList[rowIndex * 5 + colIndex]
+                  .profileImage}
                 name={currentList[rowIndex * 5 + colIndex].full_name}
                 email={currentList[rowIndex * 5 + colIndex].email}
               />
