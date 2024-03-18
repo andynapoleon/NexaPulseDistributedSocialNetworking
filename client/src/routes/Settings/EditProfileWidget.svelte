@@ -4,7 +4,7 @@
     import { get, writable } from "svelte/store";
   
     // Props passed to the component
-    export let profileImageUrl; // A default image if none is provided
+    export let profileImage; // A default image if none is provided
     export let name;
     export let email;
     export let github;
@@ -28,6 +28,7 @@
       name: name,
       email: email,
       github: github,
+      profileImage: profileImage,
     });
     let formDataValue;
     formData.subscribe(value => {
@@ -55,6 +56,7 @@
           name: userData.name,
           email: userData.email,
           github: userData.github,
+          profileImage: userData.profileImage,
         });
       }
     });
@@ -79,6 +81,7 @@
       name = formDataValue.name;
       email = formDataValue.email;
       github = formDataValue.github;
+      profileImage = formDataValue.profileImage;
   
       isEditMode.set(false); // Close edit mode
     }
@@ -89,16 +92,18 @@
   </script>
   
   <div class="profile-widget">
-    <img class="profile-image" src={profileImageUrl} alt="Profile Avatar" />
+    <img class="profile-image" src={profileImage} alt="Profile Avatar" />
     <div class="profile-info">
       {#if !isEditModeValue}
         <div class="profile-name">{name}</div>
         <div class="profile-email">{email}</div>
         <div class="profile-github">{github}</div>
+        <div class="profile-image">{profileImage}</div>
       {:else}
         <input type="text" class="profile-input" bind:value={formDataValue.name} placeholder="Name" />
         <input type="email" class="profile-input" bind:value={formDataValue.email} placeholder="Email" />
         <input type="text" class="profile-input" bind:value={formDataValue.github} placeholder="Github" />
+        <input type="text" class="profile-input" bind:value={formDataValue.profileImage} placeholder="Profile Image Url" />
       {/if}
   
       <div class="flex justify-center">
