@@ -12,10 +12,14 @@ from asgiref.sync import sync_to_async
 from django.utils import timezone
 from django.db.models import Q
 import uuid
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from authors.models import Author
 from authors.serializers import AuthorSerializer
 from markdownx.utils import markdownify
-
+from node.models import Node
+import requests
+from SocialDistribution.settings import SERVER
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class PostList(generics.ListCreateAPIView):
@@ -122,7 +126,7 @@ class PostById(APIView):
 
 
 class PostDetail(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get_serializer_class(self):
         return PostSerializer
@@ -138,6 +142,7 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
+            print("request.data", request.data)
             post = Post.objects.get(id=post_id)
 
             request_data = request.data.copy()
@@ -162,14 +167,33 @@ class PostDetail(APIView):
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
 
-            # serializer accepts CommonMark content
-            if request_data['contentType'] == "text/markdown":
-                request_data['content'] = markdownify(request_data['content'])
-
+            # # serializer accepts CommonMark content
+            # if request_data["contentType"] == "text/markdown":
+            #     request_data["content"] = markdownify(request_data["content"])
             serializer = PostSerializer(post, data=request_data, partial=True)
             if serializer.is_valid():
-                if str(request.user.id) == author_id:
+                if str(request.user.id) == author_id or request.GET.get("request_host"):
                     serializer.save()
+
+                    node = Node.objects.all()
+                    print("NODES", node)
+                    query_set = Author.objects.get(id=author_id)
+                    serializer = AuthorSerializer(query_set)
+                    author = serializer.data
+                    print("AUTHOR", author)
+                    
+                    if author["host"] == SERVER:
+                        # make a request to all nodes api/authors/<str:author_id>/posts/<str:post_id>/
+                        for n in node:
+                            url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
+                            
+                            response = requests.put(
+                                url,
+                                json=request_data,
+                                auth=(n.username, n.password),
+                                params={"request_host": SERVER},
+                            )
+
                     return Response(serializer.data, status=status.HTTP_200_OK)
             # print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -214,6 +238,34 @@ class PostDetail(APIView):
                 # Delete the regular post
                 regular_post.delete()
 
+                # get all nodes - for remote deleting
+                query_set = Author.objects.get(id=author_id)
+                serializer = AuthorSerializer(query_set)
+                author = serializer.data
+                if author["host"] == SERVER:
+                    node = Node.objects.all()
+                    for n in node:
+                        # send the post to the inbox of every other author
+                        # /api/authors?request_host=${encodeURIComponent(server)}
+                        url = n.host + f"/api/authors"
+                        print("URL", url)
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        remoteAuthors = response.json().get("items", [])
+
+                        for remoteAuthor in remoteAuthors:
+                            print("REMOTE AUTHOR", remoteAuthor)
+                            url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
+                            response = requests.delete(
+                                url,
+                                auth=(n.username, n.password),
+                                params={"request_host": SERVER},
+                            )
+                            print(response.status_code)
+
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_403_FORBIDDEN)
@@ -247,14 +299,73 @@ class AuthorPosts(APIView):
                 print("After making | Current image_ref?:", id)
 
         # serializer accepts CommonMark content
-        if request_data['contentType'] == "text/markdown":
-            request_data['content'] = markdownify(request_data['content'])
+        if request_data["contentType"] == "text/markdown":
+            request_data["content"] = markdownify(request_data["content"])
 
         serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
             print("VALID OR NOT")
             if str(request.user.id) == author_id:
+                # update
                 serializer.save()
+                print("SERIALIZER DATA", serializer.data)
+
+                remoteData = {
+                    "type": "post",
+                    "id": serializer.data["id"],
+                    "authorId": author_id,
+                    "title": serializer.data["title"],
+                    "content": serializer.data["content"],
+                    "contentType": serializer.data["contentType"],
+                    "visibility": serializer.data["visibility"],
+                    "image_ref": serializer.data["image_ref"],
+                }
+
+                # get all nodes
+                node = Node.objects.all()
+                print("NODES", node)
+                remoteAuthors = []
+                # make a request to all nodes api/authors/<str:author_id>/inbox/
+                for n in node:
+                    # send the post to the inbox of every other author
+                    # /api/authors?request_host=${encodeURIComponent(server)}
+                    if request.data.get("visibility") == "PUBLIC":
+                        url = n.host + f"/api/authors"
+                        print("URL", url)
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        remoteAuthors = response.json().get("items", [])
+                    elif request.data.get("visibility") == "FRIENDS":
+                        url = n.host + f"/api/friends/friends/{author_id}"
+
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        print("RESPONSE", response.json())
+                        remoteAuthors = response.json()
+                        print("REMOTE AUTHORS", remoteAuthors)
+
+                    for remoteAuthor in remoteAuthors:
+                        print("REMOTE AUTHOR", remoteAuthor)
+                        try:
+                            id = remoteAuthor['id']
+                        except KeyError:
+                            id = remoteAuthor['user_id']
+                            
+                        url = n.host + f"/api/authors/{id}/inbox/"
+                        response = requests.post(
+                            url,
+                            json=remoteData,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        print(response)
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
         print(serializer.errors)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

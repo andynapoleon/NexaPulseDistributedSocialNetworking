@@ -140,6 +140,7 @@ class FollowView(APIView):
         # target_user_id is being followed
         user_being_follow_id = request.query_params.get("userId2")
         print("user_being_follow_id:", user_being_follow_id)
+        print("following id:", user_id)
 
         if not (user_being_follow_id):
             return Response(
@@ -150,6 +151,73 @@ class FollowView(APIView):
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
+
+        query_set = Author.objects.get(id=user_id)
+        serializer = AuthorSerializer(query_set)
+        following_author = serializer.data
+        if following_author["host"] != SERVER:
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=following_author["host"]
+            )
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            host = node["host"]
+            request_url = f"{host}/api/follow/{user_id}"
+            try:
+                data_to_send = {
+                    "userId1": user_id,
+                    "userId2": user_being_follow_id,
+                }
+                response = requests.delete(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": SERVER, "userId2": user_being_follow_id},
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 204:
+                    print("Succeeded deleting friend requests")
+                    return Response(
+                        {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
+                    )
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    {"error": f"Accept unsuccessful {e}!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            query_set = Author.objects.get(id=user_being_follow_id)
+            serializer = AuthorSerializer(query_set)
+            following_author = serializer.data
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=following_author["host"]
+            )
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            host = node["host"]
+            request_url = f"{host}/api/follow/{user_id}"
+            try:
+                data_to_send = {
+                    "userId1": user_id,
+                    "userId2": user_being_follow_id,
+                }
+                response = requests.delete(
+                    request_url,
+                    json=data_to_send,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": SERVER, "userId2": user_being_follow_id},
+                )
+                print("status code response", response.status_code)
+                if response.status_code == 204:
+                    print("Succeeded deleting friend requests")
+                    return Response(
+                        {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
+                    )
+            except requests.exceptions.RequestException as e:
+                return Response(
+                    {"error": f"Accept unsuccessful {e}!"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
         return Response(
             {"success": "Unfollowed userId2"}, status=status.HTTP_204_NO_CONTENT
         )
@@ -214,7 +282,7 @@ class UserFollowingView(APIView):
 
 
 class UserFollowedView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication] # [IsAuthenticated]
 
     def get(self, request, user_id):
         return_package = []
@@ -242,7 +310,7 @@ class UserFollowedView(APIView):
 
 
 class UserFriendsView(APIView):
-    permission_classes = [IsAuthenticated]  # [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]  # [IsAuthenticated]
 
     def get(self, request, user_id):
 
