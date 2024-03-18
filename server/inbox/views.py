@@ -23,6 +23,7 @@ from SocialDistribution.settings import SERVER
 from node.models import Node
 import requests
 
+
 # Create your views here.
 class InboxView(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
@@ -77,22 +78,28 @@ class InboxView(APIView):
             else:
                 author = Author.objects.get(id=request.data["authorId"])
                 request.data["authorId"] = author
+                if request.data["sharedBy"] != None:
+                    request.data["sharedBy"] = Author.objects.get(
+                        id=request.data["sharedBy"]
+                    )
                 id = request.data.pop("id")
+                print("ID", id)
                 image_ref = request.data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if image_ref is not None and image_ref != 'None':
-                    url_image = f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
-                    
-                    node = Node.objects.all().filter(host = sender_host).first()
+                if image_ref is not None and image_ref != "None":
+                    url_image = (
+                        f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
+                    )
+                    node = Node.objects.all().filter(host=sender_host).first()
                     if not node:
-                        node = Node.objects.all().filter(host = sender_host[0:-1]).first()
+                        node = Node.objects.all().filter(host=sender_host[0:-1]).first()
                     print("NODE:", node.username, node.password)
                     response = requests.get(
-                            url_image,
-                            auth=(node.username, node.password),
-                            params={"request_host": SERVER},
-                        ).json()
+                        url_image,
+                        auth=(node.username, node.password),
+                        params={"request_host": SERVER},
+                    ).json()
                     # pop image_id
                     image_id = response.pop("id")
                     image_id = image_id.split("/")[-2]
@@ -101,12 +108,18 @@ class InboxView(APIView):
                     response["authorId"] = author_post
                     response.pop("comments")
                     response.pop("author")
-                    
                     # create a image post instance
-                    image_ref = Post.objects.create(id=image_id, **response)
-                    new_post = Post.objects.create(id=id, image_ref = image_ref, **request.data)
+                    print("IMAGE ID", image_id)
+                    print("ID", id)
+                    if request.data["isShared"]:
+                        image_ref = Post.objects.create(**response)
+                    else:
+                        image_ref = Post.objects.create(id=image_id, **response)
+                    new_post = Post.objects.create(
+                        id=id, image_ref=image_ref, **request.data
+                    )
                 else:
-                    new_post = Post.objects.create(id=id,**request.data)
+                    new_post = Post.objects.create(id=id, **request.data)
                 inbox.posts.add(new_post)
 
             return Response(

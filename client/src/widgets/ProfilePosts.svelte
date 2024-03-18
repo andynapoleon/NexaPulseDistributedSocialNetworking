@@ -84,6 +84,31 @@
     }
   }
 
+  // Function to fetch posts from the backend as a STRANGER(can't see FRIENDS posts)
+  async function fetchPostsAsFollower() {
+    console.log("fetching posts as follower");
+    console.log(`AUTHORID: ${authorId}`);
+    try {
+      const response = await fetch(
+        server + `/api/authors/posts/${authorId}/asFollower`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${$authToken}`,
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        profilePosts = data;
+      } else {
+        console.error("Failed to fetch posts:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error fetching posts:", error.message);
+    }
+  }
+
   // Function to check if current user is a stranger
   let beFriend = false;
   async function fetchFriends() {
@@ -108,14 +133,42 @@
     console.log("beFriend:", beFriend);
   }
 
+  // Function to check if current user is a stranger
+  let beFollower = false;
+  async function fetchFollowers() {
+    const friendsResponse = await fetch(
+      server + `/api/friends/following/${get(currentUser).userId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+        },
+      }
+    );
+    if (!friendsResponse.ok) {
+      throw new Error("Failed to fetch friends");
+    }
+    let allFriends = await friendsResponse.json();
+    for (let i = 0; i < allFriends.length; i++) {
+      if (authorId == allFriends[i].user_id) {
+        beFollower = true;
+      }
+    }
+  }
+
   // Fetch posts when the component is mounted
   onMount(async () => {
     await fetchFriends();
+    await fetchFollowers();
+    console.log("BE FOLLOWER", beFollower);
     if (authorId == get(currentUser).userId) {
       fetchPostsAsHimself();
     } else {
       if (beFriend) {
+        console.log("beFriend:", beFriend);
         fetchPosts();
+      } else if (beFollower) {
+        fetchPostsAsFollower();
       } else {
         fetchPostsAsStranger();
       }
@@ -129,6 +182,8 @@
       } else {
         if (beFriend) {
           fetchPosts();
+        } else if (beFollower) {
+          fetchPostsAsFollower();
         } else {
           fetchPostsAsStranger();
         }
