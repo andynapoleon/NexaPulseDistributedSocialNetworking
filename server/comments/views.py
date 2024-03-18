@@ -65,6 +65,7 @@ class CommentDetail(generics.RetrieveAPIView):
 
             remoteData = {
                 "type": "comment",
+                "id": serializer.data["id"],
                 "content_type": request.data["content_type"],
                 "comment": request.data["comment"],
                 "author": request.data["author"],
