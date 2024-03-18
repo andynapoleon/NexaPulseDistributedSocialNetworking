@@ -181,12 +181,12 @@ class PostDetail(APIView):
                     serializer = AuthorSerializer(query_set)
                     author = serializer.data
                     print("AUTHOR", author)
-                    
+
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/posts/<str:post_id>/
                         for n in node:
                             url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
-                            
+
                             response = requests.put(
                                 url,
                                 json=request_data,
@@ -353,10 +353,10 @@ class AuthorPosts(APIView):
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
                         try:
-                            id = remoteAuthor['id']
+                            id = remoteAuthor["id"]
                         except KeyError:
-                            id = remoteAuthor['user_id']
-                            
+                            id = remoteAuthor["user_id"]
+
                         url = n.host + f"/api/authors/{id}/inbox/"
                         response = requests.post(
                             url,
@@ -423,7 +423,7 @@ class FollowingPosts(APIView):
             followed_users_ids.append(user_id)
 
             queryset = Post.objects.filter(
-                Q(visibility="PUBLIC") | Q(visibility="FRIENDS"),
+                visibility="PUBLIC",
                 authorId__in=followed_users_ids,
             ).exclude(contentType__startswith="image/")
             # queryset = queryset.exclude(contentType__startswith="image/")
