@@ -324,7 +324,7 @@ class AuthorPosts(APIView):
                 # get all nodes
                 node = Node.objects.all()
                 print("NODES", node)
-
+                remoteAuthors = []
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -339,7 +339,16 @@ class AuthorPosts(APIView):
                         )
                         remoteAuthors = response.json().get("items", [])
                     elif request.data.get("visibility") == "FRIENDS":
-                        return Response("Not yet implemented",status=status.HTTP_400_BAD_REQUEST)
+                        url = n.host + f"/api/friends/friends/{author_id}"
+
+                        response = requests.get(
+                            url,
+                            auth=(n.username, n.password),
+                            params={"request_host": SERVER},
+                        )
+                        print("RESPONSE", response)
+                        remoteAuthors = response.json().get("items", [])
+                        print("REMOTE AUTHORS", remoteAuthors)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
@@ -473,9 +482,9 @@ class SharedPost(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-
+# authors/<str:author_id>/posts/<str:post_id>/image/
 class ImagePost(APIView):
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, post_id):
         try:
