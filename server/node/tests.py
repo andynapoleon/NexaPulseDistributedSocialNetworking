@@ -1,3 +1,61 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.urls import reverse
+from rest_framework import status
+from .models import Node
+from rest_framework_simplejwt.tokens import AccessToken
 
-# Create your tests here.
+class NodeListGetTest(TestCase):
+    def setUp(self):
+        # Create some sample active nodes
+        self.active_node1 = Node.objects.create(
+            host="http://example1.com",
+            username="user1",
+            password="password1",
+            team=1,
+            isActive=True
+        )
+        self.active_node2 = Node.objects.create(
+            host="http://example2.com",
+            username="user2",
+            password="password2",
+            team=2,
+            isActive=True
+        )
+
+        # Create some inactive nodes
+        self.inactive_node1 = Node.objects.create(
+            host="http://example3.com",
+            username="user3",
+            password="password3",
+            team=3,
+            isActive=False
+        )
+        self.inactive_node2 = Node.objects.create(
+            host="http://example4.com",
+            username="user4",
+            password="password4",
+            team=4,
+            isActive=False
+        )
+
+        self.client = Client()
+        self.token = AccessToken.for_user(self.active_node1)
+        self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
+
+    def test_get_active_nodes(self):
+        # Send a GET request to the NodeList endpoint
+        response = self.client.get(reverse('node-list'))
+
+        print(response.content)
+
+        # Check that the response status code is 200 OK
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Check that the response contains only active nodes
+        self.assertEqual(len(response.data['items']), 2)
+
+        # Check that each item in the response is an active node
+        for node_data in response.data['items']:
+            node_id = node_data['id']
+            node = Node.objects.get(id=node_id)
+            self.assertTrue(node.isActive)
