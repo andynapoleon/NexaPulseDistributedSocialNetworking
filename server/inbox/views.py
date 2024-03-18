@@ -1,20 +1,16 @@
-from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from authors.models import Author
-from authors.serializers import AuthorSerializer
 from posts.models import Post
 from follow.models import Follows
 from follow.serializers import FollowsSerializer
 from posts.serializers import PostSerializer
-from likes.serializers import LikesSerializerComment
-from likes.serializers import LikesSerializerPost
+from likes.serializers import LikesSerializerComment, LikesSerializerPost
 from .models import Inbox
-from likes.models import PostLikes
-from likes.models import CommentLikes
+from likes.models import PostLikes, CommentLikes
 from comments.models import Comment
 from comments.serializers import CommentSerializerPost
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
@@ -198,6 +194,6 @@ class InboxView(APIView):
         inbox.comments.clear()
         inbox.comment_likes.clear()
         return Response(
-            {"detail": f"Inbox of {author.firstName} deleted successfully"},
+            {"detail": f"Inbox of {author.displayName} deleted successfully"},
             status=status.HTTP_204_NO_CONTENT,
         )

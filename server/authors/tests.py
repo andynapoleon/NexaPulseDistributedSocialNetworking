@@ -5,6 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import AccessToken
 import uuid
+from SocialDistribution.settings import SERVER
 
 class ProfileAPITestCase(APITestCase):
     def setUp(self):
@@ -25,12 +26,15 @@ class ProfileAPITestCase(APITestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print("response.data", response.data)
         self.assertEqual(
             response.data,
             {
                 "full_name": "John Doe",
                 "github": "https://github.com/johndoe",
                 "email": "johndoe@example.com",
+                "host": SERVER,
+                "profileImage": 'https://i.imgur.com/V4RclNb.png',
             },
         )
 
@@ -50,7 +54,14 @@ class AuthorAPITestCase(TestCase):
         
     def test_create_author(self):
         url = reverse('New author')
-        data = {'email': "asc@gmail.com", 'password': "password", 'displayName': "asc", 'github': "https://github.com/", 'id': None, 'isForeign': False}
+        data = {'email': "asc@gmail.com", 
+                'password': "password", 
+                'displayName': "asc", 
+                'github': "https://github.com/", 
+                'id': None, 
+                'isForeign': False,
+                'profileImage': 'https://i.imgur.com/V4RclNb.png'
+                }
         response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)

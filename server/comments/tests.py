@@ -53,7 +53,7 @@ class CommentAPITestCase(APITestCase):
         data = {
             'type': 'comment',
             'content_type': 'text/plain',
-            'content': 'This is another test comment',
+            'comment': 'This is another test comment',
             'author': self.author.id,
             'postId': self.test_post.id
             }
