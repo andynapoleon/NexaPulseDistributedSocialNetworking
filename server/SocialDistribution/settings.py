@@ -19,7 +19,7 @@ from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SERVER = "https://nexapulse-25959148b934.herokuapp.com/"
+SERVER = "https://nexapulse1-7fbca99d2d7b.herokuapp.com/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
