@@ -18,6 +18,8 @@ from rest_framework.permissions import IsAuthenticated
 from SocialDistribution.settings import SERVER
 from node.models import Node
 import requests
+from node.models import Node
+from node.serializers import NodeSerializer
 
 
 # Create your views here.
@@ -59,6 +61,7 @@ class InboxView(APIView):
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
         sender_host = request.query_params.get("request_host", None)
+        print(request_type)
 
         # Post
         if request_type == "post":
@@ -123,22 +126,57 @@ class InboxView(APIView):
             )
 
         # Follow requests
-        elif request_type == "follow":
-            follower_id = request.data.get("userId1")
-            followed_id = request.data.get("userId2")
-            if followed_id == author_id:
-                follow = Follows(follower_id=follower_id, followed_id=followed_id)
-                follow.save()
-                inbox.follow_requests.add(follow)
+        elif request_type.lower() == "follow":
+            print("HERE")
+            print("REQUEST DATA", request.data["actor"])
+            actor = request.data.get("actor")
+            object = request.data.get("object")
+            follow = Follows.objects.filter(
+                follower_id=actor["id"], followed_id=object["id"]
+            )
+            print(follow.exists())
+            if follow.exists():
+                follow.delete()
                 return Response(
                     {"message": "Follow request sent to inbox!"},
-                    status=status.HTTP_201_CREATED,
+                    status=status.HTTP_204_NO_CONTENT,
+                )
+            if actor["host"] == SERVER[0:-1]:
+                print("HOST HERE", object["host"])
+                if object["host"][-1] == "/":
+                    object["host"] = object["host"][0:-1]
+                queryset = Node.objects.get(
+                    username="remote", password="123456", host=object["host"]
+                )
+                serializer = NodeSerializer(queryset)
+                node = serializer.data
+                host = node["host"]
+                actor_id = actor["id"]
+                object_id = object["id"]
+                request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
+                response = requests.get(
+                    request_url,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": actor["host"]},
+                )
+                if response.status_code == 404:
+                    return Response(
+                        {"message": "Follow request rejected!"},
+                        status=status.HTTP_200_OK,
+                    )
+                follow = Follows(
+                    follower_id=actor["id"],
+                    followed_id=object["id"],
+                    acceptedRequest=True,
                 )
             else:
-                return Response(
-                    {"message": "Non-matching author to follow!"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
+                follow = Follows(follower_id=actor["id"], followed_id=object["id"])
+            follow.save()
+            inbox.follow_requests.add(follow)
+            return Response(
+                {"message": "Follow request sent to inbox!"},
+                status=status.HTTP_201_CREATED,
+            )
 
         # Likes on posts
         elif request_type == "post_like":
