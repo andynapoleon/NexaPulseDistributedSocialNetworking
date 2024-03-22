@@ -96,7 +96,7 @@
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(authorData),
+        body: JSON.stringify(sendAuthorResponse),
       });
     }
   }
