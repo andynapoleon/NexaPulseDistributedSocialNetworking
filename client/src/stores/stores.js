@@ -17,13 +17,13 @@ const initialUserData = storedUserData
     name: "Andy Tran",
     email: "aqtran@ualberta.ca",
     github: "",
-    lastUpdated: new Date(2024, 0, 3),
+    lastUpdated: new Date(2024, 21, 3),
   }
 if (
   initialUserData.lastUpdated === null ||
   initialUserData.lastUpdated === undefined
 ) {
-  initialUserData.lastUpdated = new Date(2024, 0, 3)
+  initialUserData.lastUpdated = new Date(2024, 21, 3)
 }
 export const currentUser = writable(initialUserData)
 
