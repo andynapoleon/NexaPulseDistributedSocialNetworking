@@ -73,6 +73,29 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class AuthorRemote(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        print(data)
+        users = request.data
+        for data in users["items"]:
+            data["email"] = data["displayName"]
+            new_author = Author.objects.create_user(
+                host=data["host"],
+                isForeign=True,
+                email=data["email"],
+                password="random",
+                displayName=data["displayName"],
+                profileImage=data["profileImage"],
+                github=data["github"],
+            )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+            return Response(response, status=201)
+
+
 class AuthorCreate(APIView):
     permission_classes = [AllowAny]
 
