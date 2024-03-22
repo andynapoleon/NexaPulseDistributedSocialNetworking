@@ -86,6 +86,8 @@
       };
       console.log("AUTHOR DATA", authorData);
       const authorization = `${node.username}:${node.password}`;
+      console.log(node.username);
+      console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
       const sendAuthorResponse = await fetch(node.host + `/authors/`, {
         method: "GET",
