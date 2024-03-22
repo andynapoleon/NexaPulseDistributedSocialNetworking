@@ -87,6 +87,7 @@ class AuthorCreate(APIView):
         except Author.DoesNotExist:
             if data["id"] == None:
                 print(data)
+                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
@@ -97,6 +98,7 @@ class AuthorCreate(APIView):
                 )
             else:
                 # print(data)
+                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     id=data["id"],
                     host=data["host"],
