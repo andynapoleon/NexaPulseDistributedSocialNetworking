@@ -85,10 +85,14 @@
         isForeign: true,
       };
       console.log("AUTHOR DATA", authorData);
+      const authorization = `${node.username}:${node.password}`;
+      const encodedAuthorization = "Basic " + btoa(authorization);
       const sendAuthorResponse = await fetch(node.host + `/authors/`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*",
+          Authorization: encodedAuthorization,
         },
       });
       const getResponse = await fetch(server + `/api/authors/new/`, {
