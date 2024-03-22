@@ -19,12 +19,15 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        queryset = Author.objects.all().filter(host=SERVER)
+        queryset = Author.objects.all()
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
+        base_url = request.build_absolute_uri("/")
+        serializer = self.get_serializer(
+            queryset, context={"base_url": base_url}, many=True
+        )
 
         data_with_type = serializer.data
         for item in data_with_type:
@@ -48,8 +51,10 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            serializer = AuthorSerializer(author)
+            base_url = request.build_absolute_uri("/")
+            serializer = AuthorSerializer(author, context={"base_url": base_url})
             response = serializer.data
+            print(response)
             return Response(response, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
