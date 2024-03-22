@@ -24,33 +24,10 @@ class FollowView(APIView):
     def put(self, request, user_id):
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
-        if userId1 == userId2:
-            return Response(
-                {"error": "UserId2 and UserId1 must be unique"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        if not (userId2):
-            return Response(
-                {"error": "UserId2 must be provided"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        requestObj = Follows.objects.filter(
-            follower_id=userId1, followed_id=userId2
-        ).first()
-
-        if requestObj:
-            requestObj.acceptedRequest = True
-            requestObj.save()
-        else:
-            return Response(
-                {"error": "Request does not exist"}, status=status.HTTP_400_BAD_REQUEST
-            )
-
         query_set = Author.objects.get(id=userId1)
         serializer = AuthorSerializer(query_set)
         following_author = serializer.data
+        # remote
         if following_author["host"] != SERVER:
             queryset = Node.objects.get(
                 username="remote", password="123456", host=following_author["host"]
@@ -58,50 +35,87 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            request_url = f"{host}/api/follow/{userId1}"
+            print("FOLLOWING HOST:", host)
+            request_url = f"{host}/api/authors/{userId1}/inbox/"
+            print(request_url)
             try:
+                actor = Author.objects.get(id=request.data["userId1"])
+                actor = AuthorSerializer(actor)
+                object = Author.objects.get(id=request.data["userId2"])
+                object = AuthorSerializer(object)
                 data_to_send = {
-                    "userId1": userId1,
-                    "userId2": userId2,
+                    "type": "Follow",
+                    "summary": str(actor.data["displayName"])
+                    + " wants to follow "
+                    + str(object.data["displayName"]),
+                    "actor": actor.data,
+                    "object": object.data,
                 }
-                response = requests.put(
+                print("DATA TO SEND", data_to_send)
+                requestObj = Follows.objects.filter(
+                    follower_id=userId1, followed_id=userId2
+                ).first()
+                if requestObj:
+                    requestObj.acceptedRequest = True
+                requestObj.save()
+                response = requests.post(
                     request_url,
                     json=data_to_send,
                     auth=(node["username"], node["password"]),
                     params={"request_host": SERVER},
                 )
                 print("status code response", response.status_code)
-                if response.status_code == 200:
-                    print("Succeeded accepting friend requests")
-                    return Response({"success": "Accepted"}, status=status.HTTP_200_OK)
+                if response.status_code in [200, 201, 204]:
+                    return Response(
+                        {"success": "Succeeded accepting follow request"},
+                        status=status.HTTP_200_OK,
+                    )
             except requests.exceptions.RequestException as e:
                 return Response(
-                    {"error": f"Accept unsuccessfyl {e}!"},
+                    {"error": f"Couldnt sent friend request to remote inbox: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        return Response(
-            {"success": "Follow request accepted"}, status=status.HTTP_200_OK
-        )
+        # local
+        else:
+            if userId1 == userId2:
+                return Response(
+                    {"error": "UserId2 and UserId1 must be unique"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            if not (userId2):
+                return Response(
+                    {"error": "UserId2 must be provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            requestObj = Follows.objects.filter(
+                follower_id=userId1, followed_id=userId2
+            ).first()
+
+            if requestObj:
+                requestObj.acceptedRequest = True
+                requestObj.save()
+            else:
+                return Response(
+                    {"error": "Request does not exist"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            return Response(
+                {"success": "Follow request accepted"}, status=status.HTTP_200_OK
+            )
 
     def post(self, request, user_id):
         sender_host = request.data.get("senderHost")
         receiver_host = request.data.get("receiverHost")[0:-1]
-        userId2 = request.data.get("userId2")
-        if user_id == userId2:
-            return Response(
-                {"error": "UserId2 and UserId1 must be unique"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        if not (userId2):
-            return Response(
-                {"error": "UserId2 must be provided"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        follow = Follows(follower_id=user_id, followed_id=userId2)
-        follow.save()
+        if sender_host[-1] == "/":
+            sender_host = sender_host[0:-1]
+        if receiver_host[-1] == "/":
+            receiver_host = receiver_host[0:-1]
+        print(sender_host)
+        print(receiver_host)
         # remote
         if sender_host != receiver_host:
-            print("REMOTE")
             userId2 = request.data.get("userId2")
             queryset = Node.objects.get(
                 username="remote", password="123456", host=receiver_host
@@ -111,10 +125,17 @@ class FollowView(APIView):
             host = node["host"]
             request_url = f"{host}/api/authors/{userId2}/inbox/"
             try:
+                actor = Author.objects.get(id=request.data["userId1"])
+                actor = AuthorSerializer(actor)
+                object = Author.objects.get(id=request.data["userId2"])
+                object = AuthorSerializer(object)
                 data_to_send = {
-                    "type": "follow",
-                    "userId1": request.data["userId1"],
-                    "userId2": request.data["userId2"],
+                    "type": "Follow",
+                    "summary": str(actor.data["displayName"])
+                    + " wants to follow "
+                    + str(object.data["displayName"]),
+                    "actor": actor.data,
+                    "object": object.data,
                 }
                 response = requests.post(
                     request_url,
@@ -124,108 +145,97 @@ class FollowView(APIView):
                 )
                 print("status code response", response.status_code)
                 if response.status_code == 201:
-                    print("Succeeded sending friend requests")
                     return Response(
-                        {"success": "Now following userId2"}, status=status.HTTP_200_OK
+                        {"success": "Succeeded sending follow request"},
+                        status=status.HTTP_200_OK,
                     )
             except requests.exceptions.RequestException as e:
-                print(f"couldnt sent friend request to remote inbox: {e}")
                 return Response(
                     {"error": f"Couldnt sent friend request to remote inbox: {e}"},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
-        return Response({"success": "Now following userId2"}, status=status.HTTP_200_OK)
+        # local
+        else:
+            userId2 = request.data.get("userId2")
+            if user_id == userId2:
+                return Response(
+                    {"error": "UserId2 and UserId1 must be unique"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not (userId2):
+                return Response(
+                    {"error": "UserId2 must be provided"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            follow = Follows(follower_id=user_id, followed_id=userId2)
+            follow.save()
+            return Response(
+                {"success": "Now following userId2"}, status=status.HTTP_200_OK
+            )
 
     def delete(self, request, user_id):
-        # target_user_id is being followed
+        # local
         user_being_follow_id = request.query_params.get("userId2")
-        print("user_being_follow_id:", user_being_follow_id)
-        print("following id:", user_id)
-
         if not (user_being_follow_id):
             return Response(
                 {"error": "UserId2 must be provided"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
-
+        # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
         following_author = serializer.data
         if following_author["host"][-1] != "/":
             following_author["host"] += "/"
-        if following_author["host"] != SERVER:
-            print("REMOTE REMOTE REMOTE", following_author["host"])
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
-            serializer = NodeSerializer(queryset)
-            node = serializer.data
-            host = node["host"]
-            request_url = f"{host}/api/follow/{user_id}"
-            try:
-                data_to_send = {
-                    "userId1": user_id,
-                    "userId2": user_being_follow_id,
-                }
-                response = requests.delete(
-                    request_url,
-                    json=data_to_send,
-                    auth=(node["username"], node["password"]),
-                    params={"request_host": SERVER, "userId2": user_being_follow_id},
-                )
-                print("status code response", response.status_code)
-                if response.status_code == 204:
-                    print("Succeeded deleting friend requests")
-                    return Response(
-                        {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
-                    )
-            except requests.exceptions.RequestException as e:
-                return Response(
-                    {"error": f"Accept unsuccessful {e}!"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        else:
+        if following_author["host"] == SERVER:
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
-            try:
-                queryset = Node.objects.get(
-                    username="remote", password="123456", host=following_author["host"]
-                )
-            except:
+        userId1 = request.data.get("userId1")
+        userId2 = request.data.get("userId2")
+        try:
+            queryset = Node.objects.get(
+                username="remote", password="123456", host=following_author["host"]
+            )
+        except:
+            return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
+        serializer = NodeSerializer(queryset)
+        node = serializer.data
+        host = node["host"]
+        request_url = f"{host}/api/authors/{userId1}/inbox/"
+        try:
+            actor = Author.objects.get(id=request.data["userId1"])
+            actor = AuthorSerializer(actor)
+            object = Author.objects.get(id=request.data["userId2"])
+            object = AuthorSerializer(object)
+            data_to_send = {
+                "type": "Follow",
+                "summary": str(actor.data["displayName"])
+                + " wants to follow "
+                + str(object.data["displayName"]),
+                "actor": actor.data,
+                "object": object.data,
+            }
+            response = requests.post(
+                request_url,
+                json=data_to_send,
+                auth=(node["username"], node["password"]),
+                params={"request_host": SERVER},
+            )
+            print("status code response", response.status_code)
+            if response.status_code in [200, 201, 204]:
                 return Response(
-                    {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
+                    {"success": "Succeeded rejecting follow request"},
+                    status=status.HTTP_200_OK,
                 )
-            serializer = NodeSerializer(queryset)
-            node = serializer.data
-            host = node["host"]
-            request_url = f"{host}/api/follow/{user_id}"
-            try:
-                data_to_send = {
-                    "userId1": user_id,
-                    "userId2": user_being_follow_id,
-                }
-                response = requests.delete(
-                    request_url,
-                    json=data_to_send,
-                    auth=(node["username"], node["password"]),
-                    params={"request_host": SERVER, "userId2": user_being_follow_id},
-                )
-                print("status code response", response.status_code)
-                if response.status_code == 204:
-                    print("Succeeded deleting friend requests")
-                    return Response(
-                        {"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT
-                    )
-            except requests.exceptions.RequestException as e:
-                return Response(
-                    {"error": f"Accept unsuccessful {e}!"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        except requests.exceptions.RequestException as e:
+            return Response(
+                {"error": f"Couldnt sent friend request to remote inbox: {e}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         return Response(
             {"success": "Unfollowed userId2"}, status=status.HTTP_204_NO_CONTENT
         )
@@ -359,3 +369,33 @@ class UserFriendsView(APIView):
             }
             return_package.append(context)
         return Response(return_package)
+
+
+class RemoteCheckFollow(APIView):
+    authentication_classes = [BasicOrTokenAuthentication]
+
+    def get(self, request, author_id, foreign_author_id):
+        following = Follows.objects.filter(
+            followed_id=author_id,
+            follower_id=foreign_author_id,
+            acceptedRequest=True,
+        )
+
+        if not following.exists():
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        actor = Author.objects.get(id=author_id)
+        actor = AuthorSerializer(actor)
+        object = Author.objects.get(id=foreign_author_id)
+        object = AuthorSerializer(object)
+
+        response = {
+            "type": "Follow",
+            "summary": str(actor.data["displayName"])
+            + " wants to follow "
+            + str(object.data["displayName"]),
+            "actor": actor.data,
+            "object": object.data,
+        }
+
+        return Response(response, status=status.HTTP_200_OK)
