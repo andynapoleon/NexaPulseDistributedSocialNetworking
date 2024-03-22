@@ -247,7 +247,7 @@ class InboxView(APIView):
             id = request.data.pop("id")
             new_comment = Comment.objects.create(id=id, **request.data)
             inbox.comments.add(new_comment)
-                return Response(
+            return Response(
                 {"message": "Comment added to inbox!"}, status=status.HTTP_201_CREATED
             )
 
