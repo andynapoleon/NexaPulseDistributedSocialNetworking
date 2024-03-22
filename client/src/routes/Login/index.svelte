@@ -96,13 +96,16 @@
           Authorization: encodedAuthorization,
         },
       });
-      const getResponse = await fetch(server + `/api/authors/new/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sendAuthorResponse),
-      });
+      let allUsers = JSON.stringify(sendAuthorResponse);
+      for (let i = 0; i < allUsers.length; i++) {
+        const getResponse = await fetch(server + `/api/authors/new/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(allUsers[i]),
+        });
+      }
     }
   }
 
