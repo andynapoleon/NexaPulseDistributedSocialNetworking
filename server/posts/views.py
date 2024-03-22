@@ -278,7 +278,7 @@ class PostDetail(APIView):
             regular_post = Post.objects.get(id=post_id)
             if str(regular_post.authorId.id) == author_id:
                 # Delete the associated image post, if it exists
-                if regular_post.image_ref:
+                if regular_post.image_ref and not regular_post.isShared:
                     regular_post.image_ref.delete()
 
                 # Delete the regular post
