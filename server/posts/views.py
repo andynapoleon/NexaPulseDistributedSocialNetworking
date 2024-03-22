@@ -173,13 +173,16 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
-            print("request.data", request.data)
+            # print("request.data", request.data)
+            # request.data {'title': 'sss12334', 'content': 'ssss', 'image': None}
             post = Post.objects.get(id=post_id)
 
             request_data = request.data.copy()
             request_data["authorId"] = author_id
-            print("Current request_data image:", request_data["image"])
+            
+            # print("Current request_data image:", request_data["image"])
             if request_data["image"]:
+                print("YES YES YES")
                 # Delete old image post
                 if post.image_ref:
                     image_blob = request.data["image"]
@@ -187,6 +190,7 @@ class PostDetail(APIView):
                     post.image_ref.content = image_info[1]
                     post.image_ref.contentType = image_info[0][5:]
                     post.image_ref.save()
+                    request_data["image_ref"] = str(post.image_ref.id)
                 else:
                     print("I AM CREATING A NEW POST | Current post_id:", post_id)
                     print("Before making | Current image_ref?:", post.image_ref)
@@ -197,11 +201,13 @@ class PostDetail(APIView):
                     if response:
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
-
+            
             # # serializer accepts CommonMark content
             # if request_data["contentType"] == "text/markdown":
             #     request_data["content"] = markdownify(request_data["content"])
+            
             serializer = PostSerializer(post, data=request_data, partial=True)
+            
             if serializer.is_valid():
                 if str(request.user.id) == author_id or request.GET.get("request_host"):
                     serializer.save()
@@ -213,12 +219,22 @@ class PostDetail(APIView):
                     author = serializer.data
                     print("AUTHOR", author)
 
+                    # for remote server
+                    request_data["type"] = "post"
+                    request_data["id"] = post_id
+                    request_data["authorId"] = author_id
+                    request_data["source"] = SERVER
+                    request_data["sharedBy"] = None
+                    request_data["isShared"] = False
+                    request_data.pop("image", None)
+                    
                     if author["host"] == SERVER:
-                        # make a request to all nodes api/authors/<str:author_id>/posts/<str:post_id>/
+                        # make a request to all nodes api/authors/<str:author_id>/inbox/
+                        print("I AM HERE")
                         for n in node:
-                            url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
+                            url = n.host + f"/api/authors/{author_id}/inbox/"
 
-                            response = requests.put(
+                            response = requests.post(
                                 url,
                                 json=request_data,
                                 auth=(n.username, n.password),
@@ -241,7 +257,6 @@ class PostDetail(APIView):
             request_data["image"] = None
             # Ensure that authorId is passed as an integer
             request_data["authorId"] = author_id
-            # print("New Data created:")
             print(request_data)
 
             serializer = PostSerializer(data=request_data, partial=True)
@@ -318,8 +333,10 @@ class AuthorPosts(APIView):
         return Response(serializer.data)
 
     def post(self, request, author_id):
+        
         request_data = request.data.copy()
         print("DATA", request_data)
+        # DATA {'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'type': 'post', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'image': ''}
         request_data["authorId"] = author_id
         if request_data["image"]:
             id, response = self.create_image_post(
@@ -349,6 +366,7 @@ class AuthorPosts(APIView):
                     "content": serializer.data["content"],
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
+                    "source": SERVER,
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
                     "isShared": False,
