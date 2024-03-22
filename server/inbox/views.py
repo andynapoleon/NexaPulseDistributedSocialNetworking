@@ -18,6 +18,8 @@ from rest_framework.permissions import IsAuthenticated
 from SocialDistribution.settings import SERVER
 from node.models import Node
 import requests
+from node.models import Node
+from node.serializers import NodeSerializer
 
 
 # Create your views here.
@@ -55,25 +57,76 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
-        author = get_object_or_404(Author, pk=author_id)
+        author = Author.objects.get(id=author_id)
+        author.is_active = True
+        author.save()
+        # turn author to active
+
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
         sender_host = request.query_params.get("request_host", None)
+        print(request_type)
 
         # Post
         if request_type == "post":
-            print("HERE", request.data)
-            post_id = request.data.pop("postId", None)
-            print("post_id", post_id)
+            # {'type': 'post', 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'source': 'http://127.0.0.1:8000/', 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
+            # print("image ref", request.data["image_ref"] )
+            image_ref = request.data.get("image_ref", None)
+            post_id = request.data["id"]
             existing_post = Post.objects.filter(id=post_id).first()
 
             if existing_post:
-                for key, value in request.data.items():
-                    setattr(existing_post, key, value)
-                inbox.posts.add(existing_post)
+                print("EXISTING POST", existing_post)
+
+                if image_ref and image_ref != "None":
+                    # fetch remote authors/${authorId}/posts/${postId}/image/",
+                    url_image = (
+                        f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
+                    )
+                    node = Node.objects.all().filter(host=sender_host[0:-1]).first()
+                    request_image = requests.get(
+                        url_image,
+                        auth=(node.username, node.password),
+                        params={"request_host": SERVER},
+                    ).json()
+                    print("REQUEST IMAGE", request_image["id"].split("/")[6])
+                    # update local image post
+                    local_image_post = Post.objects.get(
+                        id=request_image["id"].split("/")[6]
+                    )
+                    print(
+                        type(local_image_post.content), type(request_image["content"])
+                    )
+                    local_image_post.content = request_image["content"]
+                    local_image_post.save()
+
+                local_data = {
+                    "title": request.data["title"],
+                    "content": request.data["content"],
+                    "image": None,
+                }
+                # make put request to update the post
+                # authors/<str:author_id>/posts/<str:post_id>
+                url = SERVER + f"api/authors/{author_id}/posts/{post_id}/"
+                # use JWT token of the author
+                access_token = author.token["access"]
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                }
+
+                response = requests.put(
+                    url,
+                    json=local_data,
+                    headers=headers,
+                )
+                # return the response
+                return Response(response.json(), status=response.status_code)
+
             else:
                 author = Author.objects.get(id=request.data["authorId"])
                 request.data["authorId"] = author
+                print("AUTHOR", type(request.data["authorId"]))
                 if request.data["sharedBy"] != None:
                     request.data["sharedBy"] = Author.objects.get(
                         id=request.data["sharedBy"]
@@ -123,22 +176,57 @@ class InboxView(APIView):
             )
 
         # Follow requests
-        elif request_type == "follow":
-            follower_id = request.data.get("userId1")
-            followed_id = request.data.get("userId2")
-            if followed_id == author_id:
-                follow = Follows(follower_id=follower_id, followed_id=followed_id)
-                follow.save()
-                inbox.follow_requests.add(follow)
+        elif request_type.lower() == "follow":
+            print("HERE")
+            print("REQUEST DATA", request.data["actor"])
+            actor = request.data.get("actor")
+            object = request.data.get("object")
+            follow = Follows.objects.filter(
+                follower_id=actor["id"], followed_id=object["id"]
+            )
+            print(follow.exists())
+            if follow.exists():
+                follow.delete()
                 return Response(
                     {"message": "Follow request sent to inbox!"},
-                    status=status.HTTP_201_CREATED,
+                    status=status.HTTP_204_NO_CONTENT,
+                )
+            if actor["host"] == SERVER[0:-1]:
+                print("HOST HERE", object["host"])
+                if object["host"][-1] == "/":
+                    object["host"] = object["host"][0:-1]
+                queryset = Node.objects.get(
+                    username="remote", password="123456", host=object["host"]
+                )
+                serializer = NodeSerializer(queryset)
+                node = serializer.data
+                host = node["host"]
+                actor_id = actor["id"]
+                object_id = object["id"]
+                request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
+                response = requests.get(
+                    request_url,
+                    auth=(node["username"], node["password"]),
+                    params={"request_host": actor["host"]},
+                )
+                if response.status_code == 404:
+                    return Response(
+                        {"message": "Follow request rejected!"},
+                        status=status.HTTP_200_OK,
+                    )
+                follow = Follows(
+                    follower_id=actor["id"],
+                    followed_id=object["id"],
+                    acceptedRequest=True,
                 )
             else:
-                return Response(
-                    {"message": "Non-matching author to follow!"},
-                    status=status.HTTP_403_FORBIDDEN,
-                )
+                follow = Follows(follower_id=actor["id"], followed_id=object["id"])
+            follow.save()
+            inbox.follow_requests.add(follow)
+            return Response(
+                {"message": "Follow request sent to inbox!"},
+                status=status.HTTP_201_CREATED,
+            )
 
         # Likes on posts
         elif request_type == "post_like":
