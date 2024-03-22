@@ -80,7 +80,10 @@ class AuthorCreate(APIView):
     def post(self, request):
         data = request.data
         try:
-            author = Author.objects.get(email=data["email"])
+            if data["host"] == SERVER:
+                author = Author.objects.get(email=data["email"])
+            else:
+                raise Author.DoesNotExist
             return Response(
                 {"error": "User with this email already exists"}, status=400
             )
