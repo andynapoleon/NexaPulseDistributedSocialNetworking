@@ -79,6 +79,7 @@ class AuthorCreate(APIView):
     # create a new author manually
     def post(self, request):
         data = request.data
+        print(data)
         try:
             if data["host"] == SERVER:
                 author = Author.objects.get(email=data["email"])
