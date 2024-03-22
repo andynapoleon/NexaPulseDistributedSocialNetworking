@@ -61,7 +61,7 @@ class InboxView(APIView):
         author.is_active = True
         author.save()
         # turn author to active
-        
+
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
         sender_host = request.query_params.get("request_host", None)
@@ -70,7 +70,7 @@ class InboxView(APIView):
         # Post
         if request_type == "post":
             # {'type': 'post', 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'source': 'http://127.0.0.1:8000/', 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
-            print("image ref", request.data["image_ref"] )
+            # print("image ref", request.data["image_ref"] )
             image_ref = request.data.get("image_ref", None)
             post_id = request.data["id"]
             existing_post = Post.objects.filter(id=post_id).first()
@@ -80,31 +80,39 @@ class InboxView(APIView):
 
                 if image_ref and image_ref != "None":
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
-                    url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
+                    url_image = (
+                        f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
+                    )
                     node = Node.objects.all().filter(host=sender_host[0:-1]).first()
-                    request_image = requests.get(url_image, 
-                                                auth=(node.username, node.password),
-                                                params= {"request_host": SERVER}).json()
-                    print("REQUEST IMAGE", request_image["id"].split('/')[6])
+                    request_image = requests.get(
+                        url_image,
+                        auth=(node.username, node.password),
+                        params={"request_host": SERVER},
+                    ).json()
+                    print("REQUEST IMAGE", request_image["id"].split("/")[6])
                     # update local image post
-                    local_image_post = Post.objects.get(id=request_image["id"].split('/')[6])
-                    print(type(local_image_post.content), type(request_image["content"]))
+                    local_image_post = Post.objects.get(
+                        id=request_image["id"].split("/")[6]
+                    )
+                    print(
+                        type(local_image_post.content), type(request_image["content"])
+                    )
                     local_image_post.content = request_image["content"]
                     local_image_post.save()
 
                 local_data = {
-                    'title': request.data["title"],
-                    'content': request.data["content"],
-                    'image': None,
+                    "title": request.data["title"],
+                    "content": request.data["content"],
+                    "image": None,
                 }
                 # make put request to update the post
                 # authors/<str:author_id>/posts/<str:post_id>
                 url = SERVER + f"api/authors/{author_id}/posts/{post_id}/"
                 # use JWT token of the author
-                access_token = author.token['access']
+                access_token = author.token["access"]
                 headers = {
-                    'Authorization': f'Bearer {access_token}',
-                    'Content-Type': 'application/json'
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
                 }
 
                 response = requests.put(
