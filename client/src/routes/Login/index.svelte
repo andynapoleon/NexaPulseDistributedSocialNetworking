@@ -93,8 +93,6 @@
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin":
-            "https://social-dist-614a0f928723.herokuapp.com/",
           Authorization: encodedAuthorization,
         },
       });
