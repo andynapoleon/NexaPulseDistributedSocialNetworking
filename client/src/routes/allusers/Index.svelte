@@ -30,25 +30,25 @@
     const res_json = await res.json();
     const allAuthors = [];
 
-    // TODO:loop through other nodes to get remote authors
-    for (let node of nodes.items) {
-      console.log("SERVER HERE: ", node.host);
-      const authString = `${node.username}:${node.password}`;
-      const encodedAuthString = btoa(authString);
-      // Get all remote authors
-      const res2 = await fetch(
-        node.host + `/authors?request_host=${encodeURIComponent(server)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${encodedAuthString}`,
-          },
-        }
-      );
-      const remoteAuthors = await res2.json();
-      if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
-    }
+    // // TODO:loop through other nodes to get remote authors
+    // for (let node of nodes.items) {
+    //   console.log("SERVER HERE: ", node.host);
+    //   const authString = `${node.username}:${node.password}`;
+    //   const encodedAuthString = btoa(authString);
+    //   // Get all remote authors
+    //   const res2 = await fetch(
+    //     node.host + `/authors?request_host=${encodeURIComponent(server)}`,
+    //     {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Basic ${encodedAuthString}`,
+    //       },
+    //     }
+    //   );
+    //   const remoteAuthors = await res2.json();
+    //   if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
+    // }
     res_json.items.push(...allAuthors);
     console.log(res_json);
 
