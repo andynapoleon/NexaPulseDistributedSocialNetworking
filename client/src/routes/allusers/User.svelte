@@ -5,7 +5,16 @@
   import { writable } from "svelte/store";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
 
+  function extractUUID(url) {
+    // Split the URL by '/'
+    const parts = url.split("/");
+    // Get the last part which should be the UUID
+    const uuid = parts[parts.length - 1];
+    return uuid;
+  }
+
   export let user;
+  user.id = extractUUID(user);
   const currentUserId = $currentUser.userId;
   const userId = user.id;
   const alreadyFollowed = writable(false);
