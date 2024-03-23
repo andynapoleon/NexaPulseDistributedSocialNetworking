@@ -35,22 +35,26 @@
       console.log("SERVER HERE: ", node.host);
       const authString = `${node.username}:${node.password}`;
       const encodedAuthString = btoa(authString);
+      
       // Get all remote authors
       const res2 = await fetch(
         node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
         {
           method: "GET",
           headers: {
+            // "Access-Control-Allow-Origin": "*",
+            "referer": server,
             "Content-Type": "application/json",
             Authorization: `Basic ${encodedAuthString}`,
           },
         }
       );
+      console.log("res2", res2);
       const remoteAuthors = await res2.json();
       if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
     }
     res_json.items.push(...allAuthors);
-    console.log(res_json);
+    console.log("authors", res_json);
 
     return res_json;
   }

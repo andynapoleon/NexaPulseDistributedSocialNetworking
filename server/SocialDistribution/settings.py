@@ -13,13 +13,19 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import django_on_heroku  # top of the file
 from pathlib import Path
 import os
+from corsheaders.defaults import default_headers
 
 # Simple JWT settings
 from datetime import timedelta
 
+
+CORS_ALLOW_HEADERS = default_headers + (
+    'Access-Control-Allow-Origin',
+)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SERVER = "https://nexapulse1-7fbca99d2d7b.herokuapp.com/"
+SERVER = "http://127.0.0.1:8000/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
