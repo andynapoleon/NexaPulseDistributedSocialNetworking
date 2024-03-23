@@ -121,8 +121,8 @@ class FollowView(APIView):
             sender_host = sender_host[0:-1]
         if receiver_host[-1] == "/":
             receiver_host = receiver_host[0:-1]
-        print(sender_host)
-        print(receiver_host)
+        print("SENDER", sender_host)
+        print("RECEIVE", receiver_host)
         # remote
         if sender_host != receiver_host:
             userId2 = request.data.get("userId2")
