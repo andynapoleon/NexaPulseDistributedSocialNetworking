@@ -139,20 +139,18 @@ class FollowView(APIView):
             userId2 = request.data.get("userId2")
             print("HOST", receiver_host)
             # print("ALL", Node.objects.all().first())
-            queryset = Node.objects.all().filter(
+            queryset = Node.objects.get(
                 username="remote", password="123456", host=receiver_host
             )
-            # queryset = Node.objects.all().first()
             print("FIRST", queryset)
             print("fdafajdfhjksdfhas")
             serializer = NodeSerializer(queryset)
             node = serializer.data
-            print("UDERNSMAE", node["username"])
-            print("UDERNSMAE", node["password"])
-            print("UDERNSMAE", node["host"])
             host = node["host"]
-            request_url = f"{host}/authors/{userId2}/inbox"
-            # print(request.url)
+            if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+                request_url = f"{host}/authors/{userId2}/inbox"
+            else:
+                request_url = f"{host}/api/authors/{userId2}/inbox"
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
