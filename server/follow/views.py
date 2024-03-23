@@ -130,6 +130,7 @@ class FollowView(APIView):
             queryset = Node.objects.all().filter(
                 username="remote", password="123456", host=receiver_host
             )
+            print(queryset)
             print("fdafajdfhjksdfhas")
             serializer = NodeSerializer(queryset)
             node = serializer.data
