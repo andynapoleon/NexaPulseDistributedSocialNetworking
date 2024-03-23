@@ -6,7 +6,7 @@
   import { fetchWithRefresh, extractUUID } from "../../utils/apiUtils.js";
 
   export let user;
-  user.id = extractUUID(user);
+  user.id = extractUUID(user.id);
   const currentUserId = $currentUser.userId;
   const userId = user.id;
   const alreadyFollowed = writable(false);
