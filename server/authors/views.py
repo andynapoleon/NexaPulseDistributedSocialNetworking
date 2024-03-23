@@ -89,7 +89,7 @@ class AuthorRemote(APIView):
         print("DATA", users)
         for data in users["items"]:
             data["id"] = extract_uuid(data["id"])
-            data["email"] = data["displayName"]
+            data["email"] = data["displayName"] + "@gmai.com"
             print("DATA", data)
             new_author = Author.objects.create_user(
                 host=data["host"],
