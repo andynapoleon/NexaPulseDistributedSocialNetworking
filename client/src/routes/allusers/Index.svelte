@@ -20,7 +20,7 @@
     const nodes = await res_nodes.json();
 
     // get local authors from the server
-    const res = await fetch(server + "/authors/", {
+    const res = await fetch(server + "/api/authors/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -37,7 +37,7 @@
       const encodedAuthString = btoa(authString);
       // Get all remote authors
       const res2 = await fetch(
-        node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
+        node.host + `/authors?request_host=${encodeURIComponent(server)}`,
         {
           method: "GET",
           headers: {
