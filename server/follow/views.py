@@ -39,9 +39,9 @@ class FollowView(APIView):
         # remote
         if following_author["host"] != SERVER:
             print("REMOTE!!!!!!!")
-            print(following_author["host"])
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
+            print(following_author["host"])
             queryset = Node.objects.all().first()
             serializer = NodeSerializer(queryset)
             node = serializer.data
@@ -137,12 +137,12 @@ class FollowView(APIView):
         # remote
         if sender_host != receiver_host:
             userId2 = request.data.get("userId2")
-            # print("HOST", receiver_host)
+            print("HOST", receiver_host)
             # print("ALL", Node.objects.all().first())
-            # queryset = Node.objects.all().filter(
-            #     username="remote", password="123456", host=receiver_host
-            # )
-            queryset = Node.objects.all().first()
+            queryset = Node.objects.all().filter(
+                username="remote", password="123456", host=receiver_host
+            )
+            # queryset = Node.objects.all().first()
             print("FIRST", queryset)
             print("fdafajdfhjksdfhas")
             serializer = NodeSerializer(queryset)
