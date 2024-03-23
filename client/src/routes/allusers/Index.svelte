@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { authToken, server, currentUser } from "../../stores/stores.js";
   import User from "./User.svelte";
+  import {idParse} from "../../utils/idParse";
 
   // Define reactive variables
   let loading = true;
@@ -54,6 +55,9 @@
       if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
     }
     res_json.items.push(...allAuthors);
+    for (let author of res_json.items) {
+      author = idParse(author);
+    }
     console.log("authors", res_json);
 
     return res_json;
