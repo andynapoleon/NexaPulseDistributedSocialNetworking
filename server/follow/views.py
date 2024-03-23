@@ -411,7 +411,7 @@ class RemoteCheckFollow(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, foreign_author_id):
-
+        print("MADE IT HERE!")
         if "/" in author_id:  # Check if author_id is a URL
             author_id = extract_uuid(author_id)  # Extract UUID from URL
         if "/" in foreign_author_id:  # Check if author_id is a URL
