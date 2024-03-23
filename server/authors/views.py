@@ -93,6 +93,7 @@ class AuthorRemote(APIView):
             new_author = Author.objects.create_user(
                 host=data["host"],
                 isForeign=True,
+                url=data["url"],
                 email=data["email"],
                 password="random",
                 displayName=data["displayName"],

@@ -33,7 +33,7 @@ class Author(AbstractBaseUser):  # PermissionsMixin
     displayName = models.CharField(max_length=25, default="")
     url = models.URLField(editable=False, default="")
     # host = models.CharField(max_length=50, editable=False, default="")
-    github = models.CharField(max_length=100, blank=True, default="")
+    github = models.CharField(max_length=500, blank=True, default="")
     profileImage = models.URLField(default="https://i.imgur.com/V4RclNb.png")
     lastUpdated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
