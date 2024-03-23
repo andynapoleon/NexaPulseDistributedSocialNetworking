@@ -19,12 +19,12 @@ urlpatterns = [
     # Endpoint for sending a like to the author also deleting a like
     # URL: ://service/authors/{AUTHOR_ID}/inbox/
     path(
-        "authors/<str:author_id>/inbox/",
+        "authors/<str:author_id>/inbox",
         views.PostLikeViewSet.as_view({"post": "like_post", "delete": "unlike_post"}),
         name="like_unlike_post",
     ),
     path(
-        "authors/<str:author_id>/comment/inbox/",
+        "authors/<str:author_id>/comment/inbox",
         views.CommentLikeViewSet.as_view(
             {"post": "like_comment", "delete": "unlike_comment"}
         ),
