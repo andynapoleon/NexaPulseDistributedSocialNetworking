@@ -207,7 +207,11 @@ class InboxView(APIView):
                     {"message": "Follow request sent to inbox!"},
                     status=status.HTTP_204_NO_CONTENT,
                 )
-            if actor["host"] == SERVER[0:-1]:
+            print("ACTOR HOST: ", actor["host"])
+            print("SERVER:", SERVER)
+            if actor["host"][-1] != "/":
+                actor["host"] += "/"
+            if actor["host"] == SERVER:
                 print("HOST HERE", object["host"])
                 if object["host"][-1] == "/":
                     object["host"] = object["host"][0:-1]
