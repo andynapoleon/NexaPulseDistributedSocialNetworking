@@ -78,6 +78,7 @@ class FollowView(APIView):
                 if requestObj:
                     requestObj.acceptedRequest = True
                 requestObj.save()
+                print("REQUEST URL", request_url)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
