@@ -38,6 +38,7 @@ class AuthorList(generics.ListCreateAPIView):
         )
 
         data_with_type = serializer.data
+        print("SERALIFIDLSJLFSJDS", data_with_type)
         for item in data_with_type:
             item["type"] = "author"
             item.pop("password", None)
