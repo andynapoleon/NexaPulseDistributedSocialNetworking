@@ -41,12 +41,12 @@ export async function fetchWithRefresh(url, options) {
 }
 
 export function extractUUID(url) {
-  const uuidPattern =
+  const regex =
     /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
-  const match = url.match(uuidPattern);
-  if (match) {
+  const match = url.match(regex);
+  if (match && match.length > 0) {
     return match[0];
   } else {
-    return null; // or whatever you want to do if UUID is not found
+    return null; // UUID not found
   }
 }
