@@ -193,7 +193,7 @@ class InboxView(APIView):
 
             # Check if actor_id or object_id is a URL
             if "/" in actor["id"]:
-                actor["id"] = extract_uuid(author_id)  # Extract UUID from URL
+                actor["id"] = extract_uuid(actor["id"])  # Extract UUID from URL
             if "/" in object["id"]:
                 object["id"] = extract_uuid(object["id"])  # Extract UUID from URL
 
