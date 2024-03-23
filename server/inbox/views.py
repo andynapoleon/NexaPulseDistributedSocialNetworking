@@ -20,6 +20,14 @@ from node.models import Node
 import requests
 from node.models import Node
 from node.serializers import NodeSerializer
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 # Create your views here.
@@ -181,6 +189,13 @@ class InboxView(APIView):
             print("REQUEST DATA", request.data["actor"])
             actor = request.data.get("actor")
             object = request.data.get("object")
+
+            # Check if actor_id or object_id is a URL
+            if "/" in actor["id"]:
+                actor["id"] = extract_uuid(author_id)  # Extract UUID from URL
+            if "/" in object["id"]:
+                object["id"] = extract_uuid(object["id"])  # Extract UUID from URL
+
             follow = Follows.objects.filter(
                 follower_id=actor["id"], followed_id=object["id"]
             )
@@ -203,7 +218,10 @@ class InboxView(APIView):
                 host = node["host"]
                 actor_id = actor["id"]
                 object_id = object["id"]
-                request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
+                if host == "https://social-dist-614a0f928723.herokuapp.com":
+                    request_url = f"{host}/authors/{object_id}/followers/{actor_id}"
+                else:
+                    request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
                 response = requests.get(
                     request_url,
                     auth=(node["username"], node["password"]),
