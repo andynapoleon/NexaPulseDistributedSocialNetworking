@@ -8,6 +8,14 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from SocialDistribution.settings import SERVER
 from rest_framework import generics
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 class AuthorList(generics.ListCreateAPIView):
@@ -80,6 +88,7 @@ class AuthorRemote(APIView):
         users = request.data
         print("DATA", users)
         for data in users["items"]:
+            data["id"] = extract_uuid(data["id"])
             data["email"] = data["displayName"]
             new_author = Author.objects.create_user(
                 host=data["host"],
