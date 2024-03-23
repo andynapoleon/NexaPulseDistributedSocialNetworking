@@ -92,6 +92,7 @@ class AuthorRemote(APIView):
             data["email"] = data["displayName"] + "@gmail.com"
             print("DATA", data)
             new_author = Author.objects.create_user(
+                id=data["id"],
                 host=data["host"],
                 isForeign=True,
                 url=data["url"],
