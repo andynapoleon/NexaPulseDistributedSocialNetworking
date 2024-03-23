@@ -3,15 +3,7 @@
   import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
-  import { fetchWithRefresh } from "../../utils/apiUtils.js";
-
-  function extractUUID(url) {
-    // Split the URL by '/'
-    const parts = url.split("/");
-    // Get the last part which should be the UUID
-    const uuid = parts[parts.length - 1];
-    return uuid;
-  }
+  import { fetchWithRefresh, extractUUID } from "../../utils/apiUtils.js";
 
   export let user;
   user.id = extractUUID(user);
