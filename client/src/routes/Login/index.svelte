@@ -64,7 +64,7 @@
       errorMessage = error.message;
     }
 
-    // Handle creating remote copies
+    // Get all nodes 
     const res_nodes = await fetch(server + "/api/nodes", {
       method: "GET",
       headers: {
@@ -72,6 +72,7 @@
         Authorization: `Bearer ${$authToken}`,
       },
     });
+
     const nodes = await res_nodes.json();
     for (let node of nodes.items) {
       let authorData = {
@@ -89,6 +90,8 @@
       console.log(node.username);
       console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
+      
+      // Send a request to the node to get the authors
       const sendAuthorResponse = await fetch(node.host + `/authors/`, {
         method: "GET",
         headers: {
@@ -96,6 +99,7 @@
           Authorization: encodedAuthorization,
         },
       });
+      console.log("SEND AUTHOR RESPONSE", sendAuthorResponse.json());
       if (sendAuthorResponse.ok) {
         const authorData = await sendAuthorResponse.json(); // Extract JSON data
         const getResponse = await fetch(server + `/api/authors/remote/`, {
