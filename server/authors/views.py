@@ -78,6 +78,7 @@ class AuthorRemote(APIView):
 
     def post(self, request):
         users = request.data
+        print("DATA", users)
         for data in users["items"]:
             data["email"] = data["displayName"]
             new_author = Author.objects.create_user(
