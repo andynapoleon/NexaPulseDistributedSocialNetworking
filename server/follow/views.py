@@ -141,7 +141,7 @@ class FollowView(APIView):
             print("UDERNSMAE", node["host"])
             host = node["host"]
             request_url = f"{host}/authors/{userId2}/inbox"
-            print(request.url)
+            # print(request.url)
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
