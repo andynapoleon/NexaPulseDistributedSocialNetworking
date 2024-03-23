@@ -27,13 +27,15 @@ class CustomUserManager(BaseUserManager):
 
 
 class Author(AbstractBaseUser):  # PermissionsMixin
-    type = models.CharField(max_length=50, default="author", editable=False)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True, default="")
-    displayName = models.CharField(max_length=25, default="")
+    type = models.CharField(max_length=500, default="author", editable=False)
+    id = models.UUIDField(
+        max_length=500, primary_key=True, default=uuid.uuid4, editable=False
+    )
+    email = models.EmailField(max_length=500, unique=True, default="")
+    displayName = models.CharField(max_length=500, default="")
     url = models.URLField(editable=False, default="")
     # host = models.CharField(max_length=50, editable=False, default="")
-    github = models.CharField(max_length=100, blank=True, default="")
+    github = models.CharField(max_length=500, blank=True, default="")
     profileImage = models.URLField(default="https://i.imgur.com/V4RclNb.png")
     lastUpdated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
