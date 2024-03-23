@@ -96,6 +96,7 @@
           Authorization: encodedAuthorization,
         },
       });
+      console.log("AUTHOR RESPONSE", sendAuthorResponse);
       const getResponse = await fetch(server + `/api/authors/remote/`, {
         method: "POST",
         headers: {
