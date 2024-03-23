@@ -93,18 +93,26 @@
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          "Access-Control-Allow-Origin":
-            "https://social-dist-614a0f928723.herokuapp.com/",
           Authorization: encodedAuthorization,
         },
       });
-      const getResponse = await fetch(server + `/api/authors/new/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(sendAuthorResponse),
-      });
+      if (sendAuthorResponse.ok) {
+        const authorData = await sendAuthorResponse.json(); // Extract JSON data
+        const getResponse = await fetch(server + `/api/authors/remote/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(authorData), // Pass fetched data to the second request
+        });
+        if (getResponse.ok) {
+          console.log("Remote authors successfully fetched.");
+        } else {
+          console.error("Failed to fetch remote authors.");
+        }
+      } else {
+        console.error("Failed to fetch authors from the node.");
+      }
     }
   }
 

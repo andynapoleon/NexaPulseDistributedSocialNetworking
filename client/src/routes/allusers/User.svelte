@@ -3,9 +3,10 @@
   import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
-  import { fetchWithRefresh } from "../../utils/apiUtils.js";
+  import { fetchWithRefresh, extractUUID } from "../../utils/apiUtils.js";
 
   export let user;
+  user.id = extractUUID(user.id);
   const currentUserId = $currentUser.userId;
   const userId = user.id;
   const alreadyFollowed = writable(false);
