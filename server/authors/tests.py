@@ -5,50 +5,63 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework_simplejwt.tokens import AccessToken
 import uuid
+from SocialDistribution.settings import SERVER
 
 class ProfileAPITestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = Author.objects.create(
-            displayName="John Doe", github="https://github.com/johndoe", email="johndoe@example.com"
+            displayName="John Doe", github="https://github.com/johndoe", email="johndoe@example.com", is_active=True
         )
         self.valid_user_id = self.user.id
         self.invalid_user_id = uuid.uuid4()  # Non-existent user ID
         
         # Create an instance of Author and authenticate the client
-        self.test_author = Author.objects.create(displayName='testuser testuser', github='https://github.com/testuser', email='testuser@example.com')
+        self.test_author = Author.objects.create(displayName='testuser testuser', github='https://github.com/testuser', email='testuser@example.com', is_active=True)
         self.token = AccessToken.for_user(self.test_author)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
 
-    # def test_get_profile(self):
-    #     url = reverse("Profile", args=[self.valid_user_id])
-    #     response = self.client.get(url)
+    def test_get_profile(self):
+        url = reverse("Profile", args=[self.valid_user_id])
+        response = self.client.get(url)
 
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.assertEqual(
-    #         response.data,
-    #         {
-    #             "full_name": "John Doe",
-    #             "github": "https://github.com/johndoe",
-    #             "email": "johndoe@example.com",
-    #         },
-    #     )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        print("response.data", response.data)
+        self.assertEqual(
+            response.data,
+            {
+                "full_name": "John Doe",
+                "github": "https://github.com/johndoe",
+                "email": "johndoe@example.com",
+                "host": SERVER,
+                "profileImage": 'https://i.imgur.com/V4RclNb.png',
+            },
+        )
 
 
 class AuthorAPITestCase(TestCase):
     def setUp(self):
         # Set up test author
         self.client = APIClient()
-        self.author = Author.objects.create(email='test@example.com', displayName='Test User', github='testuser')
+        self.author = Author.objects.create(email='test@example.com', displayName='Test User', github='testuser', is_active=True)
         print(self.author.id)
         # Create an instance of Author and authenticate the client
-        self.test_author = Author.objects.create(displayName='testuser testuser', github='https://github.com/testuser', email='testuser@example.com')
+        self.test_author = Author.objects.create(displayName='testuser testuser', github='https://github.com/testuser', email='testuser@example.com', is_active=True) 
         self.token = AccessToken.for_user(self.test_author)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + str(self.token))
+        self.invalid_user_id = uuid.uuid4()
+
         
     def test_create_author(self):
-        url = reverse('Create Author')
-        data = {'email': "asc@gmail.com", 'password': "password", 'displayName': "asc", 'github': "https://github.com/"}
+        url = reverse('New author')
+        data = {'email': "asc@gmail.com", 
+                'password': "password", 
+                'displayName': "asc", 
+                'github': "https://github.com/", 
+                'id': None, 
+                'isForeign': False,
+                'profileImage': 'https://i.imgur.com/V4RclNb.png'
+                }
         response = self.client.post(url, data, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
@@ -68,29 +81,31 @@ class AuthorAPITestCase(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data['email'], 'test@example.com')
+        self.assertEqual(response.data['displayName'], 'Test User')
 
-    # def test_update_author(self):
-    #     # Test we can update an existing author
-    #     url = reverse('Get specific author', kwargs={'author_id': self.author.pk})
-    #     data = {'email': 'updated@example.com', 'displayName': 'Updated name'}
-    #     response = self.client.put(url, data, format='json')
+    def test_update_author(self):
+        # Test we can update an existing author
+        url = reverse('Get specific author', kwargs={'author_id': self.author.id})
+        data = {'email': 'updated@example.com', 'displayName': 'Updated name', 'github': 'updatedgithub'}
+        response = self.client.put(url, data, format='json')
 
-    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
-    #     self.author.refresh_from_db()  
-    #     self.assertEqual(self.author.email, 'updated@example.com')  
-    #     self.assertEqual(self.author.displayName, 'Updated name') 
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # self.author.refresh_from_db()  
+        url = reverse('Get specific author', kwargs={'author_id': self.author.id})
+        response = self.client.get(url)
+        self.assertEqual(response.data['github'], 'updatedgithub')
+        self.assertEqual(response.data['displayName'], 'Updated name') 
 
     def test_non_existing_author(self):
         # Ensure we get a 404 response when trying to retrieve a non-existing author
-        url = reverse('Get specific author', kwargs={'author_id': 9999})
+        url = reverse('Get specific author', kwargs={'author_id': self.invalid_user_id})
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # def test_bad_request(self):
     #     # Send a PUT request with wrong data
-    #     url = reverse('Get specific author', kwargs={'author_id': self.author.pk})
+    #     url = reverse('Get specific author', kwargs={'author_id': self.author.id})
     #     data = {'gmail': 'updated@gmail.com'}  # Missing 'displayName'
     #     response = self.client.put(url, data, format='json')
 

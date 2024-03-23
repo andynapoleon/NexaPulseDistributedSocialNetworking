@@ -1,7 +1,7 @@
 <script>
   import { onMount } from "svelte";
   import { authToken, server, currentUser } from "../../stores/stores.js";
-  import User from "./User.svelte"
+  import User from "./User.svelte";
 
   // Define reactive variables
   let loading = true;
@@ -9,7 +9,7 @@
 
   // Get all users
   async function getAllUsers() {
-    const res_nodes = await fetch(server + "/api/nodes", {
+    const res_nodes = await fetch(server + "/api/nodes/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -20,7 +20,7 @@
     const nodes = await res_nodes.json();
 
     // get local authors from the server
-    const res = await fetch(server + "/api/authors", {
+    const res = await fetch(server + "/api/authors/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -30,25 +30,25 @@
     const res_json = await res.json();
     const allAuthors = [];
 
-    // TODO:loop through other nodes to get remote authors
-    for (let node of nodes.items) {
-      console.log("SERVER HERE: ", node.host);
-      const authString = `${node.username}:${node.password}`;
-      const encodedAuthString = btoa(authString);
-      // Get all remote authors 
-      const res2 = await fetch(
-        node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Basic ${encodedAuthString}`,
-          },
-        }
-      );
-      const remoteAuthors = await res2.json();
-      if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
-    }
+    // // TODO:loop through other nodes to get remote authors
+    // for (let node of nodes.items) {
+    //   console.log("SERVER HERE: ", node.host);
+    //   const authString = `${node.username}:${node.password}`;
+    //   const encodedAuthString = btoa(authString);
+    //   // Get all remote authors
+    //   const res2 = await fetch(
+    //     node.host + `/authors?request_host=${encodeURIComponent(server)}`,
+    //     {
+    //       method: "GET",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Basic ${encodedAuthString}`,
+    //       },
+    //     }
+    //   );
+    //   const remoteAuthors = await res2.json();
+    //   if (remoteAuthors.items) allAuthors.push(...remoteAuthors.items);
+    // }
     res_json.items.push(...allAuthors);
     console.log(res_json);
 

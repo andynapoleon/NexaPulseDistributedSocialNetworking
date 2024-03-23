@@ -11,6 +11,7 @@
   let email = "";
   let password = "";
   let displayName = "";
+  let profileImage = "";
   let github = "";
   let errorMessage = ""; // To display login errors
   let isLoggingIn = true; // Track whether the user is logging in or signing up
@@ -28,7 +29,7 @@
   async function handleLogin() {
     // Handle Login
     const loginEndpoint = server + "/api/token/";
-    console.log(loginEndpoint); 
+    console.log(loginEndpoint);
     const credentials = { email, password };
     try {
       const response = await fetch(loginEndpoint, {
@@ -45,7 +46,7 @@
       const data = await response.json();
       authToken.update((value) => (value = data.access));
       refreshToken.update((value) => (value = data.refresh));
-      console.log("data:", data)
+      console.log("data:", data);
       if (!data.is_active) {
         throw new Error("User not activated"); // Handle non-2xx responses
       }
@@ -54,6 +55,7 @@
         name: data.name,
         email: data.email,
         github: data.github,
+        profileImage: data.profileImage,
         lastUpdated: data.lastUpdated,
       });
       console.log("DATA ACCESS: " + data.access);
@@ -61,7 +63,7 @@
     } catch (error) {
       errorMessage = error.message;
     }
-    
+
     // Handle creating remote copies
     const res_nodes = await fetch(server + "/api/nodes", {
       method: "GET",
@@ -73,25 +75,44 @@
     const nodes = await res_nodes.json();
     for (let node of nodes.items) {
       let authorData = {
-          id: $currentUser.userId,
-          displayName: $currentUser.name,
-          email: $currentUser.email,
-          password: "i450959540943809",
-          github: $currentUser.github,
-          host: server,
-          isForeign: true
+        id: $currentUser.userId,
+        displayName: $currentUser.name,
+        email: $currentUser.email,
+        password: "i450959540943809",
+        github: $currentUser.github,
+        profileImage: $currentUser.profileImage,
+        host: server,
+        isForeign: true,
+      };
+      console.log("AUTHOR DATA", authorData);
+      const authorization = `${node.username}:${node.password}`;
+      console.log(node.username);
+      console.log(node.password);
+      const encodedAuthorization = "Basic " + btoa(authorization);
+      const sendAuthorResponse = await fetch(node.host + `/authors/`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: encodedAuthorization,
+        },
+      });
+      if (sendAuthorResponse.ok) {
+        const authorData = await sendAuthorResponse.json(); // Extract JSON data
+        const getResponse = await fetch(server + `/api/authors/remote/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(authorData), // Pass fetched data to the second request
+        });
+        if (getResponse.ok) {
+          console.log("Remote authors successfully fetched.");
+        } else {
+          console.error("Failed to fetch remote authors.");
         }
-        console.log("AUTHOR DATA", authorData)
-        const sendAuthorResponse = await fetch(
-          node.host + `/api/authors/new/`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(authorData),
-          }
-        );
+      } else {
+        console.error("Failed to fetch authors from the node.");
+      }
     }
   }
 
@@ -99,14 +120,15 @@
     // Handle sign-up logic here
     const signUpEndpoint = server + "/api/authors/new/";
     console.log(signUpEndpoint);
-    const credentials = { 
-      "id": null,
-      "host": null,
-      "isForeign": false,
-      "email":email,
-      "password": password,
-      "displayName": displayName,
-      "github": github
+    const credentials = {
+      id: null,
+      host: null,
+      isForeign: false,
+      email: email,
+      password: password,
+      displayName: displayName,
+      github: github,
+      profileImage: profileImage,
     };
     console.log(credentials);
     try {
@@ -127,7 +149,6 @@
     } catch (error) {
       errorMessage = error.message;
     }
-
   }
 
   function toggleForm() {
@@ -168,16 +189,45 @@
   {:else}
     <!-- Sign-up form -->
     <form class="login-form" on:submit|preventDefault={handleSignUp}>
-      <input type="text" class="login-input" placeholder="Display Name" bind:value={displayName} required />
-      <input type="email" class="login-input" placeholder="Email" bind:value={email} required/>
-      <input type="password" class="login-input" placeholder="Password" bind:value={password} required/>
-      <input type="url" class="login-input" placeholder="Github" bind:value={github} required/>
+      <input
+        type="text"
+        class="login-input"
+        placeholder="Display Name"
+        bind:value={displayName}
+        required
+      />
+      <input
+        type="email"
+        class="login-input"
+        placeholder="Email"
+        bind:value={email}
+        required
+      />
+      <input
+        type="password"
+        class="login-input"
+        placeholder="Password"
+        bind:value={password}
+        required
+      />
+      <input
+        type="profileImage"
+        class="login-input"
+        placeholder="Profile Image Url"
+        bind:value={profileImage}
+      />
+      <input
+        type="url"
+        class="login-input"
+        placeholder="Github"
+        bind:value={github}
+        required
+      />
       <button type="submit" class="login-button">Sign Up</button>
       <div class="h-4"></div>
       <button class="login-button" on:click={toggleForm}>Back</button>
     </form>
   {/if}
-  
 </div>
 
 <style>

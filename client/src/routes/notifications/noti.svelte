@@ -1,12 +1,12 @@
 <script>
   import { onMount } from "svelte";
 
-  export let profileImageUrl = "default-profile.png";
   import { currentUser, server, authToken } from "../../stores/stores.js";
   import { get, writable } from "svelte/store";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
   import { TruckSolid } from "flowbite-svelte-icons";
 
+  export let profileImage;
   export let userId; // The user ID passed into the component
   export let userName = "HOHO HAHA";
   export let postTime = "1 min ago";
@@ -111,7 +111,7 @@
       <div class="left-column">
         <img
           class="profile-avatar"
-          src="{profileImageUrl},"
+          src="{profileImage},"
           alt="Profile Avatar"
         />
       </div>

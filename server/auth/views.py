@@ -30,6 +30,7 @@ class LoginView(APIView):
                     "email": email,
                     "name": user.displayName,
                     "github": user.github,
+                    "profileImage": user.profileImage,
                     "id": user.id,
                     "is_active": user.is_active,
                 }

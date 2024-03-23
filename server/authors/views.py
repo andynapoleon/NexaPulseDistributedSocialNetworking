@@ -8,6 +8,14 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from SocialDistribution.settings import SERVER
 from rest_framework import generics
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 class AuthorList(generics.ListCreateAPIView):
@@ -19,17 +27,21 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        return Author.objects.all().filter(host=SERVER)
+        queryset = Author.objects.all()
+        return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-
+        base_url = request.build_absolute_uri("/")
+        serializer = self.get_serializer(
+            queryset, context={"base_url": base_url}, many=True
+        )
         data_with_type = serializer.data
+        print("SERALIFIDLSJLFSJDS", data_with_type)
         for item in data_with_type:
             item["type"] = "author"
             item.pop("password", None)
-
+        print(data_with_type)
         response = {
             "type": "authors",
             "items": data_with_type,
@@ -47,8 +59,10 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            serializer = AuthorSerializer(author)
+            base_url = request.build_absolute_uri("/")
+            serializer = AuthorSerializer(author, context={"base_url": base_url})
             response = serializer.data
+            print(response)
             return Response(response, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -67,27 +81,63 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class AuthorRemote(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        users = request.data
+        print("DATA", users)
+        for data in users["items"]:
+            data["id"] = extract_uuid(data["id"])
+            data["email"] = data["displayName"] + "@gmail.com"
+            print("DATA", data)
+            new_author = Author.objects.create_user(
+                id=data["id"],
+                host=data["host"],
+                isForeign=True,
+                url=data["url"],
+                email=data["email"],
+                password="random",
+                displayName=data["displayName"],
+                profileImage=data["profileImage"],
+                github=data["github"],
+            )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+            return Response(response, status=201)
+
+
 class AuthorCreate(APIView):
     permission_classes = [AllowAny]
 
     # create a new author manually
     def post(self, request):
         data = request.data
+        print(data)
         try:
-            author = Author.objects.get(email=data["email"])
+            if data["host"] == SERVER:
+                author = Author.objects.get(email=data["email"])
+            else:
+                raise Author.DoesNotExist
             return Response(
                 {"error": "User with this email already exists"}, status=400
             )
         except Author.DoesNotExist:
             if data["id"] == None:
+                print(data)
+                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
                     displayName=data["displayName"],
+                    profileImage=data["profileImage"],
                     github=data["github"],
                     isForeign=data["isForeign"],
                 )
             else:
+                # print(data)
+                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     id=data["id"],
                     host=data["host"],
@@ -95,6 +145,7 @@ class AuthorCreate(APIView):
                     email=data["email"],
                     password=data["password"],
                     displayName=data["displayName"],
+                    profileImage=data["profileImage"],
                     github=data["github"],
                 )
             new_author.save()
@@ -121,10 +172,14 @@ class Profile(APIView):
         full_name = user.displayName
         github = user.github
         email = user.email
+        profileImage = user.profileImage
+        host = user.host
         context = {
             "full_name": full_name,
             "github": github,
             "email": email,
+            "profileImage": profileImage,
+            "host": host,
         }
         return Response(context)
 
@@ -149,10 +204,12 @@ class Profile(APIView):
         full_name = request.data.get("name", "")
         github = request.data.get("github", "")
         email = request.data.get("email", "")
+        profileImage = request.data.get("profileImage", "")
 
         user.displayName = full_name
         user.github = github
         user.email = email
+        user.profileImage = profileImage
         user.save()
 
         # Return updated user data
@@ -160,5 +217,6 @@ class Profile(APIView):
             "full_name": full_name,
             "github": github,
             "email": email,
+            "profileImage": profileImage,
         }
         return Response(updated_data)

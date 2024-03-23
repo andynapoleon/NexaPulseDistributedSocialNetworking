@@ -5,6 +5,10 @@ from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from .models import Comment
 from .serializers import CommentSerializer, CommentSerializerPost
+from node.models import Node
+import requests
+from SocialDistribution.settings import SERVER
+from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 
 
 class CommentList(generics.ListCreateAPIView):
@@ -31,6 +35,8 @@ class CommentDetail(generics.RetrieveAPIView):
             comment = Comment.objects.filter(
                 postId=post_id
             )  # get the comments of the post given post_id
+            if len(comment) == 0:
+                return Response(status=status.HTTP_404_NOT_FOUND)
         except Comment.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -58,6 +64,36 @@ class CommentDetail(generics.RetrieveAPIView):
         # Validate the serializer data
         if serializer.is_valid():
             serializer.save()
+
+            remoteData = {
+                "type": "comment",
+                "id": serializer.data["id"],
+                "content_type": request.data["content_type"],
+                "comment": request.data["comment"],
+                "author": request.data["author"],
+                "postId": request.data["postId"],
+            }
+
+            # get all nodes
+            node = Node.objects.all()
+            for n in node:
+                url = n.host + f"/api/authors"
+                print("URL", url)
+                response = requests.get(
+                    url,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+
+                url = n.host + f"/api/authors/{author_id}/inbox/"
+                response = requests.post(
+                    url,
+                    json=remoteData,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+                print(response)
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             print(serializer.errors)

@@ -17,6 +17,7 @@ class PostViewsTestCase(APITestCase):
             github="https://github.com/testuser",
             email="testuser@example.com",
             password="1234",
+            is_active=True,
         )
 
         self.token = AccessToken.for_user(self.test_author)

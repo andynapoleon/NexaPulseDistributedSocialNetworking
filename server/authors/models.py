@@ -1,9 +1,6 @@
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
-    PermissionsMixin,
-    Group,
-    Permission,
 )
 from django.db import models
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -24,25 +21,29 @@ class CustomUserManager(BaseUserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_active", True)
+
         return self.create_user(email, password, **extra_fields)
 
 
 class Author(AbstractBaseUser):  # PermissionsMixin
-    type = models.CharField(max_length=50, default="author", editable=False)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True, default="")
-    displayName = models.CharField(max_length=25, default="")
+    type = models.CharField(max_length=500, default="author", editable=False)
+    id = models.UUIDField(
+        max_length=500, primary_key=True, default=uuid.uuid4, editable=False
+    )
+    email = models.EmailField(max_length=500, unique=True, default="")
+    displayName = models.CharField(max_length=500, default="")
     url = models.URLField(editable=False, default="")
     # host = models.CharField(max_length=50, editable=False, default="")
-    github = models.CharField(max_length=100, blank=True, default="")
-    profileImage = models.ImageField(
-        upload_to="assets/profile_images/", null=True, blank=True
+    github = models.CharField(max_length=500, blank=True, default="")
+    profileImage = models.URLField(
+        max_length=500, default="https://i.imgur.com/V4RclNb.png"
     )
     lastUpdated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
-    host = models.URLField(blank=True, default=SERVER, null=True)
+    host = models.URLField(max_length=500, blank=True, default=SERVER, null=True)
     isForeign = models.BooleanField(default=False)
 
     objects = CustomUserManager()

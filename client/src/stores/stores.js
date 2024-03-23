@@ -1,10 +1,13 @@
 import { writable, get, readable } from "svelte/store";
 
 export const mode = writable("light");
-export const server = "http://127.0.0.1:8000";
-// http://localhost:8000
+export const server = "https://nexapulse-25959148b934.herokuapp.com";
+// http://127.0.0.1:5000
 // https://nexapulse-25959148b934.herokuapp.com (viet)
 // https://nexapulse1-7fbca99d2d7b.herokuapp.com (andy)
+// https://nexapulse2-389a49c0c9f8.herokuapp.com (sheikh)
+// https://nexapulse3-c09859c6802f.herokuapp.com (peter)
+// https://nexapulse4-79e5b0bb2c15.herokuapp.com (bohan)
 // Retrieve user data from localStorage if available
 const storedUserData = localStorage.getItem("userData");
 const initialUserData = storedUserData
@@ -14,13 +17,13 @@ const initialUserData = storedUserData
       name: "Andy Tran",
       email: "aqtran@ualberta.ca",
       github: "",
-      lastUpdated: new Date(2024, 0, 3),
+      lastUpdated: new Date(2024, 21, 3),
     };
 if (
   initialUserData.lastUpdated === null ||
   initialUserData.lastUpdated === undefined
 ) {
-  initialUserData.lastUpdated = new Date(2024, 0, 3);
+  initialUserData.lastUpdated = new Date(2024, 21, 3);
 }
 export const currentUser = writable(initialUserData);
 
