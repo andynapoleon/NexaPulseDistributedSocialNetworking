@@ -63,13 +63,21 @@ class FollowView(APIView):
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
                 object = AuthorSerializer(object)
+                # data_to_send = {
+                #     "type": "Follow",
+                #     "summary": str(actor.data["displayName"])
+                #     + " wants to follow "
+                #     + str(object.data["displayName"]),
+                #     "actor": actor.data,
+                #     "object": object.data,
+                # }
                 data_to_send = {
                     "type": "Follow",
                     "summary": str(actor.data["displayName"])
                     + " wants to follow "
                     + str(object.data["displayName"]),
-                    "actor": actor.data,
-                    "object": object.data,
+                    "actor": "fdasfdas",
+                    "object": "fadsfdsf",
                 }
                 print("DATA TO SEND", data_to_send)
                 requestObj = Follows.objects.filter(
