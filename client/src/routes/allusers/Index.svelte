@@ -20,7 +20,7 @@
     const nodes = await res_nodes.json();
 
     // get local authors from the server
-    const res = await fetch(server + "/api/authors/", {
+    const res = await fetch(server + "/authors/", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
