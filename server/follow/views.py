@@ -132,7 +132,8 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            request_url = f"{host}/api/authors/{userId2}/inbox/"
+            request_url = f"{host}/authors/{userId2}/inbox"
+            print(request.url)
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
