@@ -223,8 +223,10 @@ class InboxView(APIView):
                 host = node["host"]
                 actor_id = actor["id"]
                 object_id = object["id"]
+                actor_url = actor["url"]
                 if host == "https://social-dist-614a0f928723.herokuapp.com":
-                    request_url = f"{host}/authors/{object_id}/followers/{actor_id}"
+                    print("GOING TO ALEX'S")
+                    request_url = f"{host}/authors/{object_id}/followers/{actor_url}"
                 else:
                     request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
                 response = requests.get(
@@ -232,6 +234,7 @@ class InboxView(APIView):
                     auth=(node["username"], node["password"]),
                     params={"request_host": actor["host"]},
                 )
+                print("status code", response.status_code)
                 if response.status_code == 404:
                     return Response(
                         {"message": "Follow request rejected!"},
