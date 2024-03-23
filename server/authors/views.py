@@ -77,7 +77,6 @@ class AuthorRemote(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        print(data)
         users = request.data
         for data in users["items"]:
             data["email"] = data["displayName"]
