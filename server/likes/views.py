@@ -70,7 +70,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
 
-                url = n.host + f"/api/authors/{author_id}/inbox/"
+                url = n.host + f"/api/authors/{author_id}/inbox"
                 response = requests.post(
                     url,
                     json=remoteData,
@@ -200,7 +200,7 @@ class CommentLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
 
-                url = n.host + f"/api/authors/{author_id}/inbox/"
+                url = n.host + f"/api/authors/{author_id}/comment/inbox"
                 response = requests.post(
                     url,
                     json=remoteData,

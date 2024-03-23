@@ -20,6 +20,14 @@ from node.models import Node
 import requests
 from node.models import Node
 from node.serializers import NodeSerializer
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 # Create your views here.
@@ -177,10 +185,18 @@ class InboxView(APIView):
 
         # Follow requests
         elif request_type.lower() == "follow":
+            print("IMHERERHEHRHERHEHRHEHR")
             print("HERE")
             print("REQUEST DATA", request.data["actor"])
             actor = request.data.get("actor")
             object = request.data.get("object")
+
+            # Check if actor_id or object_id is a URL
+            if "/" in actor["id"]:
+                actor["id"] = extract_uuid(actor["id"])  # Extract UUID from URL
+            if "/" in object["id"]:
+                object["id"] = extract_uuid(object["id"])  # Extract UUID from URL
+
             follow = Follows.objects.filter(
                 follower_id=actor["id"], followed_id=object["id"]
             )
@@ -191,7 +207,11 @@ class InboxView(APIView):
                     {"message": "Follow request sent to inbox!"},
                     status=status.HTTP_204_NO_CONTENT,
                 )
-            if actor["host"] == SERVER[0:-1]:
+            print("ACTOR HOST: ", actor["host"])
+            print("SERVER:", SERVER)
+            if actor["host"][-1] != "/":
+                actor["host"] += "/"
+            if actor["host"] == SERVER:
                 print("HOST HERE", object["host"])
                 if object["host"][-1] == "/":
                     object["host"] = object["host"][0:-1]
@@ -203,12 +223,18 @@ class InboxView(APIView):
                 host = node["host"]
                 actor_id = actor["id"]
                 object_id = object["id"]
-                request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
+                actor_url = actor["url"]
+                if host == "https://social-dist-614a0f928723.herokuapp.com":
+                    print("GOING TO ALEX'S")
+                    request_url = f"{host}/authors/{object_id}/followers/{actor_url}"
+                else:
+                    request_url = f"{host}/api/authors/{object_id}/followers/{actor_id}"
                 response = requests.get(
                     request_url,
                     auth=(node["username"], node["password"]),
                     params={"request_host": actor["host"]},
                 )
+                print("status code", response.status_code)
                 if response.status_code == 404:
                     return Response(
                         {"message": "Follow request rejected!"},

@@ -36,8 +36,8 @@ class AuthorList(generics.ListCreateAPIView):
         serializer = self.get_serializer(
             queryset, context={"base_url": base_url}, many=True
         )
-
         data_with_type = serializer.data
+        print("SERALIFIDLSJLFSJDS", data_with_type)
         for item in data_with_type:
             item["type"] = "author"
             item.pop("password", None)
@@ -92,6 +92,7 @@ class AuthorRemote(APIView):
             data["email"] = data["displayName"] + "@gmail.com"
             print("DATA", data)
             new_author = Author.objects.create_user(
+                id=data["id"],
                 host=data["host"],
                 isForeign=True,
                 url=data["url"],
