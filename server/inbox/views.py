@@ -21,6 +21,7 @@ import requests
 from node.models import Node
 from node.serializers import NodeSerializer
 from urllib.parse import urlparse
+from rest_framework.permissions import AllowAny
 
 
 def extract_uuid(url):
@@ -32,7 +33,8 @@ def extract_uuid(url):
 
 # Create your views here.
 class InboxView(APIView):
-    authentication_classes = [BasicOrTokenAuthentication]
+    authentication_classes = [BasicOrTokenAuthentication] #BasicOrTokenAuthentication
+    # permission_classes = [AllowAny]
 
     def convert_json(self, input_json):
         output_json = {
@@ -46,7 +48,7 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            "image_ref": None,  # Assuming there's no image reference in the input JSON
+            "image_ref": input_json["image_ref"],
             "sharedBy": None,  # Assuming there's no sharing information in the input JSON
             "isShared": False,  # Assuming the post is not shared
         }
@@ -107,7 +109,9 @@ class InboxView(APIView):
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
 
             image_ref = request_data.get("image_ref", None)
+            print("IMAGE REF", image_ref)
             post_id = request_data["id"]
+
             print("POST ID", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
