@@ -207,46 +207,56 @@ class PostDetail(APIView):
             # if request_data["contentType"] == "text/markdown":
             #     request_data["content"] = markdownify(request_data["content"])
             
-            serializer = PostSerializer(post, data=request_data, partial=True)
+            post_serializer = PostSerializer(post, data=request_data, partial=True)
             
-            if serializer.is_valid():
+            if post_serializer.is_valid():
                 if str(request.user.id) == author_id or request.GET.get("request_host"):
-                    serializer.save()
+                    post_serializer.save()
 
                     node = Node.objects.all()
                     print("NODES", node)
                     query_set = Author.objects.get(id=author_id)
                     serializer = AuthorSerializer(query_set)
                     author = serializer.data
+                    author["url"] = author["host"] + f"authors/{author_id}"
                     print("AUTHOR", author)
 
                     # for remote server
                     request_data["type"] = "post"
-                    request_data["id"] = post_id
+                    request_data["id"] = post_serializer.data["id"]
                     request_data["authorId"] = author_id
                     request_data["source"] = SERVER
+                    request_data["description"] = post_serializer.data["content"]
                     request_data["sharedBy"] = None
                     request_data["isShared"] = False
+                    request_data["author"] = author
+                    request_data["comments"] = []
+                    request_data["published"] = str(datetime.now(timezone.utc).isoformat())
+                    request_data["origin"] = SERVER + f"authors/{author_id}/posts/{str(post_serializer.data['id'])}"
+                    request_data["visibility"] = post_serializer.data["visibility"]
+                    request_data["contentType"] = post_serializer.data["contentType"]
                     request_data.pop("image", None)
+                    
                     print("REQUEST DATA", request_data)
-                    remoteData = {
-                        "type": "post",
-                        "id": str(serializer.data["id"]),
-                        "authorId": author_id,
-                        "title": serializer.data["title"],
-                        "content": serializer.data["content"],
-                        "contentType": serializer.data["contentType"],
-                        "visibility": serializer.data["visibility"],
-                        "source": SERVER,
-                        "description": serializer.data["content"],
-                        "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
-                        "image_ref": str(serializer.data["image_ref"]),
-                        "sharedBy": None,
-                        "isShared": False,
-                        "author": author,
-                        "comments": [],
-                        "published": str('current_time') # now
-                    }
+                    
+                    # remoteData = {
+                        # "type": "post",
+                        # "id": str(serializer.data["id"]),
+                        # "authorId": author_id,
+                        # "title": serializer.data["title"],
+                        # "content": serializer.data["content"],
+                        # "contentType": serializer.data["contentType"],
+                        # "visibility": serializer.data["visibility"],
+                        # "source": SERVER,
+                        # "description": serializer.data["content"],
+                        # "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
+                        # "image_ref": str(serializer.data["image_ref"]),
+                        # "sharedBy": None,
+                        # "isShared": False,
+                        # "author": author,
+                        # "comments": [],
+                        # "published": str('current_time') # now
+                    # }
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/inbox/
                         print("I AM HERE")
