@@ -36,17 +36,19 @@ class InboxView(APIView):
 
     def convert_json(self, input_json):
         output_json = {
-            'type': input_json['type'],
-            'id': input_json['id'].split('/')[-1],  # Extracting the UUID from the URL
-            'authorId': input_json['author']['id'].split('/')[-1],  # Extracting the UUID from the URL
-            'title': input_json['title'],
-            'content': input_json['content'],
-            'contentType': input_json['contentType'],
-            'visibility': input_json['visibility'],
-            'source': input_json['source'],
-            'image_ref': None,  # Assuming there's no image reference in the input JSON
-            'sharedBy': None,  # Assuming there's no sharing information in the input JSON
-            'isShared': False  # Assuming the post is not shared
+            "type": input_json["type"],
+            "id": input_json["id"].split("/")[-1],  # Extracting the UUID from the URL
+            "authorId": input_json["author"]["id"].split("/")[
+                -1
+            ],  # Extracting the UUID from the URL
+            "title": input_json["title"],
+            "content": input_json["content"],
+            "contentType": input_json["contentType"],
+            "visibility": input_json["visibility"],
+            "source": input_json["source"],
+            "image_ref": None,  # Assuming there's no image reference in the input JSON
+            "sharedBy": None,  # Assuming there's no sharing information in the input JSON
+            "isShared": False,  # Assuming the post is not shared
         }
         return output_json
 
@@ -96,12 +98,12 @@ class InboxView(APIView):
         if request_type == "post":
             print("POST REQUEST", request.data)
             request_data = self.convert_json(request.data)
-            # {'type': 'post', 
-            # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 
-            # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
-            # 'title': 'sss', 'content': 'ssss', 
-            # 'contentType': 'text/plain', 'visibility': 'PUBLIC', 
-            # 'source': 'http://127.0.0.1:8000/', 
+            # {'type': 'post',
+            # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
+            # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
+            # 'title': 'sss', 'content': 'ssss',
+            # 'contentType': 'text/plain', 'visibility': 'PUBLIC',
+            # 'source': 'http://127.0.0.1:8000/',
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
 
             image_ref = request_data.get("image_ref", None)
@@ -142,7 +144,10 @@ class InboxView(APIView):
 
                 # make put request to update the post
                 # authors/<str:author_id>/posts/<str:post_id>
-                url = SERVER + f"api/authors/{request.data["author"]["id"].split("/")[-1]}/posts/{post_id}/"
+                url = (
+                    SERVER
+                    + f"api/authors/{request.data['author']['id'].split('/')[-1]}/posts/{post_id}/"
+                )
                 print("URLING", url)
                 # use JWT token of the author
                 access_token = author.token["access"]
