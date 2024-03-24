@@ -364,8 +364,8 @@ class AuthorPosts(APIView):
                 print("SERIALIZER DATA", serializer.data)
 
                 author = Author.objects.get(id=author_id)
-                serializer = AuthorSerializer(author)
-                author = serializer.data
+                author_serializer = AuthorSerializer(author)
+                author = author_serializer.data
                 print("AUTHOR", author)
 
                 remoteData = {
