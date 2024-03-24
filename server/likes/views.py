@@ -52,6 +52,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             # }
 
             remoteData = serializer.data
+            print("SERIALIZER LIKE THIS ", serializer.data)
 
             # get all nodes
             node = Node.objects.all()
