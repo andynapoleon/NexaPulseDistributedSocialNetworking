@@ -105,6 +105,7 @@ class InboxView(APIView):
 
             image_ref = request_data.get("image_ref", None)
             post_id = request_data["id"]
+            print("POST ID", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
             if existing_post:
