@@ -51,14 +51,10 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                 "post": request.data["post"],
             }
 
-            # remoteData = serializer.data
-            # print("SERIALIZER LIKE THIS ", serializer.data)
-
             # get all nodes
-            node = Node.objects.all().filter(isActive=True)
-            print("URL", node.host)
+            node = Node.objects.all()
             for n in node:
-                print("URL", node.host)
+                print("URL", url)
                 print("POST's AUTHOR ID", request.data["author"])
                 print("POST ID", post_id)
                 if "social-dist" in n.host:
@@ -72,7 +68,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
                 print("status code", response.status_code)
-                if response.status_code == 201:
+                if response.status_code == 20:
                     return Response(serializer.data, status=response.status_code)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
