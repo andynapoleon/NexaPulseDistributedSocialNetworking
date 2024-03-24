@@ -99,7 +99,7 @@
           Authorization: encodedAuthorization,
         },
       });
-      console.log("SEND AUTHOR RESPONSE", await sendAuthorResponse.json());
+      // console.log("SEND AUTHOR RESPONSE", await sendAuthorResponse.json());
       if (sendAuthorResponse.ok) {
         const authorData = await sendAuthorResponse.json(); // Extract JSON data
         const getResponse = await fetch(server + `/api/authors/remote/`, {
