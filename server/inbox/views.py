@@ -77,6 +77,7 @@ class InboxView(APIView):
 
         # Post
         if request_type == "post":
+            print("POST REQUEST", request.data)
             # {'type': 'post', 
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
