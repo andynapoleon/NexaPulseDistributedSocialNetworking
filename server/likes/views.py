@@ -58,7 +58,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             node = Node.objects.all().filter(isActive=True)
             print("URL", node)
             for n in node:
-                print("URL", n.host)
+                # print("URL", n.host)
                 print("POST's AUTHOR ID", request.data["author"])
                 print("POST ID", post_id)
                 if "social-dist" in n.host:
