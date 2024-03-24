@@ -81,6 +81,7 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
+        print("AUTHOR ID", author_id)
         author = Author.objects.get(id=author_id)
         author.is_active = True
         author.save()
