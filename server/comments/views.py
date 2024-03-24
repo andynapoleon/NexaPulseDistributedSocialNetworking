@@ -9,6 +9,8 @@ from node.models import Node
 import requests
 from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from authors.models import Author
+from authors.serializers import AuthorSerializer
 
 
 class CommentList(generics.ListCreateAPIView):
@@ -65,12 +67,17 @@ class CommentDetail(generics.RetrieveAPIView):
         if serializer.is_valid():
             serializer.save()
 
+            author = Author.objects.get(id=author)
+            serializer = AuthorSerializer(author)
+            author = serializer.data
+            print("AUTHOR SENDING", author)
+
             remoteData = {
                 "type": "comment",
                 "id": serializer.data["id"],
-                "content_type": request.data["content_type"],
+                "contentType": request.data["content_type"],
                 "comment": request.data["comment"],
-                "author": request.data["author"],
+                "author": author,
                 "postId": request.data["postId"],
             }
 
