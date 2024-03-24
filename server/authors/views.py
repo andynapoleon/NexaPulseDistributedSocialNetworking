@@ -89,6 +89,12 @@ class AuthorRemote(APIView):
         print("FDSFDS DATA fasdfsadfdsgit", users)
         print("request.data", request.data)
         for data in users["items"]:
+            if data["host"][-1] != "/":
+                data["host"] += "/"
+            print("NAME:", data["displayName"])
+            print("HOST:", data["host"])
+            if data["host"] == SERVER:
+                continue
             data["id"] = extract_uuid(data["id"])
             if data.get("email") == None:
                 data["email"] = data["id"] + "@gmail.com"
