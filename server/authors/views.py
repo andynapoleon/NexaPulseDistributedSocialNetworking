@@ -105,7 +105,7 @@ class AuthorRemote(APIView):
             new_author.save()
             serializer = AuthorSerializer(new_author)
             response = serializer.data
-            return Response(response, status=201)
+        return Response(response, status=201)
 
 
 class AuthorCreate(APIView):
