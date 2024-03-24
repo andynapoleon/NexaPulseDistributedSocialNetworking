@@ -95,6 +95,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             author_serializer = AuthorSerializer(author_instance)
             remoteData = serializer.data
             remoteData["author"] = author_serializer.data
+            remoteData["post"] = str(remoteData["post"])
             print("SERIALIZER LIKE THIS ", remoteData)
 
             # get all nodes
@@ -102,7 +103,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             for n in node:
                 print("hello", request.data["author"])
                 if "social-dist" in n.host:
-                    print("hello", request.data["author"])
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
