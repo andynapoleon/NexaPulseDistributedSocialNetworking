@@ -38,7 +38,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
         print("I'm in local post like")
-        print(request.data["author"])
+        print(request.data)
         try:
             like = PostLikes.objects.create(
                 author_id=author_id, post_id=request.data.get("post")
@@ -70,10 +70,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
                 print("status code", response.status_code)
-                if response.status_code == 201:
-                    return Response(serializer.data, status=response.status_code)
-                else:
-                    return Response({"message": "Bad Request"}, status=400)
+            return Response(serializer.data, status=response.status_code)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
