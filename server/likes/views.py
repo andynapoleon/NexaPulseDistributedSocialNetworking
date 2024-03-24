@@ -45,14 +45,14 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
 
-            # remoteData = {
-            #     "type": "post_like",
-            #     "author": author_id,
-            #     "post": request.data["post"],
-            # }
+            remoteData = {
+                "type": "post_like",
+                "author": author_id,
+                "post": request.data["post"],
+            }
 
-            remoteData = serializer.data
-            print("SERIALIZER LIKE THIS ", serializer.data)
+            # remoteData = serializer.data
+            # print("SERIALIZER LIKE THIS ", serializer.data)
 
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
