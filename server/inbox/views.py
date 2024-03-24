@@ -301,7 +301,8 @@ class InboxView(APIView):
         elif request_type.lower() == "comment":
             print("MADE IT TO COMMENT")
             post = Post.objects.get(id=request.data["postId"])
-            author = Author.objects.get(id=request.data["author"]["id"])
+            author_id = extract_uuid(request.data["author"]["id"])
+            author = Author.objects.get(id=author_id)
             request_data["content_type"] = request_data["contentType"]
             request_data.pop("contentType")
             request.data["postId"] = post
