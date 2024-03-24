@@ -34,6 +34,22 @@ def extract_uuid(url):
 class InboxView(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
 
+    def convert_json(input_json):
+        output_json = {
+            'type': input_json['type'],
+            'id': input_json['id'].split('/')[-1],  # Extracting the UUID from the URL
+            'authorId': input_json['author']['id'].split('/')[-1],  # Extracting the UUID from the URL
+            'title': input_json['title'],
+            'content': input_json['content'],
+            'contentType': input_json['contentType'],
+            'visibility': input_json['visibility'],
+            'source': input_json['source'],
+            'image_ref': None,  # Assuming there's no image reference in the input JSON
+            'sharedBy': None,  # Assuming there's no sharing information in the input JSON
+            'isShared': False  # Assuming the post is not shared
+        }
+        return output_json
+
     def get(self, request, author_id, format=None):
         """
         Gets the inbox of the specified Author on a server.
@@ -78,6 +94,7 @@ class InboxView(APIView):
         # Post
         if request_type == "post":
             print("POST REQUEST", request.data)
+            request.data = self.convert_json(request.data)
             # {'type': 'post', 
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
@@ -85,7 +102,7 @@ class InboxView(APIView):
             # 'contentType': 'text/plain', 'visibility': 'PUBLIC', 
             # 'source': 'http://127.0.0.1:8000/', 
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
-            # print("image ref", request.data["image_ref"] )
+
             image_ref = request.data.get("image_ref", None)
             post_id = request.data["id"]
             existing_post = Post.objects.filter(id=post_id).first()
