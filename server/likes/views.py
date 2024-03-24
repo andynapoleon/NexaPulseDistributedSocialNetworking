@@ -100,6 +100,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
             for n in node:
+                print("hello")
                 if "social-dist" in n.host:
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
