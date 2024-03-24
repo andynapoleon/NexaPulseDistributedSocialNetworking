@@ -57,7 +57,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
             print("URL", node)
-            print("POST's AUTHOR ID", request.data["author"])
+            # print("POST's AUTHOR ID", request.data["author"])
             print("POST ID", post_id)
             for n in node:
                 print("here")
