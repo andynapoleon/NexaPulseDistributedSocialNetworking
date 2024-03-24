@@ -303,8 +303,8 @@ class InboxView(APIView):
             post = Post.objects.get(id=request.data["postId"])
             author_id = extract_uuid(request.data["author"]["id"])
             author = Author.objects.get(id=author_id)
-            request_data["content_type"] = request_data["contentType"]
-            request_data.pop("contentType")
+            request.data["content_type"] = request.data["contentType"]
+            request.data.pop("contentType")
             request.data["postId"] = post
             request.data["author"] = author
             id = request.data.pop("id")
