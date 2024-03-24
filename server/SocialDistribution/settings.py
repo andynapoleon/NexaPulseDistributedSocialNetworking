@@ -19,13 +19,11 @@ from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 
-CORS_ALLOW_HEADERS = default_headers + (
-    'Access-Control-Allow-Origin',
-)
+CORS_ALLOW_HEADERS = default_headers + ("Access-Control-Allow-Origin",)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-SERVER = "http://127.0.0.1:5000/"
+SERVER = "http://127.0.0.1:8000/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
