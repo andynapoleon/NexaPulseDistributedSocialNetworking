@@ -86,7 +86,7 @@ class AuthorRemote(APIView):
 
     def post(self, request):
         users = request.data
-        print("FDSFDS DATA", users)
+        print("FDSFDS DATA fasdfsadfdsgit", users)
         for data in users["items"]:
             data["id"] = extract_uuid(data["id"])
             data["email"] = data["displayName"] + "@gmail.com"
