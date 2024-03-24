@@ -220,6 +220,7 @@ class FollowView(APIView):
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
+        print("DELETING THIS SHIT")
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
@@ -230,9 +231,11 @@ class FollowView(APIView):
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
+        print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
         try:
+            print("TRYING IN HERE")
             queryset = Node.objects.get(
                 username="remote", password="123456", host=following_author["host"]
             )
