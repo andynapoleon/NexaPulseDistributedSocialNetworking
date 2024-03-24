@@ -48,10 +48,15 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            "image_ref": input_json["image_ref"].split("/")[-1],
+            # "image_ref": input_json["image_ref"].split("/")[-1],
             "sharedBy": None,  # Assuming there's no sharing information in the input JSON
             "isShared": False,  # Assuming the post is not shared
         }
+
+        try:
+            output_json["image_ref"] = input_json["image_ref"].split("/")[-1]
+        except:
+            pass
         return output_json
 
     def get(self, request, author_id, format=None):
