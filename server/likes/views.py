@@ -105,7 +105,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     print("hello", request.data["author"])
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
-                    print("hello", request.data["author"])
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
                 response = requests.post(
                     url,
