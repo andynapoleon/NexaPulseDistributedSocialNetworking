@@ -95,7 +95,7 @@ class InboxView(APIView):
         print(request_type)
 
         # Post
-        if request_type == "post":
+        if request_type.lower() == "post":
             print("POST REQUEST", request.data)
             request_data = self.convert_json(request.data)
             # {'type': 'post',
@@ -298,7 +298,8 @@ class InboxView(APIView):
             )
 
         # Comments
-        elif request_type == "comment":
+        elif request_type.lower() == "comment":
+            print("MADE IT TO COMMENT")
             post = Post.objects.get(id=request.data["postId"])
             author = Author.objects.get(id=request.data["author"]["id"])
             request_data["content_type"] = request_data["contentType"]
