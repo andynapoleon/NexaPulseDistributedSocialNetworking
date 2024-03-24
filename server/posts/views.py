@@ -245,7 +245,7 @@ class PostDetail(APIView):
                         "isShared": False,
                         "author": author,
                         "comments": [],
-                        "published": str(current_time) # now
+                        "published": str('current_time') # now
                     }
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/inbox/
