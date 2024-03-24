@@ -363,6 +363,10 @@ class AuthorPosts(APIView):
                 serializer.save()
                 print("SERIALIZER DATA", serializer.data)
 
+                author = Author.objects.get(id=author_id)
+                serializer = AuthorSerializer(author)
+                author = serializer.data
+                print("AUTHOR", author)
 
                 remoteData = {
                     "type": "post",
@@ -377,6 +381,7 @@ class AuthorPosts(APIView):
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
                     "isShared": False,
+                    "author": author,
                 }
 
                 # get all nodes
