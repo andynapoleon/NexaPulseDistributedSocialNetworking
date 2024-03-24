@@ -155,6 +155,7 @@ class InboxView(APIView):
                     url,
                     json=local_data,
                     headers=headers,
+                    params={"request_host": sender_host},
                 )
                 print("IBOX RESPONSE", response.json())
                 # return the response

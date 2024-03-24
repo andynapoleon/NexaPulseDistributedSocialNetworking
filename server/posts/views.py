@@ -210,6 +210,7 @@ class PostDetail(APIView):
             post_serializer = PostSerializer(post, data=request_data, partial=True)
             print("AUTHOR ID", author_id)
             if post_serializer.is_valid():
+                print("VALID OR NOT")
                 if str(request.user.id) == author_id or request.GET.get("request_host"):
                     post_serializer.save()
 
