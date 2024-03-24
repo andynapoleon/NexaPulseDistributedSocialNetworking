@@ -363,6 +363,7 @@ class AuthorPosts(APIView):
                 serializer.save()
                 print("SERIALIZER DATA", serializer.data)
 
+
                 remoteData = {
                     "type": "post",
                     "id": str(serializer.data["id"]),
@@ -372,6 +373,7 @@ class AuthorPosts(APIView):
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
                     "source": SERVER,
+                    "origin": SERVER,
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
                     "isShared": False,
@@ -403,9 +405,11 @@ class AuthorPosts(APIView):
 
                         for follow in follows:
                             following_author_id = follow.follower_id
+                            print("FOLLOWING AUTHOR ID", following_author_id)
                             following_author = Author.objects.get(id=following_author_id)
                             if following_author.host == n.host:
                                 remoteAuthors.append(following_author)
+
 
                     elif request.data.get("visibility") == "FRIENDS":
                         url = n.host + f"/api/friends/friends/{author_id}"
