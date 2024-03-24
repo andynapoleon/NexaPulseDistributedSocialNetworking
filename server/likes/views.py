@@ -74,6 +74,8 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                 print("status code", response.status_code)
                 if response.status_code == 201:
                     return Response(serializer.data, status=response.status_code)
+                else:
+                    return Response({"message": "Bad Request"}, status=400)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
