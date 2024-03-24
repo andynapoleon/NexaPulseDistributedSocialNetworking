@@ -45,5 +45,5 @@ class LikesSerializerPost(serializers.ModelSerializer):
             author_id = instance.author.id
             post_id = instance.post.id
             data["object"] = f"{base_url}authors/{author_id}/posts/{post_id}"
-            data["summary"] = f"{author_id} Likes your post"
+            data["summary"] = f"{author_id} likes your post"
         return data
