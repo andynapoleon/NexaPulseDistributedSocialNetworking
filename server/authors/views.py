@@ -91,7 +91,7 @@ class AuthorRemote(APIView):
         for data in users["items"]:
             data["id"] = extract_uuid(data["id"])
             if data.get("email") == None:
-                data["email"] = data["displayName"] + "@gmail.com"
+                data["email"] = data["id"] + "@gmail.com"
             else:
                 pass
             print("DATA", data)

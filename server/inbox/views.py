@@ -222,7 +222,7 @@ class InboxView(APIView):
         elif request_type.lower() == "follow":
             print("IMHERERHEHRHERHEHRHEHR")
             print("HERE")
-            print("REQUEST DATA", request.data["actor"])
+            print("REQUEST DATA", request.data["actor"], request.data["actor"])
             actor = request.data.get("actor")
             object = request.data.get("object")
 
@@ -257,7 +257,7 @@ class InboxView(APIView):
                 actor_id = actor["id"]
                 object_id = object["id"]
                 actor_url = actor["url"]
-                if host == "https://social-dist-614a0f928723.herokuapp.com":
+                if "social-dist" in host:
                     print("GOING TO ALEX'S")
                     request_url = f"{host}/authors/{object_id}/followers/{actor_url}"
                 else:

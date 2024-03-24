@@ -51,7 +51,7 @@ class FollowView(APIView):
             node = serializer.data
             host = node["host"]
             print("FOLLOWING HOST:", host)
-            if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+            if "social-dist" in host:
                 request_url = f"{host}/authors/{userId1}/inbox"
             else:
                 request_url = f"{host}/api/authors/{userId1}/inbox"
@@ -152,7 +152,7 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+            if "social-dist" in host:
                 request_url = f"{host}/authors/{userId2}/inbox"
             else:
                 request_url = f"{host}/api/authors/{userId2}/inbox"
@@ -241,7 +241,7 @@ class FollowView(APIView):
         node = serializer.data
         host = node["host"]
         print("MADE IT HERE")
-        if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+        if "social-dist" in host:
             print("MADE IT HERE TOOO")
             request_url = f"{host}/authors/{userId1}/inbox"
         else:
