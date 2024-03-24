@@ -59,7 +59,7 @@
         lastUpdated: data.lastUpdated,
       });
       console.log("DATA ACCESS: " + data.access);
-      console.log("DATA REFRESH: " + data.refresh);
+      console.log("DATA ACCESS: " + data.access);
       // navigate("/home");
     } catch (error) {
       errorMessage = error.message;
