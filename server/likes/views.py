@@ -86,10 +86,9 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             like = PostLikes.objects.get(
                 author_id=author_id, post_id=request.data.get("post")
             )
-            print("LIKE", like)
-            like.delete()
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
+            like.delete()
 
             # send POST data for unlike to inbox
             author_instance = Author.objects.get(id=author_id)
