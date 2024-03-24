@@ -70,7 +70,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
                 print("status code", response.status_code)
-            return Response(serializer.data, status=response.status_code)
+            return Response(serializer.data, status=200)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
