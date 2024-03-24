@@ -280,6 +280,7 @@
 
   async function toggleLike() {
     try {
+      console.log("POST", post);
       if (isLiked) {
         console.log("unlike");
         // Unlike the post
@@ -291,7 +292,7 @@
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: post.authorId, post: postId }),
+            body: JSON.stringify({ author: post.author, post: postId }),
           }
         );
 
