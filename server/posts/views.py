@@ -592,7 +592,7 @@ class SharedPost(APIView):
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
             serializer = ServerPostSerializer(post)
             shared_post = serializer.data
-            shared_post["published"] = timezone.now()
+            shared_post["published"] = str(datetime.now(timezone.utc).isoformat())
             shared_post["isShared"] = True
             # sharedBy means original author
             shared_post["sharedBy"] = shared_post["authorId"]

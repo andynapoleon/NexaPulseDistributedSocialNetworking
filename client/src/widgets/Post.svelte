@@ -284,7 +284,7 @@
       if (isLiked) {
         // Unlike the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "DELETE",
             headers: {
@@ -304,7 +304,7 @@
       } else {
         // Like the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "POST",
             headers: {

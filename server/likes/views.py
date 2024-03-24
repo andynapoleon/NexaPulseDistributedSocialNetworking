@@ -69,8 +69,8 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     auth=(n.username, n.password),
                     params={"request_host": SERVER},
                 )
-
-                url = n.host + f"/api/authors/{author_id}/inbox/"
+            
+                url = n.host + f"/api/authors/{author_id}/inbox"
                 response = requests.post(
                     url,
                     json=remoteData,

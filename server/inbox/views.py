@@ -21,6 +21,7 @@ import requests
 from node.models import Node
 from node.serializers import NodeSerializer
 from urllib.parse import urlparse
+from rest_framework.permissions import AllowAny
 
 
 def extract_uuid(url):
@@ -32,7 +33,8 @@ def extract_uuid(url):
 
 # Create your views here.
 class InboxView(APIView):
-    authentication_classes = [BasicOrTokenAuthentication]
+    authentication_classes = [BasicOrTokenAuthentication] #BasicOrTokenAuthentication
+    # permission_classes = [AllowAny]
 
     def convert_json(self, input_json):
         output_json = {
@@ -46,10 +48,19 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            "image_ref": None,  # Assuming there's no image reference in the input JSON
-            "sharedBy": None,  # Assuming there's no sharing information in the input JSON
-            "isShared": False,  # Assuming the post is not shared
         }
+        try:
+            output_json["image_ref"] = input_json["image_ref"].split("/")[-1]
+        except KeyError:
+            output_json["image_ref"] = None
+
+        try:
+            output_json["sharedBy"] = input_json["sharedBy"].split("/")[-1]
+            output_json["isShared"] = input_json["isShared"].split("/")[-1]
+        except KeyError:
+            output_json["sharedBy"] = None
+            output_json["isShared"] = None
+
         return output_json
 
     def get(self, request, author_id, format=None):
@@ -83,6 +94,7 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
+        print("REQUEST DATA", request.data)
         print("AUTHOR ID", author_id)
         author = Author.objects.get(id=author_id)
         author.is_active = True
@@ -107,7 +119,9 @@ class InboxView(APIView):
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
 
             image_ref = request_data.get("image_ref", None)
+            print("IMAGE REF", image_ref)
             post_id = request_data["id"]
+
             print("POST ID", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
