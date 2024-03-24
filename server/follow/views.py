@@ -235,6 +235,8 @@ class FollowView(APIView):
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
         try:
+            if following_author["host"][-1] == "/":
+                following_author["host"] = following_author["host"][0:-1]
             print("TRYING IN HERE")
             queryset = Node.objects.get(
                 username="remote", password="123456", host=following_author["host"]
