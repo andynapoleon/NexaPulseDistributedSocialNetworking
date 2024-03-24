@@ -118,13 +118,16 @@
           console.error("Failed to fetch authors from the node.");
         }
       } else {
-        const sendAuthorResponse = await fetch(node.host + `/api/authors/`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: encodedAuthorization,
-          },
-        });
+        const sendAuthorResponse = await fetch(
+          node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: encodedAuthorization,
+            },
+          }
+        );
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
