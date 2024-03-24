@@ -81,6 +81,8 @@ class PostLikeViewSet(viewsets.ModelViewSet):
         print("I'm in local unlike", request.data)
         try:
             print("LIKE", "fjdasoifjdsiof")
+            print(request.data.get("post"))
+            print(author_id)
             like = PostLikes.objects.get(
                 author_id=author_id, post_id=request.data.get("post")
             )
