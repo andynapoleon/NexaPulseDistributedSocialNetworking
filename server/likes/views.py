@@ -80,9 +80,11 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     def unlike_post(self, request, author_id=None, post_id=None):
         print("I'm in local unlike", request.data)
         try:
+            print("LIKE", "fjdasoifjdsiof")
             like = PostLikes.objects.get(
                 author_id=author_id, post_id=request.data.get("post")
             )
+            print("LIKE", like)
             like.delete()
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
