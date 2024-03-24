@@ -381,6 +381,7 @@ class AuthorPosts(APIView):
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
                     "source": SERVER,
+                    "description": serializer.data["content"],
                     "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
