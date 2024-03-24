@@ -220,6 +220,7 @@ class FollowView(APIView):
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
+        print("DELETING THIS SHIT")
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
