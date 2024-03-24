@@ -285,7 +285,7 @@
         console.log("unlike");
         // Unlike the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "DELETE",
             headers: {
