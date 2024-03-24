@@ -280,7 +280,7 @@
 
   async function toggleLike() {
     try {
-      console.log("POST", post);
+      console.log("POST", post.authorId);
       if (isLiked) {
         console.log("unlike");
         // Unlike the post
