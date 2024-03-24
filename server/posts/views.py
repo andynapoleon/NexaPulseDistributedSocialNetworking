@@ -174,7 +174,7 @@ class PostDetail(APIView):
 
     def put(self, request, author_id, post_id):
         try:
-            # print("request.data", request.data)
+            print("request.data", request.data)
             # request.data {'title': 'sss12334', 'content': 'ssss', 'image': None}
             post = Post.objects.get(id=post_id)
 
@@ -208,7 +208,7 @@ class PostDetail(APIView):
             #     request_data["content"] = markdownify(request_data["content"])
             
             post_serializer = PostSerializer(post, data=request_data, partial=True)
-            
+            print("AUTHOR ID", author_id)
             if post_serializer.is_valid():
                 if str(request.user.id) == author_id or request.GET.get("request_host"):
                     post_serializer.save()
@@ -271,7 +271,6 @@ class PostDetail(APIView):
                             )
 
                     return Response(post_serializer.data, status=status.HTTP_200_OK)
-            # print(serializer.errors)
             return Response(post_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)

@@ -156,6 +156,7 @@ class InboxView(APIView):
                     json=local_data,
                     headers=headers,
                 )
+                print("IBOX RESPONSE", response.json())
                 # return the response
                 return Response(response.json(), status=response.status_code)
 
