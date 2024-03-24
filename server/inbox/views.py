@@ -303,6 +303,13 @@ class InboxView(APIView):
                 author_id = extract_uuid(request.data["author"]["id"])
             if "/" in request.data["object"]:
                 post_id = extract_uuid(request.data["object"])
+            existing_like = PostLikes.objects.get(author_id=author_id, post_id=post_id)
+            if existing_like.exists():
+                existing_like.delete()
+                return Response(
+                    {"message": "Post like added to inbox!"},
+                    status=status.HTTP_201_CREATED,
+                )
             like = PostLikes.objects.create(author_id=author_id, post_id=post_id)
             inbox.post_likes.add(like)
             return Response(
