@@ -214,7 +214,7 @@ class PostDetail(APIView):
                 if str(request.user.id) == author_id or request.GET.get("request_host"):
                     post_serializer.save()
 
-                    node = Node.objects.all()
+                    node = Node.objects.all().filter(isActive=True)
                     print("NODES", node)
                     query_set = Author.objects.get(id=author_id)
                     serializer = AuthorSerializer(query_set)
@@ -262,7 +262,10 @@ class PostDetail(APIView):
                         # make a request to all nodes api/authors/<str:author_id>/inbox/
                         print("I AM HERE")
                         for n in node:
-                            url = n.host + f"/authors/{author_id}/inbox" # /api
+                            if "social-dist" in n.host:
+                                url = n.host + f"/authors/{author_id}/inbox" 
+                            else:
+                                url = n.host + f"/api/authors/{author_id}/inbox"
 
                             response = requests.post(
                                 url,
@@ -423,6 +426,7 @@ class AuthorPosts(APIView):
                 node = Node.objects.all()
                 print("NODES", node)
                 remoteAuthors = []
+                follows = Follows.objects.filter(followed=author_id)
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -441,7 +445,6 @@ class AuthorPosts(APIView):
                         # remoteAuthors = response.json().get("items", [])
 
                         # get all authors that are following the current author
-                        follows = Follows.objects.filter(followed=author_id)
 
                         for follow in follows:
                             following_author_id = follow.follower_id
@@ -471,7 +474,10 @@ class AuthorPosts(APIView):
                         except TypeError:
                             id = remoteAuthor.id
 
-                        url = n.host + f"/authors/{str(id)}/inbox" # /api
+                        if "social-dist" in n.host:
+                            url = n.host + f"/authors/{str(id)}/inbox" 
+                        else:
+                            url = n.host + f"/api/authors/{str(id)}/inbox"
 
                         response = requests.post(
                             url,
