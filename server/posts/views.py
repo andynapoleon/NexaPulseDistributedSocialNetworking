@@ -159,7 +159,7 @@ class PostById(APIView):
 
 class PostDetail(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
-
+    
     def get_serializer_class(self):
         return PostSerializer
 
@@ -228,12 +228,30 @@ class PostDetail(APIView):
                     request_data["sharedBy"] = None
                     request_data["isShared"] = False
                     request_data.pop("image", None)
-                    
+                    print("REQUEST DATA", request_data)
+                    remoteData = {
+                        "type": "post",
+                        "id": str(serializer.data["id"]),
+                        "authorId": author_id,
+                        "title": serializer.data["title"],
+                        "content": serializer.data["content"],
+                        "contentType": serializer.data["contentType"],
+                        "visibility": serializer.data["visibility"],
+                        "source": SERVER,
+                        "description": serializer.data["content"],
+                        "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
+                        "image_ref": str(serializer.data["image_ref"]),
+                        "sharedBy": None,
+                        "isShared": False,
+                        "author": author,
+                        "comments": [],
+                        "published": str(current_time) # now
+                    }
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/inbox/
                         print("I AM HERE")
                         for n in node:
-                            url = n.host + f"/api/authors/{author_id}/inbox/"
+                            url = n.host + f"/authors/{author_id}/inbox" # /api
 
                             response = requests.post(
                                 url,
