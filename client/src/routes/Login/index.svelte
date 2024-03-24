@@ -64,7 +64,7 @@
       errorMessage = error.message;
     }
 
-    // Get all nodes 
+    // Get all nodes
     const res_nodes = await fetch(server + "/api/nodes", {
       method: "GET",
       headers: {
@@ -90,32 +90,62 @@
       console.log(node.username);
       console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
-      
       // Send a request to the node to get the authors
-      const sendAuthorResponse = await fetch(node.host + `/authors/`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: encodedAuthorization,
-        },
-      });
-      // console.log("SEND AUTHOR RESPONSE", await sendAuthorResponse.json());
-      if (sendAuthorResponse.ok) {
-        const authorData = await sendAuthorResponse.json(); // Extract JSON data
-        const getResponse = await fetch(server + `/api/authors/remote/`, {
-          method: "POST",
+      if (node.host.includes("social-dist")) {
+        const sendAuthorResponse = await fetch(node.host + `/authors/`, {
+          method: "GET",
           headers: {
             "Content-Type": "application/json",
+            Authorization: encodedAuthorization,
           },
-          body: JSON.stringify(authorData), // Pass fetched data to the second request
         });
-        if (getResponse.ok) {
-          console.log("Remote authors successfully fetched.");
+        // Send fetched remote authors to the backend to store locally
+        if (sendAuthorResponse.ok) {
+          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          const getResponse = await fetch(server + `/api/authors/remote/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
+          });
+          if (getResponse.ok) {
+            console.log("Remote authors successfully fetched.");
+          } else {
+            console.error("Failed to fetch remote authors.");
+          }
         } else {
-          console.error("Failed to fetch remote authors.");
+          console.error("Failed to fetch authors from the node.");
         }
       } else {
-        console.error("Failed to fetch authors from the node.");
+        const sendAuthorResponse = await fetch(
+          node.host + `/api/authors?request_host=${encodeURIComponent(server)}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: encodedAuthorization,
+            },
+          }
+        );
+        // Send fetched remote authors to the backend to store locally
+        if (sendAuthorResponse.ok) {
+          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          const getResponse = await fetch(server + `/api/authors/remote/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
+          });
+          if (getResponse.ok) {
+            console.log("Remote authors successfully fetched.");
+          } else {
+            console.error("Failed to fetch remote authors.");
+          }
+        } else {
+          console.error("Failed to fetch authors from the node.");
+        }
       }
     }
   }
