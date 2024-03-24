@@ -407,7 +407,7 @@ class AuthorPosts(APIView):
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
                             following_author = Author.objects.get(id=following_author_id)
-                            if following_author.host == n.host:
+                            if following_author.host == n.host + "/" or following_author.host == n.host:
                                 remoteAuthors.append(following_author)
 
                     elif request.data.get("visibility") == "FRIENDS":
