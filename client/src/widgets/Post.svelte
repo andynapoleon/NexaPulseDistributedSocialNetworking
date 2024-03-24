@@ -282,6 +282,7 @@
   async function toggleLike() {
     try {
       if (isLiked) {
+        console.log("unlike");
         // Unlike the post
         const response = await fetchWithRefresh(
           `${server}/api/authors/${authorId}/inbox`,
@@ -304,7 +305,7 @@
       } else {
         // Like the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "POST",
             headers: {

@@ -48,7 +48,7 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            "image_ref": input_json["image_ref"],
+            "image_ref": input_json["image_ref"].split("/")[-1],
             "sharedBy": None,  # Assuming there's no sharing information in the input JSON
             "isShared": False,  # Assuming the post is not shared
         }
@@ -293,6 +293,7 @@ class InboxView(APIView):
 
         # Likes on posts
         elif request_type == "post_like":
+            print("I'm in inbox post like")
             like = PostLikes.objects.create(
                 author_id=request.data.get("author"), post_id=request.data.get("post")
             )
