@@ -38,6 +38,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
         print("I'm in local post like")
+        print(request.data["author"])
         try:
             like = PostLikes.objects.create(
                 author_id=author_id, post_id=request.data.get("post")
@@ -56,9 +57,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
-            print("URL", node)
-            # print("POST's AUTHOR ID", request.data["author"])
-            print("POST ID", post_id)
             for n in node:
                 print("here")
                 if "social-dist" in n.host:
