@@ -38,15 +38,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
         print("I'm in local post like")
-        # Check if the author_id provided in the URL matches the ID of the currently logged-in user
-        if str(request.data.get("author")) != author_id:
-            return Response(
-                {
-                    "error": "You are not authorized to like posts on behalf of other users."
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
         try:
             like = PostLikes.objects.create(
                 author_id=author_id, post_id=request.data.get("post")
