@@ -120,17 +120,12 @@ class AuthorCreate(APIView):
         data = request.data
         print(data)
         try:
-            if data["host"] == SERVER:
-                author = Author.objects.get(email=data["email"])
-            else:
-                raise Author.DoesNotExist
+            author = Author.objects.get(email=data["email"])
             return Response(
                 {"error": "User with this email already exists"}, status=400
             )
         except Author.DoesNotExist:
             if data["id"] == None:
-                print(data)
-                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
