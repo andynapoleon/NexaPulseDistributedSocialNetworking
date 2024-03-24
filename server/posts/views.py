@@ -21,6 +21,7 @@ import requests
 from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 import string
+from datetime import datetime, timezone
 
 
 class PostList(generics.ListCreateAPIView):
@@ -355,6 +356,8 @@ class AuthorPosts(APIView):
         if request_data["contentType"] == "text/markdown":
             request_data["content"] = markdownify(request_data["content"])
 
+        current_time = datetime.now(timezone.utc).isoformat()
+
         serializer = ServerPostSerializer(data=request_data)
         if serializer.is_valid():
             print("VALID OR NOT")
@@ -367,6 +370,7 @@ class AuthorPosts(APIView):
                 author_serializer = AuthorSerializer(author)
                 author = author_serializer.data
                 print("AUTHOR", author)
+                author["url"] = author["host"] + f"authors/{author_id}"
 
                 remoteData = {
                     "type": "post",
@@ -377,11 +381,13 @@ class AuthorPosts(APIView):
                     "contentType": serializer.data["contentType"],
                     "visibility": serializer.data["visibility"],
                     "source": SERVER,
-                    "origin": SERVER,
+                    "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
                     "isShared": False,
                     "author": author,
+                    "comments": [],
+                    "published": str(current_time) # now
                 }
 
                 # get all nodes
