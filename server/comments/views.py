@@ -67,7 +67,7 @@ class CommentDetail(generics.RetrieveAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            author = Author.objects.get(id=author)
+            author = Author.objects.get(id=author_id)
             author_serializer = AuthorSerializer(author)
             author = author_serializer.data
             print("AUTHOR SENDING", author)
