@@ -231,7 +231,7 @@ class FollowView(APIView):
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
-        print("FOLLOWING AUTHOR HERE!")
+        print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
         try:
