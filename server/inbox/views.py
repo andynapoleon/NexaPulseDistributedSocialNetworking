@@ -33,7 +33,7 @@ def extract_uuid(url):
 
 # Create your views here.
 class InboxView(APIView):
-    authentication_classes = [BasicOrTokenAuthentication] #BasicOrTokenAuthentication
+    authentication_classes = [BasicOrTokenAuthentication]  # BasicOrTokenAuthentication
     # permission_classes = [AllowAny]
 
     def convert_json(self, input_json):
@@ -292,11 +292,13 @@ class InboxView(APIView):
             )
 
         # Likes on posts
-        elif request_type == "post_like":
+        elif request_type.lower() == "post_like" or request_type.lower() == "like":
             print("I'm in inbox post like")
-            like = PostLikes.objects.create(
-                author_id=request.data.get("author"), post_id=request.data.get("post")
-            )
+            if "/" in request.data["author"]["id"]:
+                author_id = extract_uuid(request.data["author"]["id"])
+            if "/" in request.data["object"]:
+                post_id = extract_uuid(request.data["object"])
+            like = PostLikes.objects.create(author_id=author_id, post_id=post_id)
             inbox.post_likes.add(like)
             return Response(
                 {"message": "Post like added to inbox!"}, status=status.HTTP_201_CREATED
