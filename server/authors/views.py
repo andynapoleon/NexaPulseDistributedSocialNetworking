@@ -86,7 +86,7 @@ class AuthorRemote(APIView):
 
     def post(self, request):
         users = request.data
-        print("DATA", users)
+        print("FDSFDS DATA fasdfsadfdsgit", users)
         for data in users["items"]:
             data["id"] = extract_uuid(data["id"])
             data["email"] = data["displayName"] + "@gmail.com"
@@ -105,7 +105,7 @@ class AuthorRemote(APIView):
             new_author.save()
             serializer = AuthorSerializer(new_author)
             response = serializer.data
-            return Response(response, status=201)
+        return Response(response, status=201)
 
 
 class AuthorCreate(APIView):
