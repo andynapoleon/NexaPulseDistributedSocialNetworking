@@ -221,9 +221,7 @@ class InboxView(APIView):
                 print("HOST HERE", object["host"])
                 if object["host"][-1] == "/":
                     object["host"] = object["host"][0:-1]
-                queryset = Node.objects.get(
-                    username="remote", password="123456", host=object["host"]
-                )
+                queryset = Node.objects.get(host=object["host"])
                 serializer = NodeSerializer(queryset)
                 node = serializer.data
                 host = node["host"]
