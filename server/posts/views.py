@@ -336,7 +336,12 @@ class AuthorPosts(APIView):
         
         request_data = request.data.copy()
         print("DATA", request_data)
-        # DATA {'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'type': 'post', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'image': ''}
+        # DATA {'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
+        # 'type': 'post', 
+        # 'title': 'sss', 
+        # 'content': 'ssss', 
+        # 'contentType': 'text/plain', 
+        # 'visibility': 'PUBLIC', 'image': ''}
         request_data["authorId"] = author_id
         if request_data["image"]:
             id, response = self.create_image_post(
@@ -384,7 +389,7 @@ class AuthorPosts(APIView):
                         request.data.get("visibility") == "PUBLIC"
                         or request.data.get("visibility") == "UNLISTED"
                     ):
-                        url = n.host + f"/api/authors"
+                        url = n.host + f"/authors" # /api
                         print("URL", url)
                         response = requests.get(
                             url,

@@ -77,7 +77,13 @@ class InboxView(APIView):
 
         # Post
         if request_type == "post":
-            # {'type': 'post', 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'source': 'http://127.0.0.1:8000/', 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
+            # {'type': 'post', 
+            # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 
+            # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
+            # 'title': 'sss', 'content': 'ssss', 
+            # 'contentType': 'text/plain', 'visibility': 'PUBLIC', 
+            # 'source': 'http://127.0.0.1:8000/', 
+            # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
             # print("image ref", request.data["image_ref"] )
             image_ref = request.data.get("image_ref", None)
             post_id = request.data["id"]
