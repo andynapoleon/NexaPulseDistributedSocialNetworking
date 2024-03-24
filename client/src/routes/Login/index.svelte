@@ -59,11 +59,11 @@
         lastUpdated: data.lastUpdated,
       });
       console.log("DATA ACCESS: " + data.access);
-      navigate("/home");
+      // navigate("/home");
     } catch (error) {
       errorMessage = error.message;
     }
-
+    console.log("I'm here");
     // Get all nodes 
     const res_nodes = await fetch(server + "/api/nodes", {
       method: "GET",
