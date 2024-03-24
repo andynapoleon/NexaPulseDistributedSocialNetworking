@@ -291,7 +291,7 @@
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: authorId, post: postId }),
+            body: JSON.stringify({ author: post.authorId, post: postId }),
           }
         );
 

@@ -56,7 +56,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 
             remoteData = {
                 "type": "post_like",
-                "author": request.data["author"],
+                "author": author_id,
                 "post": request.data["post"],
             }
 
@@ -69,6 +69,8 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     url = n.host + f"/api/authors"
 
                 print("URL", url)
+                print("POST's AUTHOR ID", request.data["author"])
+                print("POST ID", post_id)
                 response = requests.get(
                     url,
                     auth=(n.username, n.password),
@@ -76,10 +78,10 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                 )
 
                 if "social-dist" in n.host:
-                    url = n.host + f"/authors/{author_id}/inbox"
+                    url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
-                    url = n.host + f"/api/authors/{author_id}/inbox"
-                
+                    url = n.host + f"/api/authors/{request.data['author']}/inbox"
+
                 response = requests.post(
                     url,
                     json=remoteData,
