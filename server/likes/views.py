@@ -38,7 +38,6 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
         print("I'm in local post like")
-        print(request.data)
         try:
             like = PostLikes.objects.create(
                 author_id=author_id, post_id=request.data.get("post")
@@ -52,17 +51,20 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             #     "post": request.data["post"],
             # }
 
+            author_instance = Author.objects.get(id=author_id)
+            author_serializer = AuthorSerializer(author_instance)
             remoteData = serializer.data
-            print("SERIALIZER LIKE THIS ", serializer.data)
+            remoteData["author"] = author_serializer.data
+            print("SERIALIZER LIKE THIS ", remoteData)
 
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
             for n in node:
-                print("here")
                 if "social-dist" in n.host:
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
+                print("URL", url)
                 response = requests.post(
                     url,
                     json=remoteData,
@@ -70,7 +72,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     params={"request_host": SERVER},
                 )
                 print("status code", response.status_code)
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
