@@ -102,8 +102,10 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             for n in node:
                 print("hello", request.data["author"])
                 if "social-dist" in n.host:
+                    print("hello", request.data["author"])
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
+                    print("hello", request.data["author"])
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
                 response = requests.post(
                     url,
