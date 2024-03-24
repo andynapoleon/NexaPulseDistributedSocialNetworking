@@ -234,9 +234,7 @@ class FollowView(APIView):
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
             print("TRYING IN HERE")
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            queryset = Node.objects.get(host=following_author["host"])
         except:
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
         serializer = NodeSerializer(queryset)
