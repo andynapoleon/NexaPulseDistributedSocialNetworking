@@ -34,7 +34,7 @@ def extract_uuid(url):
 class InboxView(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
 
-    def convert_json(input_json):
+    def convert_json(self, input_json):
         output_json = {
             'type': input_json['type'],
             'id': input_json['id'].split('/')[-1],  # Extracting the UUID from the URL
