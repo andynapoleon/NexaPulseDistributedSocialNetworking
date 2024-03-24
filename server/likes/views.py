@@ -45,43 +45,33 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
 
-            remoteData = {
-                "type": "post_like",
-                "author": author_id,
-                "post": request.data["post"],
-            }
+            # remoteData = {
+            #     "type": "post_like",
+            #     "author": author_id,
+            #     "post": request.data["post"],
+            # }
+
+            remoteData = serializer.data
 
             # get all nodes
             node = Node.objects.all()
             for n in node:
-                if "social-dist" in n.host:
-                    url = n.host + f"/authors"
-                else:
-                    url = n.host + f"/api/authors"
-
                 print("URL", url)
                 print("POST's AUTHOR ID", request.data["author"])
                 print("POST ID", post_id)
-                response = requests.get(
-                    url,
-                    auth=(n.username, n.password),
-                    params={"request_host": SERVER},
-                )
-
                 if "social-dist" in n.host:
                     url = n.host + f"/authors/{request.data['author']}/inbox"
                 else:
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
-
                 response = requests.post(
                     url,
                     json=remoteData,
                     auth=(n.username, n.password),
                     params={"request_host": SERVER},
                 )
-                print(response)
-
-            return Response(serializer.data, status=201)
+                print("status code", response.status_code)
+                if response.status_code == 201:
+                    return Response(serializer.data, status=response.status_code)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
