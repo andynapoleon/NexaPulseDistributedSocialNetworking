@@ -18,9 +18,11 @@
   // Props passed to the component
   export let post;
   const dispatch = createEventDispatcher();
+  
 
   let userName = ""; // Initialize userName variable for the author's name
-  let postTime = post.published;
+  let time = new Date(post.published)
+  let postTime = time.toLocaleString();
   let content = post.content;
   let title = post.title;
   let authorId = $currentUser.userId;
