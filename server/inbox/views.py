@@ -48,6 +48,7 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
+            
         }
         try:
             output_json["image_ref"] = input_json["image_ref"].split("/")[-1]

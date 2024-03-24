@@ -37,6 +37,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
+        print("I'm in local post like")
         # Check if the author_id provided in the URL matches the ID of the currently logged-in user
         if str(request.data.get("author")) != author_id:
             return Response(
@@ -62,15 +63,23 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             # get all nodes
             node = Node.objects.all()
             for n in node:
-                url = n.host + f"/api/authors"
+                if "social-dist" in n.host:
+                    url = n.host + f"/authors"
+                else:
+                    url = n.host + f"/api/authors"
+
                 print("URL", url)
                 response = requests.get(
                     url,
                     auth=(n.username, n.password),
                     params={"request_host": SERVER},
                 )
-            
-                url = n.host + f"/api/authors/{author_id}/inbox"
+
+                if "social-dist" in n.host:
+                    url = n.host + f"/authors/{author_id}/inbox"
+                else:
+                    url = n.host + f"/api/authors/{author_id}/inbox"
+                
                 response = requests.post(
                     url,
                     json=remoteData,
@@ -85,7 +94,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["delete"])
     def unlike_post(self, request, author_id=None, post_id=None):
-        print(request.data)
+        print("I'm in local unlike", request.data)
         if str(request.data.get("author")) != author_id:
             return Response(
                 {

@@ -588,10 +588,15 @@ class SharedPost(APIView):
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
+        author = Author.objects.get(id=author_id)
+        author_serializer = AuthorSerializer(author)
+        author = author_serializer.data
+
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
             serializer = ServerPostSerializer(post)
             shared_post = serializer.data
+            # time now
             shared_post["published"] = str(datetime.now(timezone.utc).isoformat())
             shared_post["isShared"] = True
             # sharedBy means original author
@@ -614,6 +619,7 @@ class SharedPost(APIView):
                 shared_post["id"] = serializer.data["id"]
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
+                shared_post["author"] = author
                 node = Node.objects.all()
                 print(shared_post)
                 remoteAuthors = []
@@ -648,8 +654,11 @@ class SharedPost(APIView):
                             id = remoteAuthor["id"]
                         except KeyError:
                             id = remoteAuthor["user_id"]
-
-                        url = n.host + f"/api/authors/{str(id)}/inbox/"
+                        except TypeError:
+                            id = remoteAuthor.id
+                        
+                        id = str(id).split("/")[-1]
+                        url = n.host + f"/api/authors/{str(id)}/inbox"
 
                         response = requests.post(
                             url,
