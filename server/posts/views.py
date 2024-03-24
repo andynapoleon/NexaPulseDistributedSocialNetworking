@@ -389,14 +389,24 @@ class AuthorPosts(APIView):
                         request.data.get("visibility") == "PUBLIC"
                         or request.data.get("visibility") == "UNLISTED"
                     ):
-                        url = n.host + f"/authors" # /api
-                        print("URL", url)
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        remoteAuthors = response.json().get("items", [])
+                        # url = n.host + f"/authors" # /api remote same server
+                        # print("URL", url)
+                        # response = requests.get(
+                        #     url,
+                        #     auth=(n.username, n.password),
+                        #     params={"request_host": SERVER},
+                        # )
+                        # remoteAuthors = response.json().get("items", [])
+
+                        # get all authors that are following the current author
+                        follows = Follows.objects.filter(followed=author_id)
+
+                        for follow in follows:
+                            following_author_id = follow.follower_id
+                            following_author = Author.objects.get(id=following_author_id)
+                            if following_author.host == n.host:
+                                remoteAuthors.append(following_author)
+
                     elif request.data.get("visibility") == "FRIENDS":
                         url = n.host + f"/api/friends/friends/{author_id}"
 
@@ -407,7 +417,6 @@ class AuthorPosts(APIView):
                         )
                         print("RESPONSE", response.json())
                         remoteAuthors = response.json()
-                        print("REMOTE AUTHORS", remoteAuthors)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
@@ -416,7 +425,7 @@ class AuthorPosts(APIView):
                         except KeyError:
                             id = remoteAuthor["user_id"]
 
-                        url = n.host + f"/api/authors/{str(id)}/inbox/"
+                        url = n.host + f"/authors/{str(id)}/inbox" # /api
 
                         response = requests.post(
                             url,
