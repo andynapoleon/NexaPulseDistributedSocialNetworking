@@ -142,7 +142,7 @@ class InboxView(APIView):
 
                 # make put request to update the post
                 # authors/<str:author_id>/posts/<str:post_id>
-                url = SERVER + f"api/authors/{request.data["author"]["id"][-1]}/posts/{post_id}/"
+                url = SERVER + f"api/authors/{request.data["author"]["id"].split("/")[-1]}/posts/{post_id}/"
                 print("URLING", url)
                 # use JWT token of the author
                 access_token = author.token["access"]
