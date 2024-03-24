@@ -409,6 +409,7 @@ class AuthorPosts(APIView):
                             following_author = Author.objects.get(id=following_author_id)
                             if following_author.host == n.host + "/" or following_author.host == n.host:
                                 remoteAuthors.append(following_author)
+                        
 
                     elif request.data.get("visibility") == "FRIENDS":
                         url = n.host + f"/api/friends/friends/{author_id}"
@@ -427,6 +428,8 @@ class AuthorPosts(APIView):
                             id = remoteAuthor["id"]
                         except KeyError:
                             id = remoteAuthor["user_id"]
+                        except TypeError:
+                            id = remoteAuthor.id
 
                         url = n.host + f"/authors/{str(id)}/inbox" # /api
 
