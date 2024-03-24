@@ -257,7 +257,7 @@ class InboxView(APIView):
                 actor_id = actor["id"]
                 object_id = object["id"]
                 actor_url = actor["url"]
-                if host == "https://social-dist-614a0f928723.herokuapp.com":
+                if "social-dist" in host:
                     print("GOING TO ALEX'S")
                     request_url = f"{host}/authors/{object_id}/followers/{actor_url}"
                 else:
