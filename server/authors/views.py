@@ -89,6 +89,12 @@ class AuthorRemote(APIView):
         print("FDSFDS DATA fasdfsadfdsgit", users)
         print("request.data", request.data)
         for data in users["items"]:
+            if data["host"][-1] != "/":
+                data["host"] += "/"
+            print("NAME:", data["displayName"])
+            print("HOST:", data["host"])
+            if data["host"] == SERVER:
+                continue
             data["id"] = extract_uuid(data["id"])
             if data.get("email") == None:
                 data["email"] = data["id"] + "@gmail.com"
@@ -120,17 +126,12 @@ class AuthorCreate(APIView):
         data = request.data
         print(data)
         try:
-            if data["host"] == SERVER:
-                author = Author.objects.get(email=data["email"])
-            else:
-                raise Author.DoesNotExist
+            author = Author.objects.get(email=data["email"])
             return Response(
                 {"error": "User with this email already exists"}, status=400
             )
         except Author.DoesNotExist:
             if data["id"] == None:
-                print(data)
-                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
