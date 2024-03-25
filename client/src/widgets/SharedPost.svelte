@@ -215,14 +215,14 @@
       if (isLiked) {
         // Unlike the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: authorId, post: postId }),
+            body: JSON.stringify({ author: post.authorId, post: postId }),
           }
         );
 
@@ -235,14 +235,14 @@
       } else {
         // Like the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "POST",
             headers: {
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: authorId, post: postId }),
+            body: JSON.stringify({ author: post.authorId, post: postId }),
           }
         );
 
