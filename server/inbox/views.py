@@ -139,11 +139,11 @@ class InboxView(APIView):
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
                     if request_data["contentType"] == "application/base64":
                         url_image = (
-                            f"{sender_host}authors/{post_author_id}/posts/{id}/image"
+                            f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
                         )
                     else:
                         url_image = (
-                            f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
+                            f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
                         )
                     print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host[0:-1]).first()
@@ -153,6 +153,7 @@ class InboxView(APIView):
                         params={"request_host": SERVER},
                     ).json()
                     if request_data["contentType"] == "application/base64":
+                        print("EXISTING POST IMAGE", existing_post.image_ref)
                         request_image["id"] = existing_post.image_ref.id
                     else:
                         print("REQUEST IMAGE", request_image["id"].split("/")[6])
