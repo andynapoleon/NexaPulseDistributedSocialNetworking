@@ -426,7 +426,7 @@ class AuthorPosts(APIView):
                 node = Node.objects.all()
                 print("NODES", node)
                 remoteAuthors = []
-                follows = Follows.objects.filter(followed=author_id)
+                follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -435,14 +435,6 @@ class AuthorPosts(APIView):
                         request.data.get("visibility") == "PUBLIC"
                         or request.data.get("visibility") == "UNLISTED"
                     ):
-                        # url = n.host + f"/authors" # /api remote same server
-                        # print("URL", url)
-                        # response = requests.get(
-                        #     url,
-                        #     auth=(n.username, n.password),
-                        #     params={"request_host": SERVER},
-                        # )
-                        # remoteAuthors = response.json().get("items", [])
 
                         # get all authors that are following the current author
 
@@ -455,15 +447,16 @@ class AuthorPosts(APIView):
                         
 
                     elif request.data.get("visibility") == "FRIENDS":
-                        url = n.host + f"/api/friends/friends/{author_id}"
 
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        print("RESPONSE", response.json())
-                        remoteAuthors = response.json()
+                        for follow in follows:
+                            following_author_id = follow.follower_id
+                            print("FOLLOWING AUTHOR ID", following_author_id)
+                            # check if I'm following that author
+                            friend = Follows.objects.filter(follower=author_id, followed=following_author_id, acceptedRequest=True)
+
+                            following_author = Author.objects.get(id=friend.followed)
+                            if following_author.host == n.host + "/" or following_author.host == n.host:
+                                remoteAuthors.append(following_author)
 
                     print("REMOTE AUTHORS", remoteAuthors)
                     for remoteAuthor in remoteAuthors:
