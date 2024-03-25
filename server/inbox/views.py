@@ -60,7 +60,7 @@ class InboxView(APIView):
         try:
             output_json["sharedBy"] = input_json["sharedBy"].split("/")[-1]
             output_json["isShared"] = input_json["isShared"]
-        except:
+        except KeyError:
             output_json["sharedBy"] = None
             output_json["isShared"] = False
 
