@@ -48,10 +48,22 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            "image_ref": input_json["image_ref"].split("/")[-1],
-            "sharedBy": None,  # Assuming there's no sharing information in the input JSON
-            "isShared": False,  # Assuming the post is not shared
+            "image_ref": None,
+            "sharedBy": None,
+            "isShared": False,
         }
+        try:
+            output_json["image_ref"] = input_json["image_ref"].split("/")[-1]
+        except:
+            output_json["image_ref"] = None
+
+        try:
+            output_json["sharedBy"] = input_json["sharedBy"].split("/")[-1]
+            output_json["isShared"] = input_json["isShared"].split("/")[-1]
+        except:
+            output_json["sharedBy"] = None
+            output_json["isShared"] = False
+
         return output_json
 
     def get(self, request, author_id, format=None):
@@ -85,6 +97,7 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
+        print("REQUEST DATA", request.data)
         print("AUTHOR ID", author_id)
         author = Author.objects.get(id=author_id)
         author.is_active = True
@@ -293,7 +306,6 @@ class InboxView(APIView):
 
         # Likes on posts
         elif request_type == "post_like":
-            print("I'm in inbox post like")
             like = PostLikes.objects.create(
                 author_id=request.data.get("author"), post_id=request.data.get("post")
             )
