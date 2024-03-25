@@ -683,6 +683,7 @@ class ImagePost(APIView):
         try:
             post = Post.objects.get(id=post_id)
             print("POST", post_id)
+            # if the image post contains an image
             if post.image_ref != None:
                 base_url = request.build_absolute_uri("/")
                 serializer = PostSerializer(
