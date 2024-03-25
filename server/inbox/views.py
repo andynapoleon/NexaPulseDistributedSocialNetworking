@@ -200,9 +200,15 @@ class InboxView(APIView):
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
-                    url_image = (
-                        f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
-                    )
+                    if request_data["contentType"] == "application/base64":
+                        url_image = (
+                            f"{sender_host}authors/{author_id}/posts/{id}/image"
+                        )
+                    else:
+                        url_image = (
+                            f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
+                        )
+                    print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host).first()
                     if not node:
                         node = Node.objects.all().filter(host=sender_host[0:-1]).first()
