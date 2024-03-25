@@ -83,8 +83,8 @@
 
   async function rejectResponseButtonClicked() {
     const followRequest = {
-      userId1: currentUserId,
-      userId2: userId, //target user
+      userId1: userId,
+      userId2: currentUserId, //target user
     };
     const followEndpoint =
       server + `/api/follow/${userId}?userId2=${currentUserId}`;
