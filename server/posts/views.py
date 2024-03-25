@@ -453,6 +453,7 @@ class AuthorPosts(APIView):
                             print("FOLLOWING AUTHOR ID", following_author_id)
                             # check if I'm following that author
                             friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
+                            print("FRIEND", friend)
                             if friend:
                                 following_author = Author.objects.get(id=friend.followed)
                                 if following_author.host == n.host + "/" or following_author.host == n.host:
