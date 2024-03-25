@@ -148,7 +148,7 @@ class PostById(APIView):
                     followed_id=author_id,
                     acceptedRequest=True,
                 ).exists()
-                if follower and followed:
+                if (follower and followed) or author_id == post.authorId.id:
                     serializer = PostSerializer(post)
                     return Response(serializer.data)
                 else:
