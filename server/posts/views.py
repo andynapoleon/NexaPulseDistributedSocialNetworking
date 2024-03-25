@@ -682,12 +682,16 @@ class ImagePost(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print("POST", post_id)
             if post.image_ref != None:
                 base_url = request.build_absolute_uri("/")
                 serializer = PostSerializer(
                     post.image_ref, context={"base_url": base_url}
                 )
+                print("SERIALIZER", serializer.data)
                 return Response(serializer.data, status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_404_NOT_FOUND)
         except Post.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
