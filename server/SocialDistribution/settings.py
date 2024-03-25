@@ -19,7 +19,9 @@ from corsheaders.defaults import default_headers
 from datetime import timedelta
 
 
-CORS_ALLOW_HEADERS = default_headers + ("Access-Control-Allow-Origin",)
+CORS_ALLOW_HEADERS = default_headers + (
+    'Access-Control-Allow-Origin',
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
