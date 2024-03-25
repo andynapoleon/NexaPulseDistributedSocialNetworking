@@ -232,6 +232,7 @@ class InboxView(APIView):
                         response.pop("author")
                         print("IMAGE ID", image_id)
                     except:
+                        response["authorId"] = Author.objects.get(id=post_author_id)
                         print("Receiving only base64 image content")
 
                     # create a image post instance
