@@ -117,9 +117,12 @@ class InboxView(APIView):
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
             # 'title': 'sss', 'content': 'ssss',
-            # 'contentType': 'text/plain', 'visibility': 'PUBLIC',
+            # 'contentType': 'text/plain', 'visibility': 'PUBLIC', 
             # 'source': 'http://127.0.0.1:8000/',
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
+
+            # 'contentType': application/base64
+
 
             image_ref = request_data.get("image_ref", None)
             print("IMAGE REF", image_ref)
@@ -131,7 +134,7 @@ class InboxView(APIView):
             if existing_post:
                 print("EXISTING POST", existing_post)
 
-                if image_ref and image_ref != "None":
+                if (image_ref and image_ref != "None") or request_data["contentType"] == "application/base64":
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
                     url_image = (
                         f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
@@ -196,7 +199,7 @@ class InboxView(APIView):
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if image_ref is not None and image_ref != "None":
+                if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
                     url_image = (
                         f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
                     )
@@ -210,17 +213,23 @@ class InboxView(APIView):
                         params={"request_host": SERVER},
                     ).json()
                     # pop image_id
-                    image_id = response.pop("id")
-                    image_id = image_id.split("/")[-2]
-                    author_post = response.pop("authorId")
-                    author_post = Author.objects.get(id=author_post)
-                    response["authorId"] = author_post
-                    response.pop("comments")
-                    response.pop("author")
+                    try:
+                        image_id = response.pop("id")
+                        image_id = image_id.split("/")[-2]
+                        author_post = response.pop("authorId")
+                        author_post = Author.objects.get(id=author_post)
+                        response["authorId"] = author_post
+                        response.pop("comments")
+                        response.pop("author")
+                        print("IMAGE ID", image_id)
+                    except:
+                        print("Receiving only base64 image content")
+
                     # create a image post instance
-                    print("IMAGE ID", image_id)
                     print("ID", id)
                     if request_data["isShared"]:
+                        image_ref = Post.objects.create(**response)
+                    elif request_data["contentType"] == "application/base64":
                         image_ref = Post.objects.create(**response)
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
