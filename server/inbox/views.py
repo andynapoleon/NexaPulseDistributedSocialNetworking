@@ -112,6 +112,7 @@ class InboxView(APIView):
         # Post
         if request_type.lower() == "post":
             print("POST REQUEST", request.data)
+            post_author_id = request.data["author"]["id"].split("/")[-1]
             request_data = self.convert_json(request.data)
             # {'type': 'post',
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
@@ -202,7 +203,7 @@ class InboxView(APIView):
                 if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
                     if request_data["contentType"] == "application/base64":
                         url_image = (
-                            f"{sender_host}authors/{author_id}/posts/{id}/image"
+                            f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
                     else:
                         url_image = (
