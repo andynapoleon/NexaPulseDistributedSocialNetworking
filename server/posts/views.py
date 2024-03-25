@@ -137,7 +137,7 @@ class PostById(APIView):
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                print("I AM HERE", post.authorId.id, author_id)
+                print("I AM HERE", post.authorId.id, author_id, post.authorId.id == author_id)
                 # Check if the user is friends with the author
                 follower = Follows.objects.filter(
                     follower_id=author_id,
