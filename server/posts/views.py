@@ -455,7 +455,7 @@ class AuthorPosts(APIView):
                             friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
                             print("FRIEND", friend)
                             if friend:
-                                following_author = Author.objects.get(id=friend.followed)
+                                following_author = Author.objects.get(id=following_author_id)
                                 if following_author.host == n.host + "/" or following_author.host == n.host:
                                     remoteAuthors.append(following_author)
                             
