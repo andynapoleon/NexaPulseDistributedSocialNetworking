@@ -7,13 +7,12 @@
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
-  import { marked } from '../../node_modules/marked';
-  import SvelteMarkdown  from 'svelte-markdown'
-  
+  import { marked } from "../../node_modules/marked";
+  import SvelteMarkdown from "svelte-markdown";
+
   function markdownToHTML(markdown) {
     return marked(markdown);
   }
-  
 
   // Props passed to the component
   export let post;
@@ -281,17 +280,19 @@
 
   async function toggleLike() {
     try {
+      console.log("POST", post.authorId);
       if (isLiked) {
+        console.log("unlike");
         // Unlike the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: authorId, post: postId }),
+            body: JSON.stringify({ author: post.authorId, post: postId }),
           }
         );
 
@@ -304,14 +305,15 @@
       } else {
         // Like the post
         const response = await fetchWithRefresh(
-          `${server}/api/authors/${authorId}/inbox`,
+          // local with /
+          `${server}/api/authors/${authorId}/inbox/`,
           {
             method: "POST",
             headers: {
               Authorization: `Bearer ${get(authToken)}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ author: authorId, post: postId }),
+            body: JSON.stringify({ author: post.authorId, post: postId }),
           }
         );
 
@@ -356,7 +358,6 @@
 
   // Fetch the image associated with the post when the component is mounted
   onMount(async () => {
-
     if (post.image_ref) {
       fetchPostImage();
     }
@@ -402,15 +403,13 @@
       {#if post.image_ref}
         <button on:click={removeImageDisplay}>Remove Image</button>
       {/if}
+    {:else if post.contentType === "text/plain"}
+      {post.content}
     {:else}
-      {#if post.contentType === "text/plain"}
-        {post.content}
-      {:else}
       <div>
         {@html marked(post.content)}
       </div>
-        <!-- {@html renderMarkdown(post.content)} -->
-      {/if}
+      <!-- {@html renderMarkdown(post.content)} -->
     {/if}
   </div>
   <div class="actions">
@@ -485,7 +484,7 @@
   }
   .applejuice {
     color: red;
-    font-weight: unset !important; 
-    font-size: unset !important; 
+    font-weight: unset !important;
+    font-size: unset !important;
   }
 </style>

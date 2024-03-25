@@ -16,6 +16,15 @@ from node.serializers import NodeSerializer
 from django.core.exceptions import ObjectDoesNotExist
 from SocialDistribution.settings import SERVER
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
+from rest_framework import generics
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 class FollowView(APIView):
@@ -29,14 +38,23 @@ class FollowView(APIView):
         following_author = serializer.data
         # remote
         if following_author["host"] != SERVER:
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            print("REMOTE!!!!!!!")
+            if following_author["host"][-1] == "/":
+                following_author["host"] = following_author["host"][0:-1]
+            print(following_author["host"])
+            queryset = Node.objects.all().first()
+            serializer = NodeSerializer(queryset)
+            node = serializer.data
+            print(node["host"] + " " + node["username"] + " " + node["password"])
+            queryset = Node.objects.get(host=following_author["host"])
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
             print("FOLLOWING HOST:", host)
-            request_url = f"{host}/api/authors/{userId1}/inbox/"
+            if "social-dist" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+            else:
+                request_url = f"{host}/api/authors/{userId1}/inbox"
             print(request_url)
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
@@ -51,6 +69,14 @@ class FollowView(APIView):
                     "actor": actor.data,
                     "object": object.data,
                 }
+                # data_to_send = {
+                #     "type": "Follow",
+                #     "summary": str(actor.data["displayName"])
+                #     + " wants to follow "
+                #     + str(object.data["displayName"]),
+                #     "actor": "fdasfdas",
+                #     "object": "fadsfdsf",
+                # }
                 print("DATA TO SEND", data_to_send)
                 requestObj = Follows.objects.filter(
                     follower_id=userId1, followed_id=userId2
@@ -58,6 +84,7 @@ class FollowView(APIView):
                 if requestObj:
                     requestObj.acceptedRequest = True
                 requestObj.save()
+                print("REQUEST URL", request_url)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
@@ -112,18 +139,23 @@ class FollowView(APIView):
             sender_host = sender_host[0:-1]
         if receiver_host[-1] == "/":
             receiver_host = receiver_host[0:-1]
-        print(sender_host)
-        print(receiver_host)
+        print("SENDER", sender_host)
+        print("RECEIVE", receiver_host)
         # remote
         if sender_host != receiver_host:
             userId2 = request.data.get("userId2")
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=receiver_host
-            )
+            print("HOST", receiver_host)
+            # print("ALL", Node.objects.all().first())
+            queryset = Node.objects.get(host=receiver_host)
+            print("FIRST", queryset)
+            print("fdafajdfhjksdfhas")
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            request_url = f"{host}/api/authors/{userId2}/inbox/"
+            if "social-dist" in host:
+                request_url = f"{host}/authors/{userId2}/inbox"
+            else:
+                request_url = f"{host}/api/authors/{userId2}/inbox"
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
@@ -184,6 +216,7 @@ class FollowView(APIView):
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
+        print("DELETING THIS SHIT")
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
@@ -194,18 +227,26 @@ class FollowView(APIView):
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
+        print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
         try:
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            if following_author["host"][-1] == "/":
+                following_author["host"] = following_author["host"][0:-1]
+            print("TRYING IN HERE")
+            queryset = Node.objects.get(host=following_author["host"])
         except:
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
         serializer = NodeSerializer(queryset)
         node = serializer.data
         host = node["host"]
-        request_url = f"{host}/api/authors/{userId1}/inbox/"
+        print("MADE IT HERE")
+        if "social-dist" in host:
+            print("MADE IT HERE TOOO")
+            request_url = f"{host}/authors/{userId1}/inbox"
+        else:
+            request_url = f"{host}/api/authors/{userId1}/inbox"
+        # request_url = f"{host}/api/authors/{userId1}/inbox/"
         try:
             actor = Author.objects.get(id=request.data["userId1"])
             actor = AuthorSerializer(actor)
@@ -219,6 +260,8 @@ class FollowView(APIView):
                 "actor": actor.data,
                 "object": object.data,
             }
+            print("DATA_TO_SEND", data_to_send)
+            print("MADE IT HERE")
             response = requests.post(
                 request_url,
                 json=data_to_send,
@@ -375,6 +418,12 @@ class RemoteCheckFollow(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
 
     def get(self, request, author_id, foreign_author_id):
+        print("MADE IT HERE!")
+        if "/" in author_id:  # Check if author_id is a URL
+            author_id = extract_uuid(author_id)  # Extract UUID from URL
+        if "/" in foreign_author_id:  # Check if author_id is a URL
+            foreign_author_id = extract_uuid(foreign_author_id)  # Extract UUID from URL
+
         following = Follows.objects.filter(
             followed_id=author_id,
             follower_id=foreign_author_id,

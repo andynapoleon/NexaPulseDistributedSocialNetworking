@@ -37,15 +37,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=["post"])
     def like_post(self, request, author_id=None, post_id=None):
         serializer = self.get_serializer(data=request.data)
-        # Check if the author_id provided in the URL matches the ID of the currently logged-in user
-        if str(request.data.get("author")) != author_id:
-            return Response(
-                {
-                    "error": "You are not authorized to like posts on behalf of other users."
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
-
+        print("I'm in local post like")
         try:
             like = PostLikes.objects.create(
                 author_id=author_id, post_id=request.data.get("post")
@@ -53,86 +45,77 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             base_url = request.build_absolute_uri("/")
             serializer = self.get_serializer(like, context={"base_url": base_url})
 
-            remoteData = {
-                "type": "post_like",
-                "author": request.data["author"],
-                "post": request.data["post"],
-            }
+            # remoteData = {
+            #     "type": "post_like",
+            #     "author": author_id,
+            #     "post": request.data["post"],
+            # }
+
+            author_instance = Author.objects.get(id=author_id)
+            author_serializer = AuthorSerializer(author_instance)
+            remoteData = serializer.data
+            remoteData["author"] = author_serializer.data
+            print("SERIALIZER LIKE THIS ", remoteData)
 
             # get all nodes
-            node = Node.objects.all()
+            node = Node.objects.all().filter(isActive=True)
             for n in node:
-                url = n.host + f"/api/authors"
+                if "social-dist" in n.host:
+                    url = n.host + f"/authors/{request.data['author']}/inbox"
+                else:
+                    url = n.host + f"/api/authors/{request.data['author']}/inbox"
                 print("URL", url)
-                response = requests.get(
-                    url,
-                    auth=(n.username, n.password),
-                    params={"request_host": SERVER},
-                )
-
-                url = n.host + f"/api/authors/{author_id}/inbox/"
                 response = requests.post(
                     url,
                     json=remoteData,
                     auth=(n.username, n.password),
                     params={"request_host": SERVER},
                 )
-                print(response)
-
+                print("status code", response.status_code)
             return Response(serializer.data, status=201)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
     @action(detail=False, methods=["delete"])
     def unlike_post(self, request, author_id=None, post_id=None):
-        print(request.data)
-        if str(request.data.get("author")) != author_id:
-            return Response(
-                {
-                    "error": "You are not authorized to unlike posts on behalf of other users."
-                },
-                status=status.HTTP_403_FORBIDDEN,
-            )
+        print("I'm in local unlike", request.data)
         try:
+            print("LIKE", "fjdasoifjdsiof")
+            print(request.data.get("post"))
+            print(author_id)
             like = PostLikes.objects.get(
                 author_id=author_id, post_id=request.data.get("post")
             )
+            base_url = request.build_absolute_uri("/")
+            serializer = self.get_serializer(like, context={"base_url": base_url})
             like.delete()
 
-            remoteData = {
-                "author": request.data["author"],
-                "post": request.data["post"],
-            }
+            # send POST data for unlike to inbox
+            author_instance = Author.objects.get(id=author_id)
+            author_serializer = AuthorSerializer(author_instance)
+            remoteData = serializer.data
+            remoteData["author"] = author_serializer.data
+            remoteData["post"] = str(remoteData["post"])
+            print("SERIALIZER LIKE THIS ", remoteData)
 
             # get all nodes
-            query_set = Author.objects.get(id=author_id)
-            serializer = AuthorSerializer(query_set)
-            author = serializer.data
-            if author["host"] == SERVER:
-                node = Node.objects.all()
-                for n in node:
-                    url = n.host + f"/api/authors"
-                    print("URL", url)
-                    response = requests.get(
-                        url,
-                        auth=(n.username, n.password),
-                        params={"request_host": SERVER},
-                    )
-
-                    url = n.host + f"/api/authors/{author_id}/inbox"
-                    response = requests.delete(
-                        url,
-                        json=remoteData,
-                        auth=(n.username, n.password),
-                        params={"request_host": SERVER},
-                    )
-                    print(response)
-            return Response(status=status.HTTP_204_NO_CONTENT)
-        except PostLikes.DoesNotExist:
-            return Response(
-                {"error": "The specified like does not exist."},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            node = Node.objects.all().filter(isActive=True)
+            for n in node:
+                print("hello", request.data["author"])
+                if "social-dist" in n.host:
+                    url = n.host + f"/authors/{request.data['author']}/inbox"
+                else:
+                    url = n.host + f"/api/authors/{request.data['author']}/inbox"
+                response = requests.post(
+                    url,
+                    json=remoteData,
+                    auth=(n.username, n.password),
+                    params={"request_host": SERVER},
+                )
+                print("status code", response.status_code)
+            return Response(serializer.data, status=response.status_code)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
 
 
 class CommentLikeViewSet(viewsets.ModelViewSet):

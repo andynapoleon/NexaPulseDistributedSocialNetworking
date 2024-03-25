@@ -8,6 +8,14 @@ from .serializers import AuthorSerializer
 from auth.BasicOrTokenAuthentication import BasicOrTokenAuthentication
 from SocialDistribution.settings import SERVER
 from rest_framework import generics
+from urllib.parse import urlparse
+
+
+def extract_uuid(url):
+    parsed_url = urlparse(url)
+    path_segments = parsed_url.path.split("/")
+    uuid = path_segments[-1]  # Assuming UUID is the last segment in the path
+    return uuid
 
 
 class AuthorList(generics.ListCreateAPIView):
@@ -19,14 +27,17 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        queryset = Author.objects.all().filter(host=SERVER)
+        queryset = Author.objects.all()
         return queryset
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = self.get_serializer(queryset, many=True)
-
+        base_url = request.build_absolute_uri("/")
+        serializer = self.get_serializer(
+            queryset, context={"base_url": base_url}, many=True
+        )
         data_with_type = serializer.data
+        print("SERALIFIDLSJLFSJDS", data_with_type)
         for item in data_with_type:
             item["type"] = "author"
             item.pop("password", None)
@@ -48,8 +59,10 @@ class AuthorDetail(generics.RetrieveAPIView):
     def get(self, request, author_id):
         try:
             author = Author.objects.get(id=author_id)
-            serializer = AuthorSerializer(author)
+            base_url = request.build_absolute_uri("/")
+            serializer = AuthorSerializer(author, context={"base_url": base_url})
             response = serializer.data
+            print(response)
             return Response(response, status=200)
         except Author.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -68,12 +81,50 @@ class AuthorDetail(generics.RetrieveAPIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
+class AuthorRemote(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        users = request.data
+        print("FDSFDS DATA fasdfsadfdsgit", users)
+        print("request.data", request.data)
+        for data in users["items"]:
+            if data["host"][-1] != "/":
+                data["host"] += "/"
+            print("NAME:", data["displayName"])
+            print("HOST:", data["host"])
+            if data["host"] == SERVER:
+                continue
+            data["id"] = extract_uuid(data["id"])
+            if data.get("email") == None:
+                data["email"] = data["id"] + "@gmail.com"
+            else:
+                pass
+            print("DATA", data)
+            new_author = Author.objects.create_user(
+                id=data["id"],
+                host=data["host"],
+                isForeign=True,
+                url=data["url"],
+                email=data["email"],
+                password="random",
+                displayName=data["displayName"],
+                profileImage=data["profileImage"],
+                github=data["github"],
+            )
+            new_author.save()
+            serializer = AuthorSerializer(new_author)
+            response = serializer.data
+        return Response(response, status=201)
+
+
 class AuthorCreate(APIView):
     permission_classes = [AllowAny]
 
     # create a new author manually
     def post(self, request):
         data = request.data
+        print(data)
         try:
             author = Author.objects.get(email=data["email"])
             return Response(
@@ -81,7 +132,6 @@ class AuthorCreate(APIView):
             )
         except Author.DoesNotExist:
             if data["id"] == None:
-                print(data)
                 new_author = Author.objects.create_user(
                     email=data["email"],
                     password=data["password"],
@@ -92,6 +142,7 @@ class AuthorCreate(APIView):
                 )
             else:
                 # print(data)
+                data["email"] = data["displayName"]
                 new_author = Author.objects.create_user(
                     id=data["id"],
                     host=data["host"],
