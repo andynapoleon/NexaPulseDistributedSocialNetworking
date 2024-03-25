@@ -631,7 +631,6 @@ class SharedPost(APIView):
                             following_author = Author.objects.get(id=following_author_id)
                             if following_author.host == n.host + "/" or following_author.host == n.host:
                                 remoteAuthors.append(following_author)
-                        remoteAuthors = response.json().get("items", [])
 
                     elif shared_post["visibility"] == "FRIENDS":
                         
