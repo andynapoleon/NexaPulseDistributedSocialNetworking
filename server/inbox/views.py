@@ -118,12 +118,11 @@ class InboxView(APIView):
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
             # 'title': 'sss', 'content': 'ssss',
-            # 'contentType': 'text/plain', 'visibility': 'PUBLIC', 
+            # 'contentType': 'text/plain', 'visibility': 'PUBLIC',
             # 'source': 'http://127.0.0.1:8000/',
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
 
             # 'contentType': application/base64
-
 
             image_ref = request_data.get("image_ref", None)
             print("IMAGE REF", image_ref)
@@ -135,16 +134,14 @@ class InboxView(APIView):
             if existing_post:
                 print("EXISTING POST", existing_post)
 
-                if (image_ref and image_ref != "None") or request_data["contentType"] == "application/base64":
+                if (image_ref and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
                     if request_data["contentType"] == "application/base64":
-                        url_image = (
-                            f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
-                        )
+                        url_image = f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
                     else:
-                        url_image = (
-                            f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
-                        )
+                        url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
                     print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host[0:-1]).first()
                     request_image = requests.get(
@@ -210,7 +207,9 @@ class InboxView(APIView):
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
+                if (image_ref != None and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
                     if request_data["contentType"] == "application/base64":
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
@@ -337,12 +336,12 @@ class InboxView(APIView):
         elif request_type.lower() == "post_like" or request_type.lower() == "like":
             print("I'm in inbox post like")
             if "/" in request.data["author"]["id"]:
-                author_id = extract_uuid(request.data["author"]["id"])
+                owner_id = extract_uuid(request.data["author"]["id"])
             if "/" in request.data["object"]:
                 post_id = extract_uuid(request.data["object"])
             try:
                 existing_like = PostLikes.objects.get(
-                    author_id=author_id, post_id=post_id
+                    author_id=owner_id, post_id=post_id
                 )
                 existing_like.delete()
                 return Response(
@@ -350,7 +349,7 @@ class InboxView(APIView):
                     status=status.HTTP_201_CREATED,
                 )
             except:
-                like = PostLikes.objects.create(author_id=author_id, post_id=post_id)
+                like = PostLikes.objects.create(author_id=owner_id, post_id=post_id)
                 inbox.post_likes.add(like)
                 return Response(
                     {"message": "Post like added to inbox!"},
