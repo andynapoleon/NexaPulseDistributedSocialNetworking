@@ -158,12 +158,12 @@ class InboxView(APIView):
                     else:
                         print("REQUEST IMAGE", request_image["id"].split("/")[6])
                     # update local image post
-                    local_image_post = Post.objects.get(
-                        id=request_image["id"].split("/")[6]
-                    )
-                    print(
-                        type(local_image_post.content), type(request_image["content"])
-                    )
+                    try:
+                        local_image_post = Post.objects.get(
+                            id=request_image["id"].split("/")[6]
+                        )
+                    except:
+                        local_image_post = Post.objects.get(id=request_image["id"])
                     local_image_post.content = request_image["content"]
                     local_image_post.save()
 
