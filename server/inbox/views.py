@@ -48,19 +48,21 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
-            
+            "image_ref": None,
+            "sharedBy": None,
+            "isShared": False,
         }
         try:
             output_json["image_ref"] = input_json["image_ref"].split("/")[-1]
-        except KeyError:
+        except:
             output_json["image_ref"] = None
 
         try:
             output_json["sharedBy"] = input_json["sharedBy"].split("/")[-1]
-            output_json["isShared"] = input_json["isShared"].split("/")[-1]
-        except KeyError:
+            output_json["isShared"] = input_json["isShared"]
+        except:
             output_json["sharedBy"] = None
-            output_json["isShared"] = None
+            output_json["isShared"] = False
 
         return output_json
 

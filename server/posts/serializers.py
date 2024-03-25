@@ -19,7 +19,7 @@ class PostSerializer(serializers.ModelSerializer):
         context = self.context
         base_url = context.get("base_url")
         if base_url is not None:
-            author_id = instance.authorId. 
+            author_id = instance.authorId
             post_id = instance.id
             data["comments"] = f"{base_url}authors/{author_id}/posts/{post_id}/comments"
             if (
