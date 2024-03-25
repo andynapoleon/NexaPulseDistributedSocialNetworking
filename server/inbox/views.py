@@ -218,8 +218,9 @@ class InboxView(APIView):
                         url_image,
                         auth=(node.username, node.password),
                         params={"request_host": SERVER},
-                    ) #.json()
+                    )
                     print("IMAGE RESPONSE", response)
+                    response = response.json()
                     # pop image_id
                     try:
                         image_id = response.pop("id")
