@@ -137,16 +137,25 @@ class InboxView(APIView):
 
                 if (image_ref and image_ref != "None") or request_data["contentType"] == "application/base64":
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
-                    url_image = (
-                        f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
-                    )
+                    if request_data["contentType"] == "application/base64":
+                        url_image = (
+                            f"{sender_host}authors/{post_author_id}/posts/{id}/image"
+                        )
+                    else:
+                        url_image = (
+                            f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
+                        )
+                    print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host[0:-1]).first()
                     request_image = requests.get(
                         url_image,
                         auth=(node.username, node.password),
                         params={"request_host": SERVER},
                     ).json()
-                    print("REQUEST IMAGE", request_image["id"].split("/")[6])
+                    if request_data["contentType"] == "application/base64":
+                        request_image["id"] = existing_post.image_ref.id
+                    else:
+                        print("REQUEST IMAGE", request_image["id"].split("/")[6])
                     # update local image post
                     local_image_post = Post.objects.get(
                         id=request_image["id"].split("/")[6]
