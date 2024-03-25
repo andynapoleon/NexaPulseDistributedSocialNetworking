@@ -336,12 +336,14 @@ class InboxView(APIView):
         elif request_type.lower() == "post_like" or request_type.lower() == "like":
             print("I'm in inbox post like")
             if "/" in request.data["author"]["id"]:
-                owner_id = extract_uuid(request.data["author"]["id"])
+                request.data["author"]["id"] = extract_uuid(
+                    request.data["author"]["id"]
+                )
             if "/" in request.data["object"]:
                 post_id = extract_uuid(request.data["object"])
             try:
                 existing_like = PostLikes.objects.get(
-                    author_id=owner_id, post_id=post_id
+                    author_id=request.data["author"]["id"], post_id=post_id
                 )
                 existing_like.delete()
                 return Response(
@@ -349,7 +351,9 @@ class InboxView(APIView):
                     status=status.HTTP_201_CREATED,
                 )
             except:
-                like = PostLikes.objects.create(author_id=owner_id, post_id=post_id)
+                like = PostLikes.objects.create(
+                    author_id=request.data["author"]["id"], post_id=post_id
+                )
                 inbox.post_likes.add(like)
                 return Response(
                     {"message": "Post like added to inbox!"},
