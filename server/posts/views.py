@@ -619,30 +619,31 @@ class SharedPost(APIView):
                 node = Node.objects.all()
                 print(shared_post)
                 remoteAuthors = []
+                follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
                     # /api/authors?request_host=${encodeURIComponent(server)}
                     if shared_post["visibility"] == "PUBLIC":
-                        url = n.host + f"/api/authors"
-                        print("URL", url)
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        remoteAuthors = response.json().get("items", [])
-                    elif shared_post["visibility"] == "FRIENDS":
-                        url = n.host + f"/api/friends/friends/{author_id}"
+                        for follow in follows:
+                            following_author_id = follow.follower_id
+                            print("FOLLOWING AUTHOR ID", following_author_id)
+                            following_author = Author.objects.get(id=following_author_id)
+                            if following_author.host == n.host + "/" or following_author.host == n.host:
+                                remoteAuthors.append(following_author)
 
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        print("RESPONSE", response.json())
-                        remoteAuthors = response.json()
-                        print("REMOTE AUTHORS", remoteAuthors)
+                    elif shared_post["visibility"] == "FRIENDS":
+                        
+                        for follow in follows:
+                            following_author_id = follow.follower_id
+                            print("FOLLOWING AUTHOR ID", following_author_id)
+                            # check if I'm following that author
+                            friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
+                            print("FRIEND", friend)
+                            if friend:
+                                following_author = Author.objects.get(id=following_author_id)
+                                if following_author.host == n.host + "/" or following_author.host == n.host:
+                                    remoteAuthors.append(following_author)
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
