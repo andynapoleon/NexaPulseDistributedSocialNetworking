@@ -452,11 +452,12 @@ class AuthorPosts(APIView):
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
                             # check if I'm following that author
-                            friend = Follows.objects.filter(follower=author_id, followed=following_author_id, acceptedRequest=True)
+                            friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
                             if friend:
                                 following_author = Author.objects.get(id=friend.followed)
                                 if following_author.host == n.host + "/" or following_author.host == n.host:
                                     remoteAuthors.append(following_author)
+                            
 
                     print("REMOTE AUTHORS", remoteAuthors)
                     for remoteAuthor in remoteAuthors:
