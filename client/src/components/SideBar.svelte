@@ -1,68 +1,108 @@
-<script>
+<script lang="ts">
   export let items = []; // expects an array of items for the sidebar
-  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation\
-  import { authToken, isLoginPage } from "../stores/stores.js";
+  import { onMount, onDestroy } from 'svelte';
+  import * as Icon from "flowbite-svelte-icons";
+  import { writable } from 'svelte/store'; // Import writable store
+  import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
+  import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
   // Logout function
   function handleLogout() {
-    $authToken = ""; // Clear the authentication token
+    $authToken = "";
     $isLoginPage = true;
-    navigate("/"); // Redirect the user to the login page
+    navigate("/");
   }
+
+  let sidebarClass = ""; // Initialize the sidebar class variable
+
+  function updateSidebarClass() {
+    if (window.innerWidth > 1700) {
+      sidebarClass = "bigSidebar";
+    } else if (window.innerWidth > 1017){
+      sidebarClass = "midSidebar";
+    } else {
+      sidebarClass = "smallSidebar";
+    }
+    console.log("change to ->", sidebarClass)
+  }
+
+  // Call toggleLabelVisibility on mount and remove listener on destroy
+  onMount(() => {
+    // Initial call
+    updateSidebarClass()
+    window.addEventListener('resize', updateSidebarClass);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('resize', updateSidebarClass);
+  });
+
+  console.log('Window Width:', window.innerWidth);
+  console.log('Window Height:', window.innerHeight);
+
 </script>
 
-<aside class="sidebar">
+<aside class={sidebarClass}>
   <nav>
     <ul>
       {#each items as item}
-        <li>
-          <div class="menu-item flex justify-right">
-            <slot {item} />
-            {#if item.label === "Log Out"}
-              <button on:click={handleLogout}>{item.label}</button>
-            {:else}
-              <button on:click={() => navigate(`${item.href}`)}
-                >{item.label}</button
-              >
-            {/if}
-          </div>
-        </li>
+        <div class="container">
+          {#if item.label === "Home"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "For You"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.PhoneSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "Friends"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "Everyone"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.UsersSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "Requests"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "Settings"}
+            <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
+              <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {:else if item.label === "Log Out"}
+            <button class="menu-item" on:click={handleLogout}>
+              <Icon.LockOpenSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              {#if sidebarClass === "bigSidebar"}
+                <span>{item.label}</span>
+              {/if}
+            </button>
+          {/if}
+        </div>
       {/each}
     </ul>
   </nav>
 </aside>
 
 <style>
-  .sidebar {
-    width: 12%;
-    height: 100vh;
-    position: fixed;
-    left: 0;
-    top: 80px;
-    padding-top: 1%;
-    background-color: teal;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-    font-size: large;
-    font-weight: bold;
-  }
-
-  nav ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  nav li button {
-    padding: 14px 12px;
-    text-decoration: none;
-    color: white;
-  }
-
-  .menu-item {
-    padding-left: 5%;
-  }
-
-  nav li :hover {
-    background-color: #1dc2ae;
-  }
+  @import "SideBarStyle.css";
 </style>

@@ -1,7 +1,6 @@
 <script>
   import { Router, Route } from "svelte-routing";
   import TailWind from "./styles/TailWind.svelte";
-  import * as Icon from "flowbite-svelte-icons";
   import NavBar from "./components/NavBar.svelte";
   import SideBar from "./components/SideBar.svelte";
   import Home from "./routes/home/Index.svelte";
@@ -26,8 +25,8 @@
     { href: "/home", label: "Home" },
     { href: "/foryou", label: "For You" },
     { href: `/friends/${$currentUser.userId}`, label: "Friends" },
-    { href: "/all_users", label: "All Users" },
-    { href: `/notifications/${$currentUser.userId}`, label: "Notifications" },
+    { href: "/all_users", label: "Everyone" },
+    { href: `/notifications/${$currentUser.userId}`, label: "Requests" },
     { href: "/", label: "Log Out" },
   ];
 
@@ -51,41 +50,14 @@
 
 <!-- Main Layout -->
 {#if !$isLoginPage}
-  <SideBar items={menuItems} let:item>
-    {#if item.label === "Home"}
-      <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "For You"}
-      <Icon.PhoneSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "Messages"}
-      <Icon.MessageCaptionSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "Create a post"}
-      <Icon.PlusSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "Friends"}
-      <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "All Users"}
-      <Icon.UsersSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "Notifications"}
-      <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-      <!-- If there are notifications, paint a dot -->
-      {#if hasNotifications}
-        <svg class="mt-2" width="12" height="12" viewBox="0 0 10 10">
-          <circle cx="5" cy="5" r="5" fill="red" />
-        </svg>
-      {/if}
-    {:else if item.label === "Settings"}
-      <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {:else if item.label === "Log Out"}
-      <Icon.LockOpenSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
-    {/if}
-  </SideBar>
+  <SideBar items={menuItems}/>
   <NavBar />
 {/if}
 
 <!-- Router -->
 <Router {url}>
   <Route path="/">
-    <Login /></Route
-  >
+    <Login /></Route>
   {#each Object.keys(routes) as route}
     <Route path={route} let:params>
       <AuthenticatedRoute>

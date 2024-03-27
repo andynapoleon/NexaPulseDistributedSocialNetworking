@@ -29,10 +29,10 @@
   </div>
   <div><SearchBar /></div>
   <div>
-    <Icon.BellActiveSolid id="icon" />
-    <Icon.MessageCaptionSolid id="icon" />
-    <Icon.ArrowUpOutline id="icon" />
-    <Icon.UserSettingsSolid id="icon" />
+    <!--<Icon.BellActiveSolid id="icon" />-->
+    <!--<Icon.MessageCaptionSolid id="icon" />-->
+    <!--<Icon.ArrowUpOutline id="icon" />-->
+    <!--<Icon.UserSettingsSolid id="icon" />-->
     <div>
       <a href={`/profile/${id}`}>
         <button>
