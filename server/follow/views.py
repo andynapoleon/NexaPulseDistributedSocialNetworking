@@ -46,14 +46,12 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             print(node["host"] + " " + node["username"] + " " + node["password"])
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            queryset = Node.objects.get(host=following_author["host"])
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
             print("FOLLOWING HOST:", host)
-            if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+            if "social-dist" in host:
                 request_url = f"{host}/authors/{userId1}/inbox"
             else:
                 request_url = f"{host}/api/authors/{userId1}/inbox"
@@ -148,15 +146,13 @@ class FollowView(APIView):
             userId2 = request.data.get("userId2")
             print("HOST", receiver_host)
             # print("ALL", Node.objects.all().first())
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=receiver_host
-            )
+            queryset = Node.objects.get(host=receiver_host)
             print("FIRST", queryset)
             print("fdafajdfhjksdfhas")
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+            if "social-dist" in host:
                 request_url = f"{host}/authors/{userId2}/inbox"
             else:
                 request_url = f"{host}/api/authors/{userId2}/inbox"
@@ -220,6 +216,7 @@ class FollowView(APIView):
         Follows.objects.filter(
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
+        print("DELETING THIS SHIT")
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
@@ -230,19 +227,21 @@ class FollowView(APIView):
             query_set = Author.objects.get(id=user_being_follow_id)
             serializer = AuthorSerializer(query_set)
             following_author = serializer.data
+        print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
         try:
-            queryset = Node.objects.get(
-                username="remote", password="123456", host=following_author["host"]
-            )
+            if following_author["host"][-1] == "/":
+                following_author["host"] = following_author["host"][0:-1]
+            print("TRYING IN HERE")
+            queryset = Node.objects.get(host=following_author["host"])
         except:
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
         serializer = NodeSerializer(queryset)
         node = serializer.data
         host = node["host"]
         print("MADE IT HERE")
-        if node["host"] == "https://social-dist-614a0f928723.herokuapp.com":
+        if "social-dist" in host:
             print("MADE IT HERE TOOO")
             request_url = f"{host}/authors/{userId1}/inbox"
         else:
@@ -261,6 +260,7 @@ class FollowView(APIView):
                 "actor": actor.data,
                 "object": object.data,
             }
+            print("DATA_TO_SEND", data_to_send)
             print("MADE IT HERE")
             response = requests.post(
                 request_url,

@@ -21,6 +21,7 @@ import requests
 from node.models import Node
 from node.serializers import NodeSerializer
 from urllib.parse import urlparse
+from rest_framework.permissions import AllowAny
 
 
 def extract_uuid(url):
@@ -32,7 +33,38 @@ def extract_uuid(url):
 
 # Create your views here.
 class InboxView(APIView):
-    authentication_classes = [BasicOrTokenAuthentication]
+    authentication_classes = [BasicOrTokenAuthentication]  # BasicOrTokenAuthentication
+    # permission_classes = [AllowAny]
+
+    def convert_json(self, input_json):
+        output_json = {
+            "type": input_json["type"],
+            "id": input_json["id"].split("/")[-1],  # Extracting the UUID from the URL
+            "authorId": input_json["author"]["id"].split("/")[
+                -1
+            ],  # Extracting the UUID from the URL
+            "title": input_json["title"],
+            "content": input_json["content"],
+            "contentType": input_json["contentType"],
+            "visibility": input_json["visibility"],
+            "source": input_json["source"],
+            "image_ref": None,
+            "sharedBy": None,
+            "isShared": False,
+        }
+        try:
+            output_json["image_ref"] = input_json["image_ref"].split("/")[-1]
+        except:
+            output_json["image_ref"] = None
+
+        try:
+            output_json["sharedBy"] = input_json["sharedBy"]
+            output_json["isShared"] = input_json["isShared"]
+        except:
+            output_json["sharedBy"] = None
+            output_json["isShared"] = False
+
+        return output_json
 
     def get(self, request, author_id, format=None):
         """
@@ -65,6 +97,8 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
+        print("REQUEST DATA", request.data)
+        print("AUTHOR ID", author_id)
         author = Author.objects.get(id=author_id)
         author.is_active = True
         author.save()
@@ -76,46 +110,73 @@ class InboxView(APIView):
         print(request_type)
 
         # Post
-        if request_type == "post":
-            # {'type': 'post', 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e', 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 'title': 'sss', 'content': 'ssss', 'contentType': 'text/plain', 'visibility': 'PUBLIC', 'source': 'http://127.0.0.1:8000/', 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
-            # print("image ref", request.data["image_ref"] )
-            image_ref = request.data.get("image_ref", None)
-            post_id = request.data["id"]
+        if request_type.lower() == "post":
+            print("POST REQUEST", request.data)
+            post_author_id = request.data["author"]["id"].split("/")[-1]
+            request_data = self.convert_json(request.data)
+            # {'type': 'post',
+            # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
+            # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
+            # 'title': 'sss', 'content': 'ssss',
+            # 'contentType': 'text/plain', 'visibility': 'PUBLIC',
+            # 'source': 'http://127.0.0.1:8000/',
+            # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
+
+            # 'contentType': application/base64
+
+            image_ref = request_data.get("image_ref", None)
+            print("IMAGE REF", image_ref)
+            post_id = request_data["id"]
+
+            print("POST ID", post_id)
             existing_post = Post.objects.filter(id=post_id).first()
 
             if existing_post:
                 print("EXISTING POST", existing_post)
 
-                if image_ref and image_ref != "None":
+                if (image_ref and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
-                    url_image = (
-                        f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
-                    )
+                    if request_data["contentType"] == "application/base64":
+                        url_image = f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
+                    else:
+                        url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
+                    print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host[0:-1]).first()
                     request_image = requests.get(
                         url_image,
                         auth=(node.username, node.password),
                         params={"request_host": SERVER},
                     ).json()
-                    print("REQUEST IMAGE", request_image["id"].split("/")[6])
+                    if request_data["contentType"] == "application/base64":
+                        print("EXISTING POST IMAGE", existing_post.image_ref)
+                        request_image["id"] = existing_post.image_ref.id
+                    else:
+                        print("REQUEST IMAGE", request_image["id"].split("/")[6])
                     # update local image post
-                    local_image_post = Post.objects.get(
-                        id=request_image["id"].split("/")[6]
-                    )
-                    print(
-                        type(local_image_post.content), type(request_image["content"])
-                    )
+                    try:
+                        local_image_post = Post.objects.get(
+                            id=request_image["id"].split("/")[6]
+                        )
+                    except:
+                        local_image_post = Post.objects.get(id=request_image["id"])
                     local_image_post.content = request_image["content"]
                     local_image_post.save()
 
                 local_data = {
-                    "title": request.data["title"],
-                    "content": request.data["content"],
+                    "title": request_data["title"],
+                    "content": request_data["content"],
                     "image": None,
                 }
+
                 # make put request to update the post
                 # authors/<str:author_id>/posts/<str:post_id>
-                url = SERVER + f"api/authors/{author_id}/posts/{post_id}/"
+                url = (
+                    SERVER
+                    + f"api/authors/{request.data['author']['id'].split('/')[-1]}/posts/{post_id}/"
+                )
+                print("URLING", url)
                 # use JWT token of the author
                 access_token = author.token["access"]
                 headers = {
@@ -127,27 +188,37 @@ class InboxView(APIView):
                     url,
                     json=local_data,
                     headers=headers,
+                    params={"request_host": sender_host},
                 )
+                print("IBOX RESPONSE", response.json())
                 # return the response
                 return Response(response.json(), status=response.status_code)
 
             else:
-                author = Author.objects.get(id=request.data["authorId"])
-                request.data["authorId"] = author
-                print("AUTHOR", type(request.data["authorId"]))
-                if request.data["sharedBy"] != None:
-                    request.data["sharedBy"] = Author.objects.get(
-                        id=request.data["sharedBy"]
+                author = Author.objects.get(id=request_data["authorId"])
+                request_data["authorId"] = author
+                print("AUTHOR", type(request_data["authorId"]))
+                if request_data["sharedBy"] != None:
+                    request_data["sharedBy"] = Author.objects.get(
+                        id=request_data["sharedBy"]
                     )
-                id = request.data.pop("id")
+                id = request_data.pop("id")
                 print("ID", id)
-                image_ref = request.data.pop("image_ref", None)
+                image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if image_ref is not None and image_ref != "None":
-                    url_image = (
-                        f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
-                    )
+                if (image_ref != None and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
+                    if request_data["contentType"] == "application/base64":
+                        url_image = (
+                            f"{sender_host}authors/{post_author_id}/posts/{id}/image"
+                        )
+                    else:
+                        url_image = (
+                            f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
+                        )
+                    print("URL IMAGE", url_image)
                     node = Node.objects.all().filter(host=sender_host).first()
                     if not node:
                         node = Node.objects.all().filter(host=sender_host[0:-1]).first()
@@ -156,27 +227,36 @@ class InboxView(APIView):
                         url_image,
                         auth=(node.username, node.password),
                         params={"request_host": SERVER},
-                    ).json()
+                    )
+                    print("IMAGE RESPONSE", response)
+                    response = response.json()
                     # pop image_id
-                    image_id = response.pop("id")
-                    image_id = image_id.split("/")[-2]
-                    author_post = response.pop("authorId")
-                    author_post = Author.objects.get(id=author_post)
-                    response["authorId"] = author_post
-                    response.pop("comments")
-                    response.pop("author")
+                    try:
+                        image_id = response.pop("id")
+                        image_id = image_id.split("/")[-2]
+                        author_post = response.pop("authorId")
+                        author_post = Author.objects.get(id=author_post)
+                        response["authorId"] = author_post
+                        response.pop("comments")
+                        response.pop("author")
+                        print("IMAGE ID", image_id)
+                    except:
+                        response["authorId"] = Author.objects.get(id=post_author_id)
+                        print("Receiving only base64 image content")
+
                     # create a image post instance
-                    print("IMAGE ID", image_id)
                     print("ID", id)
-                    if request.data["isShared"]:
+                    if request_data["isShared"]:
+                        image_ref = Post.objects.create(**response)
+                    elif request_data["contentType"] == "application/base64":
                         image_ref = Post.objects.create(**response)
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
                     new_post = Post.objects.create(
-                        id=id, image_ref=image_ref, **request.data
+                        id=id, image_ref=image_ref, **request_data
                     )
                 else:
-                    new_post = Post.objects.create(id=id, **request.data)
+                    new_post = Post.objects.create(id=id, **request_data)
                 inbox.posts.add(new_post)
 
             return Response(
@@ -187,7 +267,7 @@ class InboxView(APIView):
         elif request_type.lower() == "follow":
             print("IMHERERHEHRHERHEHRHEHR")
             print("HERE")
-            print("REQUEST DATA", request.data["actor"])
+            print("REQUEST DATA", request.data["actor"], request.data["actor"])
             actor = request.data.get("actor")
             object = request.data.get("object")
 
@@ -215,16 +295,14 @@ class InboxView(APIView):
                 print("HOST HERE", object["host"])
                 if object["host"][-1] == "/":
                     object["host"] = object["host"][0:-1]
-                queryset = Node.objects.get(
-                    username="remote", password="123456", host=object["host"]
-                )
+                queryset = Node.objects.get(host=object["host"])
                 serializer = NodeSerializer(queryset)
                 node = serializer.data
                 host = node["host"]
                 actor_id = actor["id"]
                 object_id = object["id"]
                 actor_url = actor["url"]
-                if host == "https://social-dist-614a0f928723.herokuapp.com":
+                if "social-dist" in host:
                     print("GOING TO ALEX'S")
                     request_url = f"{host}/authors/{object_id}/followers/{actor_url}"
                 else:
@@ -255,19 +333,44 @@ class InboxView(APIView):
             )
 
         # Likes on posts
-        elif request_type == "post_like":
-            like = PostLikes.objects.create(
-                author_id=request.data.get("author"), post_id=request.data.get("post")
-            )
-            inbox.post_likes.add(like)
-            return Response(
-                {"message": "Post like added to inbox!"}, status=status.HTTP_201_CREATED
-            )
+        elif request_type.lower() == "post_like" or request_type.lower() == "like":
+            print("I'm in inbox post like")
+            if "/" in request.data["author"]["id"]:
+                request.data["author"]["id"] = extract_uuid(
+                    request.data["author"]["id"]
+                )
+            if "/" in request.data["object"]:
+                post_id = extract_uuid(request.data["object"])
+            try:
+                existing_like = PostLikes.objects.get(
+                    author_id=request.data["author"]["id"], post_id=post_id
+                )
+                existing_like.delete()
+                return Response(
+                    {"message": "Post like added to inbox!"},
+                    status=status.HTTP_201_CREATED,
+                )
+            except:
+                like = PostLikes.objects.create(
+                    author_id=request.data["author"]["id"], post_id=post_id
+                )
+                inbox.post_likes.add(like)
+                return Response(
+                    {"message": "Post like added to inbox!"},
+                    status=status.HTTP_201_CREATED,
+                )
 
         # Comments
-        elif request_type == "comment":
+        elif request_type.lower() == "comment":
+            print("MADE IT TO COMMENT")
             post = Post.objects.get(id=request.data["postId"])
-            author = Author.objects.get(id=request.data["author"])
+            if "/" in request.data["author"]["id"]:
+                author_id = extract_uuid(request.data["author"]["id"])
+            if "/" in request.data["id"]:
+                request.data["id"] = extract_uuid(request.data["id"])
+            author = Author.objects.get(id=author_id)
+            request.data["content_type"] = request.data["contentType"]
+            request.data.pop("contentType")
             request.data["postId"] = post
             request.data["author"] = author
             id = request.data.pop("id")
