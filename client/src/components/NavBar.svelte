@@ -24,7 +24,7 @@
 
 <nav>
   <div>
-    <img src="../../logo.png" alt="" />
+    <img src="https://cdn.discordapp.com/attachments/702782137367134211/1222319408316420116/logo.png?ex=6615c8a8&is=660353a8&hm=830ad50ffbc86f60a1f3b6fba0f9650b9bb94028d418c7bf2c085669b1ed21e9&" alt="" />
     <h1 class="text-[2em] font-bold text-[#d7efda]">NexaPulse</h1>
   </div>
   <div><SearchBar /></div>

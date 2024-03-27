@@ -36,7 +36,7 @@
   let editedContent = post.content;
   let files;
   let editInput;
-  let postTitle = title;
+  let postTitle = post.title;
   let showPopup = false;
   let removeImageFlag = false;
 
@@ -127,7 +127,9 @@
     let imageData = `data:${image_type}, ${image_base64}`;
     if (files) {
       imageData = await readFileAsBase64(files[0]);
-      console.log("Image data sent:", imageData); // Log the image data being sent
+      post.image_ref = true;
+      removeImageFlag = false;
+      // console.log("Image data sent:", imageData); // Log the image data being sent
     }
     const response = await fetchWithRefresh(editPostEndpoint, {
       method: "PUT",
@@ -163,15 +165,15 @@
       // Update the component state with edited content
       if (post.image_ref) {
         removeImageFlag = false;
-
+        console.log("SAVING IMAGE?")
         let imageInfo = imageData.split(",");
         const imageTypePrefixLength = "data:".length;
         image_type = imageInfo[0].substring(imageTypePrefixLength);
         image_base64 = imageInfo[1];
       }
 
-      content = editedContent;
-      title = postTitle;
+      post.content = editedContent;
+      post.title = postTitle;
       isEditing = false;
     } else {
       console.error("Failed to save edited post");
@@ -356,7 +358,6 @@
 
   // Fetch the image associated with the post when the component is mounted
   onMount(async () => {
-
     if (post.image_ref) {
       fetchPostImage();
     }
@@ -365,11 +366,6 @@
   fetchComments();
   fetchLikes();
 
-  let lemon = `# title1
-  ## title2
-  ### thtil1231
-  *ita*`;
-  let banana = post.content;
 </script>
 
 <div class="post">
@@ -382,7 +378,7 @@
       <input type="text" bind:value={postTitle} />
     {:else}
       <a href="javascript:void(0);" on:click={() => goToPostDetails(post.id)}
-        >{title}</a
+        >{post.title}</a
       >
     {/if}
   </div>
