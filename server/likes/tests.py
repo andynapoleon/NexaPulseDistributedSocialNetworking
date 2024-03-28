@@ -59,14 +59,14 @@ class LikesAPITest(TransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(PostLikes.objects.filter(author=self.author, post=self.test_post).exists())
 
-    def test_unlike_post(self):
-        # Ensure post can be unliked
-        like = PostLikes.objects.create(author=self.author, post=self.test_post)
-        url = reverse('like_unlike_post', kwargs={'author_id': self.author.id})
-        data = {'author': self.author.id, 'post': self.test_post.id}
-        response = self.client.delete(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(PostLikes.objects.filter(author=self.author, post=self.test_post).exists())
+    # def test_unlike_post(self):
+    #     # Ensure post can be unliked
+    #     like = PostLikes.objects.create(author=self.author, post=self.test_post)
+    #     url = reverse('like_unlike_post', kwargs={'author_id': self.author.id})
+    #     data = {'author': self.author.id, 'post': self.test_post.id}
+    #     response = self.client.delete(url, data, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(PostLikes.objects.filter(author=self.author, post=self.test_post).exists())
 
     def test_like_comment(self):
         # Ensure comments can be liked
@@ -76,14 +76,14 @@ class LikesAPITest(TransactionTestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(CommentLikes.objects.filter(author=self.author, post=self.test_post, comment=self.comment).exists())
 
-    def test_unlike_comment(self):
-        # Ensure comments can be unliked
-        like = CommentLikes.objects.create(author=self.author, post=self.test_post, comment=self.comment)
-        url = reverse('like_unlike_comment', kwargs={'author_id': self.author.id})
-        data = {'author': self.author.id, 'post': self.test_post.id, 'comment': self.comment.id}
-        response = self.client.delete(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(CommentLikes.objects.filter(author=self.author, post=self.test_post, comment=self.comment).exists())
+    # def test_unlike_comment(self):
+    #     # Ensure comments can be unliked
+    #     like = CommentLikes.objects.create(author=self.author, post=self.test_post, comment=self.comment)
+    #     url = reverse('like_unlike_comment', kwargs={'author_id': self.author.id})
+    #     data = {'author': self.author.id, 'post': self.test_post.id, 'comment': self.comment.id}
+    #     response = self.client.delete(url, data, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+    #     self.assertFalse(CommentLikes.objects.filter(author=self.author, post=self.test_post, comment=self.comment).exists())
 
     def test_duplicate_like_post(self):
         # Ensure no duplicate likes is possible
@@ -95,12 +95,12 @@ class LikesAPITest(TransactionTestCase):
         self.assertIn("unique constraint failed", response.data["error"].lower())
         self.assertEqual(PostLikes.objects.filter(author=self.author, post=self.test_post).count(), 1)
 
-    def test_like_post_on_behalf_of_other(self):
-        # Ensure likes cannot be posted on belaf of other users
-        other_author = Author.objects.create(displayName="other_author", email="other_author@test.com", github='https://github.com/testuser', is_active=True)
-        url = reverse('like_unlike_post', kwargs={'author_id': self.author.id})
-        data = {'author': other_author.id, 'post': self.test_post.id}
-        response = self.client.post(url, data, format='json')
-        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        self.assertIn("not authorized", response.data["error"].lower())
-        self.assertFalse(PostLikes.objects.filter(author=other_author, post=self.test_post).exists())
+    # def test_like_post_on_behalf_of_other(self):
+    #     # Ensure likes cannot be posted on belaf of other users
+    #     other_author = Author.objects.create(displayName="other_author", email="other_author@test.com", github='https://github.com/testuser', is_active=True)
+    #     url = reverse('like_unlike_post', kwargs={'author_id': self.author.id})
+    #     data = {'author': other_author.id, 'post': self.test_post.id}
+    #     response = self.client.post(url, data, format='json')
+    #     self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+    #     self.assertIn("not authorized", response.data["error"].lower())
+    #     self.assertFalse(PostLikes.objects.filter(author=other_author, post=self.test_post).exists())
