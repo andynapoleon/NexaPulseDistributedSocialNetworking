@@ -10,7 +10,7 @@ class BasicOrTokenAuthentication(BaseAuthentication):
     def authenticate(self, request):
         # Check if basic authentication credentials are provided
         auth = request.headers.get("Authorization")
-        print(request.GET)
+        #print(request.GET)
         sender_host_list = request.GET.getlist("request_host")
         if sender_host_list:
             sender_host = sender_host_list[0]

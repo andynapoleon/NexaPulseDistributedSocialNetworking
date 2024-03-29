@@ -85,20 +85,21 @@
 
 <style>
   .main {
-    padding-top: 10%;
-    padding-left: 20%;
-    padding-right: 7%;
+    padding-top: 180px;
+    padding-left: 350px;
+    padding-right: 150px;
   }
 
   .profile-layout {
     display: flex;
     justify-content: space-between;
-    gap: 2rem; /* Adjust the gap as needed */
+    
+    gap: 5rem; /* Adjust the gap as needed */
   }
 
   .profile-widget {
     flex: 1; /* Adjust the flex basis as needed */
-    max-width: 300px; /* Adjust the width as needed */
+    max-width: 350px; /* Adjust the width as needed */
   }
 
   .posts {
