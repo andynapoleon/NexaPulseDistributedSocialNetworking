@@ -604,7 +604,7 @@ class SharedPost(APIView):
             shared_post["content"] = request.data["content"]
             if shared_post['contentType'] == 'application/base64':
                 shared_post['contentType'] = 'text/plain'
-                
+
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
             else:
@@ -680,6 +680,8 @@ class SharedPost(APIView):
                             params={"request_host": SERVER},
                         )
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
