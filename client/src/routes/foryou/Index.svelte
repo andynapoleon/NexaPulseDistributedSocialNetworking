@@ -42,22 +42,21 @@
     }
   }
 
-let fetchInterval;
+  let fetchInterval;
 
-function pollForPosts() {
+  function pollForPosts() {
     fetchInterval = setInterval(() => {
       fetchPosts();
-    }, 10000);
+    }, 5000);
   }
 
-onMount(async () => {
-  pollForPosts();
-});
+  onMount(async () => {
+    pollForPosts();
+  });
 
-onDestroy(() => {
-  clearInterval(fetchInterval);
-});
-
+  onDestroy(() => {
+    clearInterval(fetchInterval);
+  });
 
   onMount(() => {
     $isLoginPage = false;
