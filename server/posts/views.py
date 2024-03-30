@@ -670,6 +670,11 @@ class SharedPost(APIView):
                             url = n.host + f"/authors/{str(id)}/inbox" 
                             shared_post["shared_user"] = shared_post["author"] # sharing author
                             shared_post["shared_body"] = shared_post["content"]
+                            if shared_post["image_ref"]:
+                                shared_post["copy_of_original_id"] = shared_post["image_ref"]
+                            else:
+                                shared_post["copy_of_original_id"] = None
+                            
                             print("Shared post", shared_post)
 
                         else:
