@@ -604,6 +604,8 @@ class SharedPost(APIView):
             shared_post["content"] = request.data["content"]
             if shared_post['contentType'] == 'application/base64':
                 shared_post['contentType'] = 'text/plain'
+            if shared_post['originalContent'] == '':
+                shared_post['originalContent'] = " "
 
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
