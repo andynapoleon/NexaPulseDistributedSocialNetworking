@@ -1,8 +1,8 @@
 <script lang="ts">
   export let items = []; // expects an array of items for the sidebar
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy } from "svelte";
   import * as Icon from "flowbite-svelte-icons";
-  import { writable } from 'svelte/store'; // Import writable store
+  import { writable } from "svelte/store"; // Import writable store
   import { navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
@@ -18,28 +18,27 @@
   function updateSidebarClass() {
     if (window.innerWidth > 1700) {
       sidebarClass = "bigSidebar";
-    } else if (window.innerWidth > 1017){
+    } else if (window.innerWidth > 1017) {
       sidebarClass = "midSidebar";
     } else {
       sidebarClass = "smallSidebar";
     }
-    console.log("change to ->", sidebarClass)
+    console.log("change to ->", sidebarClass);
   }
 
   // Call toggleLabelVisibility on mount and remove listener on destroy
   onMount(() => {
     // Initial call
-    updateSidebarClass()
-    window.addEventListener('resize', updateSidebarClass);
+    updateSidebarClass();
+    window.addEventListener("resize", updateSidebarClass);
   });
 
   onDestroy(() => {
-    window.removeEventListener('resize', updateSidebarClass);
+    window.removeEventListener("resize", updateSidebarClass);
   });
 
-  console.log('Window Width:', window.innerWidth);
-  console.log('Window Height:', window.innerHeight);
-
+  console.log("Window Width:", window.innerWidth);
+  console.log("Window Height:", window.innerHeight);
 </script>
 
 <aside class={sidebarClass}>
@@ -63,7 +62,9 @@
             </button>
           {:else if item.label === "Friends"}
             <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
-              <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              <Icon.ProfileCardSolid
+                class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]"
+              />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
@@ -77,14 +78,18 @@
             </button>
           {:else if item.label === "Requests"}
             <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
-              <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              <Icon.BellActiveSolid
+                class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]"
+              />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
           {:else if item.label === "Settings"}
             <button class="menu-item" on:click={() => navigate(`${item.href}`)}>
-              <Icon.UserSettingsSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+              <Icon.UserSettingsSolid
+                class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]"
+              />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
