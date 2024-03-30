@@ -260,6 +260,7 @@ class FollowView(APIView):
                 "actor": actor.data,
                 "object": object.data,
             }
+            print("DATA_TO_SEND", data_to_send)
             print("MADE IT HERE")
             response = requests.post(
                 request_url,
