@@ -603,7 +603,7 @@ class SharedPost(APIView):
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
             if post.image_ref:
-                shared_post["image_ref"] = post.image_ref.id
+                shared_post["image_ref"] = str(post.image_ref.id)
             else:
                 shared_post["image_ref"] = None
             print("SHARED POST", shared_post)
@@ -650,7 +650,7 @@ class SharedPost(APIView):
                         print("REMOTE AUTHOR", remoteAuthor)
 
                         # do not resend the post to the original author
-                        if remoteAuthor["host"] == author["host"]:
+                        if remoteAuthor.host == author["host"]:
                             continue
 
                         try:
