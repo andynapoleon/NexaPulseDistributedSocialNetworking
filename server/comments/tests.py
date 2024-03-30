@@ -88,11 +88,12 @@ class CommentAPITestCase(APITestCase):
         # print("HEre",response.content)  # Print response content for debugging
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_comment_not_found(self):
-            # Ensure nonexistent comment are handled appropriately
-            url = reverse("get_post_comments", kwargs={"author_id": self.author.id, "post_id": self.invalid_post_id})
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    # commented the lines 40-41 that handled this case don't want to send 404 not found if the list is empty.
+    # def test_comment_not_found(self):
+    #         # Ensure nonexistent comment are handled appropriately
+    #         url = reverse("get_post_comments", kwargs={"author_id": self.author.id, "post_id": self.invalid_post_id})
+    #         response = self.client.get(url)
+    #         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
     # def test_bad_request(self):
     #     url = reverse("get_post_comments", kwargs={"author_id": self.author.id, "post_id": self.test_post.id})
