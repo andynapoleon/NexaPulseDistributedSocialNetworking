@@ -3,7 +3,7 @@
   import Post from "../../widgets/Post.svelte";
   import SharedPost from "../../widgets/SharedPost.svelte";
   import Comment from "./Comment.svelte";
-  import { onMount, beforeUpdate } from "svelte";
+  import { onMount, beforeUpdate, onDestroy } from "svelte";
   import {
     authToken,
     isLoginPage,
@@ -115,6 +115,22 @@
 
   onMount(fetchPostById);
   onMount(fetchComments);
+
+  let fetchInterval;
+
+  function pollForComments() {
+      fetchInterval = setInterval(() => {
+        fetchComments();
+      }, 10000);
+    }
+  
+  onMount(async () => {
+    pollForComments();
+  });
+
+  onDestroy(() => {
+    clearInterval(fetchInterval);
+  });
 
   function handleChange(event) {
     if (event.detail.changeDetected == true) {
