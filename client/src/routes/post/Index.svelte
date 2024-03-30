@@ -171,9 +171,9 @@
 
 <style>
   .posts {
-    padding-top: 10%;
-    padding-left: 20%;
-    padding-right: 7%;
+    padding-top: 180px;
+    padding-left: 350px;
+    padding-right: 150px;
   }
 
   .comment-list {
