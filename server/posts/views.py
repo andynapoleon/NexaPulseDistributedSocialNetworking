@@ -605,7 +605,7 @@ class SharedPost(APIView):
             if shared_post['contentType'] == 'application/base64':
                 shared_post['contentType'] = 'text/plain'
             if shared_post['originalContent'] == '':
-                shared_post['originalContent'] = " "
+                shared_post['originalContent'] = "<blank>"
 
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
