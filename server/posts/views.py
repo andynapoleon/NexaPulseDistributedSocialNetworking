@@ -616,7 +616,7 @@ class SharedPost(APIView):
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
                 shared_post["author"] = author
-                node = Node.objects.all()
+                node = Node.objects.all().filter(isActive=True)
                 print(shared_post)
                 remoteAuthors = []
                 follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
@@ -647,6 +647,11 @@ class SharedPost(APIView):
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
+
+                        # do not resend the post to the original author
+                        if remoteAuthor["host"] == author["host"]:
+                            continue
+
                         try:
                             id = remoteAuthor["id"]
                         except KeyError:
@@ -655,7 +660,13 @@ class SharedPost(APIView):
                             id = remoteAuthor.id
                         
                         id = str(id).split("/")[-1]
-                        url = n.host + f"/api/authors/{str(id)}/inbox"
+                        if "social-dist" in n.host:
+                            url = n.host + f"/authors/{str(id)}/inbox" 
+                            shared_post["shared_by"] = shared_post["author"] # sharing author
+                            print("Shared post", shared_post)
+
+                        else:
+                            url = n.host + f"/api/authors/{str(id)}/inbox"
 
                         response = requests.post(
                             url,
