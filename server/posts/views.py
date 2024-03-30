@@ -587,6 +587,7 @@ class SharedPost(APIView):
         author = Author.objects.get(id=author_id)
         author_serializer = AuthorSerializer(author)
         author = author_serializer.data
+        print("AUTHOR", author)
 
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
@@ -656,6 +657,7 @@ class SharedPost(APIView):
 
                         # do not resend the post to the original author
                         if remoteAuthor.host == author["host"]:
+                            print("Do not resend the post to the original author")
                             continue
 
                         try:
@@ -667,13 +669,14 @@ class SharedPost(APIView):
                         
                         id = str(id).split("/")[-1]
                         if "social-dist" in n.host:
+                            print("Sending to social-dist")
                             url = n.host + f"/authors/{str(id)}/inbox" 
                             shared_post["shared_user"] = shared_post["author"] # sharing author
                             shared_post["shared_body"] = shared_post["content"]
                             if shared_post["image_ref"]:
                                 shared_post["copy_of_original_id"] = shared_post["image_ref"]
                             else:
-                                shared_post["copy_of_original_id"] = None
+                                shared_post["copy_of_original_id"] = ""
                             
                             print("Shared post", shared_post)
 
@@ -686,6 +689,12 @@ class SharedPost(APIView):
                             auth=(n.username, n.password),
                             params={"request_host": SERVER},
                         )
+
+                        if response.status_code == 201:
+                            print("Shared post sent to", url)
+                        else:
+                            print("Shared post not sent to", url)
+                            print("Response", response.status_code)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             
             print(serializer.errors)
