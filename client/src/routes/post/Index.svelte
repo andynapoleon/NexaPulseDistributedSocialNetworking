@@ -65,9 +65,9 @@
         comments = await response.json();
         comments.forEach((comment) => {
           let comment_arg = comment.id.split("/");
-          comment.id = comment_arg.pop()
+          comment.id = comment_arg.pop();
           console.log(`1. ${comment.id}`);
-        } )
+        });
         // let comment_arguments = comments.comment.split("/")
         // comments.id = comment_arguments.pop()
       } else {
@@ -119,11 +119,11 @@
   let fetchInterval;
 
   function pollForComments() {
-      fetchInterval = setInterval(() => {
-        fetchComments();
-      }, 10000);
-    }
-  
+    fetchInterval = setInterval(() => {
+      fetchComments();
+    }, 5000);
+  }
+
   onMount(async () => {
     pollForComments();
   });
@@ -159,7 +159,8 @@
 
     <!-- Box to add new comment -->
     <div class="new-comment-box">
-      <textarea bind:value={commentText} placeholder="Add your comment"></textarea>
+      <textarea bind:value={commentText} placeholder="Add your comment"
+      ></textarea>
       <button on:click={addComment}>Add Comment</button>
     </div>
   {:else if error}

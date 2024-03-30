@@ -42,8 +42,7 @@
   }
 
   async function fetchFollowRequests() {
-    const followRequestsEndpoint =
-      `${server}/api/follow/all/${get(currentUser).userId}`;
+    const followRequestsEndpoint = `${server}/api/follow/all/${get(currentUser).userId}`;
     const response = await fetchWithRefresh(followRequestsEndpoint, {
       method: "GET",
       headers: {
@@ -83,13 +82,12 @@
 
   onMount(async () => {
     await fetchFollowRequests(); // Initial fetch
-    fetchInterval = setInterval(fetchFollowRequests, 10000); // Fetch follow requests every 10 seconds
+    fetchInterval = setInterval(fetchFollowRequests, 5000); // Fetch follow requests every 10 seconds
   });
 
   onDestroy(() => {
     clearInterval(fetchInterval);
   });
-
 </script>
 
 <main class="main" {id}>
