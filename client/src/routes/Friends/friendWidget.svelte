@@ -1,6 +1,6 @@
 <script>
   // Props passed to the component
-  export let profileImage = "default-profile.png"; // A default image if none is provided
+  export let profileImage = "https://symprites.com/images/avatars/default.jpg?v=1702987905"; // A default image if none is provided
   export let name = "John Doe";
   export let email = "john.doe@example.com";
 </script>
@@ -19,7 +19,7 @@
     border-radius: 0.5rem;
     padding: 1rem;
     text-align: center;
-    max-width: 18.75rem;
+    width: 350px;
     margin: auto;
     color: black;
   }

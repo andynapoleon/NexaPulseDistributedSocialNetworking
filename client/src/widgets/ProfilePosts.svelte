@@ -207,5 +207,9 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+
+    width: 1000px;
+    justify-content: flex-end; /* Aligns content to the right */
+
   }
 </style>

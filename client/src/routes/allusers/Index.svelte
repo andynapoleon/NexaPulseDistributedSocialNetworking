@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { authToken, server, currentUser } from "../../stores/stores.js";
   import User from "./User.svelte";
+  import { Link, navigate } from "svelte-routing";
 
   // Define reactive variables
   let loading = true;
@@ -61,6 +62,7 @@
     allUsers = await getAllUsers();
     // Update loading state
     loading = false;
+    console.log("allUsers:", allUsers)
   });
 </script>
 
@@ -68,6 +70,18 @@
   {#if loading}
     <p>Loading...</p>
   {:else}
+    <!--{#each Array(Math.ceil(allUsers.items.length / 5)) as _, rowIndex}
+      <div class="profile-layout">
+        {#each Array(Math.min(5, allUsers.items.length - rowIndex * 5)) as _, colIndex}
+          <Link to="/profile/{allUsers.items[rowIndex * 5 + colIndex].user_id}">
+            <div class="profile-widget">
+              <User user={allUsers.items[rowIndex * 5 + colIndex]} />
+            </div>
+          </Link>
+        {/each}
+      </div>
+    {/each}-->
+
     {#each allUsers.items as user}
       <User {user} />
     {/each}

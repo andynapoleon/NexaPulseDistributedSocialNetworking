@@ -1,0 +1,96 @@
+.bigSidebar {
+  width: 200px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 80px;
+  padding-top: 1%;
+  background-color: teal;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+.midSidebar {
+  width: 11.8%;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 80px;
+  padding-top: 1%;
+  background-color: teal;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.smallSidebar {
+  width: 120px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 80px;
+  padding-top: 1%;
+  background-color: teal;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+}
+
+nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+nav li button {
+  padding: 14px 12px;
+  text-decoration: none;
+  color: white;
+}
+
+.menu-item {
+  padding-left: 5%;
+}
+
+nav li :hover {
+  background-color: #1dc2ae;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Center contents horizontally */
+  height: 60px;
+  margin-bottom: 10px; /* Spacing between containers */
+}
+.menu-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: teal; /* Button background color */
+
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  justify-content: center; /* Center contents horizontally */
+
+  margin-bottom: 10px; /* Spacing between containers */
+
+  justify-content: center; /* Center contents horizontally */
+}
+
+.menu-item:hover {
+  background-color: rgb(0, 102, 102); /* Hover background color */
+}
+
+/* Icon styles */
+.menu-item svg {
+  width: 2.7em; /* Adjust icon size as needed */
+  height: 2.7em; /* Adjust icon size as needed */
+  fill: #c2c2c2; /* Icon color */
+}
+
+/* Label styles */
+.menu-item span {
+  font-size: 20px; /* Adjust font size as needed */
+  color: #eaeaea; /* Label color */
+  margin-left: 10px; /* Spacing between icon and label */
+  font-size: large;
+  font-weight: bold;
+}

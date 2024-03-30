@@ -100,20 +100,23 @@ class PostLikeViewSet(viewsets.ModelViewSet):
 
             # get all nodes
             node = Node.objects.all().filter(isActive=True)
-            for n in node:
-                print("hello", request.data["author"])
-                if "social-dist" in n.host:
-                    url = n.host + f"/authors/{request.data['author']}/inbox"
-                else:
-                    url = n.host + f"/api/authors/{request.data['author']}/inbox"
-                response = requests.post(
-                    url,
-                    json=remoteData,
-                    auth=(n.username, n.password),
-                    params={"request_host": SERVER},
-                )
-                print("status code", response.status_code)
-            return Response(serializer.data, status=response.status_code)
+            try:
+                for n in node:
+                    print("hello", request.data["author"])
+                    if "social-dist" in n.host:
+                        url = n.host + f"/authors/{request.data['author']}/inbox"
+                    else:
+                        url = n.host + f"/api/authors/{request.data['author']}/inbox"
+                    response = requests.post(
+                        url,
+                        json=remoteData,
+                        auth=(n.username, n.password),
+                        params={"request_host": SERVER},
+                    )
+                    print("status code", response.status_code)
+                return Response(serializer.data, status=response.status_code)
+            except Exception as e:
+                return Response({"message": "No node to send to"}, status=204)
         except Exception as e:
             return Response({"error": str(e)}, status=400)
 
