@@ -142,6 +142,7 @@ class InboxView(APIView):
                     # fetch remote authors/${authorId}/posts/${postId}/image/",
                     if request_data["contentType"] == "application/base64" or "social-dist" in sender_host:
                         url_image = f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
+                        request_data["contentType"] = "text/plain"
                     else:
                         url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
                     print("URL IMAGE", url_image)
@@ -216,6 +217,7 @@ class InboxView(APIView):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
+                        request_data["contentType"] = "text/plain"
                     else:
                         url_image = (
                             f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
