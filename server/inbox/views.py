@@ -58,6 +58,7 @@ class InboxView(APIView):
             output_json["image_ref"] = None
 
         try:
+            output_json["originalContent"] = input_json["originalContent"]
             output_json["sharedBy"] = input_json["sharedBy"]["id"].split("/")[-1]
             output_json["isShared"] = input_json["isShared"]
         except:
