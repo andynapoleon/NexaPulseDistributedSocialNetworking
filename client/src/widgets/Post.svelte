@@ -3,7 +3,7 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
@@ -358,11 +358,21 @@
     }
   }
 
+  let fetchInterval;
+
+  function pollForLikesAndComments() {
+      fetchInterval = setInterval(() => {
+        fetchLikes();
+        fetchComments();
+      }, 10000);
+    }
+
   // Fetch the image associated with the post when the component is mounted
   onMount(async () => {
     if (post.image_ref) {
       fetchPostImage();
     }
+    pollForLikesAndComments();
   });
 
   fetchComments();
