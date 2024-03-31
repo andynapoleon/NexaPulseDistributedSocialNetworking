@@ -161,27 +161,33 @@ class FollowView(APIView):
                 if "social-dist" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
+                    actor_data = actor.data
+                    object_data = object.data
                 if "enjoyers404" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     # TODO: Remove this later when their server process this properly
                     auth = None
-                    print("AUTHOR actor", actor.data["profileImage"])
-                    actor.data.pop("profileImage", None)
-                    actor.data["profileImage"] = None
-                    print("AUTHOR actor", actor.data["profileImage"])
-                    object.data.pop("profileImage", None)
-                    object.data["profileImage"] = None
+                    actor_data = actor.data
+                    object_data = object.data
+                    print("AUTHOR actor", actor_data["profileImage"])
+                    actor_data.pop("profileImage", None)
+                    actor_data["profileImage"] = None
+                    print("AUTHOR actor", actor_data["profileImage"])
+                    object_data.pop("profileImage", None)
+                    object_data["profileImage"] = None
                 else:
                     request_url = f"{host}/api/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
+                    actor_data = actor.data
+                    object_data = object.data
 
                 data_to_send = {
                     "type": "Follow",
                     "summary": str(actor.data["displayName"])
                     + " wants to follow "
                     + str(object.data["displayName"]),
-                    "actor": actor.data,
-                    "object": object.data,
+                    "actor": actor_data,
+                    "object": object_data,
                 }
                 print("DATA TO SEND", data_to_send)
                 response = requests.post(
