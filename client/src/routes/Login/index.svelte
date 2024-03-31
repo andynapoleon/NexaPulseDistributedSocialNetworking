@@ -91,7 +91,7 @@
       console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
       // Send a request to the node to get the authors
-      if (node.host.includes("social-dist")) {
+      if (node.host.includes("social-dist") || node.host.includes("enjoyers404")) {
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
           headers: {
