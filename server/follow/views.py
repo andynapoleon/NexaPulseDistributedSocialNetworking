@@ -166,8 +166,10 @@ class FollowView(APIView):
                     # TODO: Remove this later when their server process this properly
                     auth = None
                     print("AUTHOR actor", actor.data["profileImage"])
+                    actor.data.pop("profileImage", None)
                     actor.data["profileImage"] = None
                     print("AUTHOR actor", actor.data["profileImage"])
+                    object.data.pop("profileImage", None)
                     object.data["profileImage"] = None
                 else:
                     request_url = f"{host}/api/authors/{userId2}/inbox"
