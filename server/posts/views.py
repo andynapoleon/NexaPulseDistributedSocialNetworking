@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Post
-from .serializers import PostSerializer, ServerPostSerializer
+from .serializers import PostSerializer, ServerPostSerializer, SharedPostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
@@ -622,7 +622,7 @@ class SharedPost(APIView):
             else:
                 shared_post["image_ref"] = None
             print("SHARED POST", shared_post)
-            serializer = ServerPostSerializer(data=shared_post)
+            serializer = SharedPostSerializer(data=shared_post)
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
