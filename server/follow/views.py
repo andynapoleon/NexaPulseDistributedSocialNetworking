@@ -152,20 +152,25 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if "social-dist" in host:
-                request_url = f"{host}/authors/{userId2}/inbox"
-                auth = (node["username"], node["password"])
-            if "enjoyers404" in host:
-                request_url = f"{host}/authors/{userId2}/inbox"
-                auth = None
-            else:
-                request_url = f"{host}/api/authors/{userId2}/inbox"
-                auth = (node["username"], node["password"])
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
                 object = AuthorSerializer(object)
+
+                if "social-dist" in host:
+                    request_url = f"{host}/authors/{userId2}/inbox"
+                    auth = (node["username"], node["password"])
+                if "enjoyers404" in host:
+                    request_url = f"{host}/authors/{userId2}/inbox"
+                    # TODO: Remove this later when their server process this properly
+                    auth = None
+                    actor.data["profileImage"] = None
+                    object.data["profileImage"] = None
+                else:
+                    request_url = f"{host}/api/authors/{userId2}/inbox"
+                    auth = (node["username"], node["password"])
+
                 data_to_send = {
                     "type": "Follow",
                     "summary": str(actor.data["displayName"])
