@@ -93,6 +93,7 @@
       const encodedAuthorization = "Basic " + btoa(authorization);
       // Send a request to the node to get the authors
       if (node.host.includes("social-dist") || node.host.includes("enjoyers404")) {
+        console.log("NODE HOST", node.host);
         let headers = {
           "Content-Type": "application/json"
         };
