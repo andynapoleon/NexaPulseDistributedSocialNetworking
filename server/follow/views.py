@@ -152,10 +152,15 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if "social-dist" in host or "enjoyers404" in host:
+            if "social-dist" in host:
                 request_url = f"{host}/authors/{userId2}/inbox"
+                auth = (node["username"], node["password"])
+            if "enjoyers404" in host:
+                request_url = f"{host}/authors/{userId2}/inbox"
+                auth = None
             else:
                 request_url = f"{host}/api/authors/{userId2}/inbox"
+                auth = (node["username"], node["password"])
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
@@ -172,7 +177,7 @@ class FollowView(APIView):
                 response = requests.post(
                     request_url,
                     json=data_to_send,
-                    auth=(node["username"], node["password"]),
+                    auth=auth,
                     params={"request_host": sender_host},
                 )
                 print("status code response", response.status_code)
