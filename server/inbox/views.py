@@ -299,7 +299,7 @@ class InboxView(APIView):
             if follow.exists():
                 follow.delete()
                 return Response(
-                    {"message": "Follow request sent to inbox!"},
+                    {"message": "Follow request sent to inbox! Unfollowed!"},
                     status=status.HTTP_204_NO_CONTENT,
                 )
             print("ACTOR HOST: ", actor["host"])

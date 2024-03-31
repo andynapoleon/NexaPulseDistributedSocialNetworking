@@ -269,11 +269,13 @@ class FollowView(APIView):
             print("TRYING IN HERE")
             queryset = Node.objects.get(host=following_author["host"])
         except:
+            print("Successfully Deleted")
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
+    
+        print("MADE IT HERE")
         serializer = NodeSerializer(queryset)
         node = serializer.data
         host = node["host"]
-        print("MADE IT HERE")
         # request_url = f"{host}/api/authors/{userId1}/inbox/"
         try:
             actor = Author.objects.get(id=request.data["userId1"])
