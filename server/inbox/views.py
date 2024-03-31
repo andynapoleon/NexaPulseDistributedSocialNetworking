@@ -195,7 +195,7 @@ class InboxView(APIView):
                 # return the response
                 return Response(response.json(), status=response.status_code)
 
-            else:
+            else:   
                 author = Author.objects.get(id=request_data["authorId"])
                 request_data["authorId"] = author
                 print("AUTHOR", type(request_data["authorId"]))

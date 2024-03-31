@@ -622,7 +622,7 @@ class SharedPost(APIView):
             else:
                 shared_post["image_ref"] = None
             print("SHARED POST", shared_post)
-            serializer = SharedPostSerializer(data=shared_post)
+            serializer = SharedPostSerializer(data=shared_post, context={'base_url': base_url})
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
