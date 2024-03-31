@@ -680,6 +680,7 @@ class SharedPost(APIView):
                         if "social-dist" in n.host:
                             print("Sending to social-dist")
                             url = n.host + f"/authors/{str(id)}/inbox" 
+                            shared_post["id"] = shared_post["id"].split("/")[-1]
                             shared_post["shared_user"] = shared_post["author"] # sharing author
                             shared_post["author"] = original_author
                             shared_post["shared_body"] = shared_post["content"]

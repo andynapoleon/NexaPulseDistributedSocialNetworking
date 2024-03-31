@@ -66,13 +66,6 @@ class InboxView(APIView):
             output_json["sharedBy"] = None
             output_json["isShared"] = False
 
-        # if output_json["isShared"]:
-        #     temp = output_json["authorId"]
-        #     # authorId is the sharing author
-        #     output_json["authorId"] = output_json["sharedBy"]
-        #     # sharedBy is the original author
-        #     output_json["sharedBy"] = temp
-
         return output_json
 
     def get(self, request, author_id, format=None):
