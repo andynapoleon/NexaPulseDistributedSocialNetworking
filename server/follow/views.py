@@ -174,6 +174,7 @@ class FollowView(APIView):
                     "actor": actor.data,
                     "object": object.data,
                 }
+                print("DATA TO SEND", data_to_send)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
