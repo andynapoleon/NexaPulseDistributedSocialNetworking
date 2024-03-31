@@ -227,8 +227,7 @@
           class="profile-input"
           bind:value={formDataValue.name}
           placeholder="Name"
-          pattern="^\S+\s+\S+$"
-          title="Please enter your first and last name"
+          title="Please enter your display name."
           required
         />
         <input
