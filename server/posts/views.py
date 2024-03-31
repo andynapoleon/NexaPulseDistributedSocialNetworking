@@ -584,8 +584,9 @@ class SharedPost(APIView):
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
+        base_url = request.build_absolute_uri('/')
         author = Author.objects.get(id=author_id)
-        author_serializer = AuthorSerializer(author)
+        author_serializer = AuthorSerializer(author, many=True, context={'base_url': base_url})
         author = author_serializer.data
         print("AUTHOR", author)
 
@@ -677,6 +678,7 @@ class SharedPost(APIView):
                                 shared_post["copy_of_original_id"] = shared_post["image_ref"]
                             else:
                                 shared_post["copy_of_original_id"] = ""
+                            shared_post["origin"] = shared_post["originalContent"]
                             
                             print("Shared post", shared_post)
 
