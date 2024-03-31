@@ -198,7 +198,7 @@ class InboxView(APIView):
             else:   
                 author = Author.objects.get(id=request_data["authorId"])
                 request_data["authorId"] = author
-                print("AUTHOR", type(request_data["authorId"]))
+                print("AUTHOR", request_data["authorId"])
                 if request_data["sharedBy"] != None:
                     request_data["sharedBy"] = Author.objects.get(
                         id=request_data["sharedBy"]
