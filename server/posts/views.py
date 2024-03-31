@@ -616,12 +616,16 @@ class SharedPost(APIView):
             else:
                 shared_post["image_ref"] = None
             print("SHARED POST", shared_post)
-            serializer = PostSerializer(data=shared_post)
+            serializer = ServerPostSerializer(data=shared_post)
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
                 # get all nodes
-                shared_post["id"] = serializer.data["id"]
+                if (shared_post["contentType"] == "image/png;base64" or shared_post["contentType"] == "image/jpeg;base64"):
+                    shared_post["id"] = f"{base_url}authors/{author_id}/posts/{serializer.data['id']}/image"
+                else:
+                    shared_post["id"] = f"{base_url}authors/{author_id}/posts/{serializer.data['id']}"
+                
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
                 shared_post["author"] = author
