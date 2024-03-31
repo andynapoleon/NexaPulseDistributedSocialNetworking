@@ -157,18 +157,16 @@ class FollowView(APIView):
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
                 object = AuthorSerializer(object)
+                actor_data = actor.data
+                object_data = object.data
 
                 if "social-dist" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
-                    actor_data = actor.data
-                    object_data = object.data
                 if "enjoyers404" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     # TODO: Remove this later when their server process this properly
                     auth = None
-                    actor_data = actor.data
-                    object_data = object.data
                     print("AUTHOR actor", actor_data["profileImage"])
                     actor_data.pop("profileImage", None)
                     actor_data["profileImage"] = None
@@ -178,8 +176,6 @@ class FollowView(APIView):
                 else:
                     request_url = f"{host}/api/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
-                    actor_data = actor.data
-                    object_data = object.data
 
                 data_to_send = {
                     "type": "Follow",
@@ -269,30 +265,46 @@ class FollowView(APIView):
             actor = AuthorSerializer(actor)
             object = Author.objects.get(id=request.data["userId2"])
             object = AuthorSerializer(object)
+            actor_data = actor.data
+            object_data = object.data
+
+            if "social-dist" in host:
+                print("MADE IT HERE TOOO")
+                request_url = f"{host}/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
+
+            elif "enjoyers404" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+                # TODO: Remove this later when their server process this properly
+                auth = None
+                actor_data.pop("profileImage", None)
+                actor_data["profileImage"] = None
+                object_data.pop("profileImage", None)
+                object_data["profileImage"] = None
+                
+            else:
+                request_url = f"{host}/api/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
+
             data_to_send = {
                 "type": "Follow",
                 "summary": str(actor.data["displayName"])
                 + " wants to follow "
                 + str(object.data["displayName"]),
-                "actor": actor.data,
-                "object": object.data,
+                "actor": actor_data,
+                "object": object_data,
             }
 
-            if "social-dist" in host:
-                print("MADE IT HERE TOOO")
-                request_url = f"{host}/authors/{userId1}/inbox"
-            elif "enjoyers404" in host:
-                request_url = f"{host}/authors/{userId1}/inbox"
+            if "enjoyers404" in host:
                 data_to_send["type"] = "Deny Follow"
-            else:
-                request_url = f"{host}/api/authors/{userId1}/inbox"
+
             print("DATA_TO_SEND", data_to_send)
 
             print("MADE IT HERE")
             response = requests.post(
                 request_url,
                 json=data_to_send,
-                auth=(node["username"], node["password"]),
+                auth=auth,
                 params={"request_host": SERVER},
             )
             print("status code response", response.status_code)
