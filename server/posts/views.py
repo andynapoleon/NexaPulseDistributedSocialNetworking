@@ -619,13 +619,12 @@ class SharedPost(APIView):
             if serializer.is_valid():
                 serializer.save()
                 # get all nodes
-                publish = shared_post.pop("published")
                 shared_post["id"] = serializer.data["id"]
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
                 shared_post["author"] = author
                 node = Node.objects.all().filter(isActive=True)
-                print(shared_post)
+
                 remoteAuthors = []
                 follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
