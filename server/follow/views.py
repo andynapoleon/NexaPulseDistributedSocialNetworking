@@ -88,7 +88,7 @@ class FollowView(APIView):
                     "actor": actor.data,
                     "object": object.data,
                 }
-                
+
                 if "enjoyers404" in host:
                     data_to_send["type"] = "Approve Follow"
                 
@@ -103,7 +103,7 @@ class FollowView(APIView):
                 response = requests.post(
                     request_url,
                     json=data_to_send,
-                    auth=(node["username"], node["password"]),
+                    auth=auth,
                     params={"request_host": SERVER},
                 )
                 print("status code response", response.status_code)
