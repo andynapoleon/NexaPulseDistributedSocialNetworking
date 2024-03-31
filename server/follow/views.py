@@ -152,7 +152,7 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if "social-dist" in host:
+            if "social-dist" in host or "enjoyers404" in host:
                 request_url = f"{host}/authors/{userId2}/inbox"
             else:
                 request_url = f"{host}/api/authors/{userId2}/inbox"
