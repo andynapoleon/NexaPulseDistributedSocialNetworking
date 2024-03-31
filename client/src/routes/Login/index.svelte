@@ -75,6 +75,7 @@
 
     const nodes = await res_nodes.json();
     for (let node of nodes.items) {
+      console.log("NODE", node);
       let authorData = {
         id: $currentUser.userId,
         displayName: $currentUser.name,
