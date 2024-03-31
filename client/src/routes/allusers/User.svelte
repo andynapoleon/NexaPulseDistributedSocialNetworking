@@ -4,6 +4,9 @@
   import { get } from "svelte/store";
   import { writable } from "svelte/store";
   import { fetchWithRefresh, extractUUID } from "../../utils/apiUtils.js";
+  import ProfileWidget from "../profile/ProfileWidget.svelte";
+  import { Link, navigate } from "svelte-routing";
+  import { use } from "marked"
 
   export let user;
   user.id = extractUUID(user.id);
@@ -33,55 +36,17 @@
     console.log(currentUserId, "is", data.following, "following", userId);
   });
 
-  // Follow or unfollow the user, also check for authentication
-  async function followButtonClick() {
-    console.log("clicked");
-    console.log($currentUser);
-    const followRequest = {
-      userId1: currentUserId,
-      userId2: userId,
-      receiverHost: user.host,
-      senderHost: server,
-    };
-    console.log("FOLLOW REQUEST:", followRequest);
-    const headers = {
-      Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
-      "Content-Type": "application/json",
-    };
-    if (alreadyFollowedValue) {
-      const response = await fetchWithRefresh(
-        server + `/api/follow/${currentUserId}?userId2=${userId}`,
-        {
-          method: "DELETE",
-          headers: headers,
-          body: JSON.stringify(followRequest),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to unfollow user");
-      }
-    } else {
-      const response = await fetchWithRefresh(
-        server + `/api/follow/${currentUserId}?userId2=${userId}`,
-        {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(followRequest),
-        }
-      );
-      if (!response.ok) {
-        throw new Error("Failed to follow user");
-      }
+  function navigateToProfile(event) {
+    console.log("trigger")
+    if (!event.target.classList.contains('follow-button')) {
+      // Prevent the default behavior of the event (don't navigate)
+      navigate(`/profile/${userId}`);
     }
-    alreadyFollowed.update((value) => !value);
-    console.log(
-      "after clicking follow/unfollow, follow=",
-      alreadyFollowedValue
-    );
   }
+
 </script>
 
-<div class="user">
+<!--<div class="user">
   <h3><strong>{user.displayName}</strong></h3>
   <p>Host: {user.host}</p>
   <img src={user.profileImage} alt={user.displayName + " profile pic"} />
@@ -94,32 +59,21 @@
       >
     {/if}
   {/if}
+</div>-->
+
+<div>
+    <button class="button-profile-widget" on:click={navigateToProfile}>
+      <ProfileWidget
+        profileImage={user.profileImage}
+        name={user.displayName}
+        email={user.email}
+        github={user.github}
+        userId={user.id}
+        host={user.host}
+      />
+    </button>
 </div>
 
 <style>
-  .user {
-    border: 1px solid #ccc;
-    padding: 10px;
-    width: 300px;
-    color: black;
-  }
-
-  img {
-    max-width: 100%;
-    height: auto;
-  }
-
-  .follow-button {
-    background-color: teal;
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-
-  .follow-button:hover {
-    background-color: darkcyan;
-  }
+  @import "user.css";
 </style>

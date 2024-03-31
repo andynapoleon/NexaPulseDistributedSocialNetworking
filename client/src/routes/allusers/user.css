@@ -1,0 +1,30 @@
+.user {
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 300px;
+  color: black;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.follow-button {
+  background-color: teal;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.follow-button:hover {
+  background-color: darkcyan;
+}
+
+.button-profile-widget {
+  flex: 1; /* Adjust the flex basis as needed */
+  max-width: 350px; /* Adjust the width as needed */
+}

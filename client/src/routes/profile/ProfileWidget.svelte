@@ -13,14 +13,35 @@
   export let userId; // The user ID passed into the component
   export let host;
 
+  let shortGithub;
+  let shortHost;
+  // If github link is too long, create a shorter version of it for preview
+  if (github.length > 25){
+      shortGithub = github.slice(0, 25) + "..."
+    } else {
+      shortGithub = github
+    }
+    shortGithub = shortGithub.replace("https://", "")
+    // If host link is too long, create a shorter version of it for preview
+    if (host.length > 25){
+      shortHost = host.slice(0, 25) + "..."
+    } else {
+      shortHost = host
+    }
+
+
   // Get the current user's ID from the store
   const currentUserId = get(currentUser).userId;
 
-  // Check if the profile belongs to the current user
-  $: isCurrentUser = userId == currentUserId;
   const path = window.location.pathname;
   const pathSegments = path.split("/");
-  userId = pathSegments[pathSegments.length - 1];
+  let target = pathSegments[pathSegments.length - 1];
+  if (target != "all_users") {
+    userId = target
+  }
+
+  // Check if the profile belongs to the current user
+  let isCurrentUser = userId == currentUserId;
 
   // Initialize edit mode as a writable store
   const isEditMode = writable(false);
@@ -50,9 +71,6 @@
   onMount(async () => {
     const followEndpoint =
       server + `/api/follow/${userId}?userId2=${currentUserId}`;
-
-    console.log("currentUserId", currentUserId);
-    console.log("target userId", userId);
 
     const response = await fetch(followEndpoint, {
       method: "GET",
@@ -152,29 +170,42 @@
   function cancelEdit() {
     isEditMode.set(false);
   }
+
+  //const infoContainer = document.getElementById('profile-info');
+  // Calculate the number of lines required for the text
+  //const lines = Math.ceil(infoContainer.scrollHeight / parseFloat(getComputedStyle(infoContainer).lineHeight));
+  //infoContainer.style.height = `${lines * parseFloat(getComputedStyle(infoContainer).lineHeight)}px`;
+
 </script>
 
 <div class="profile-widget">
   <img class="profile-image" src={profileImage} alt="Profile Avatar" />
   <div class="profile-info">
-    {#if !isCurrentUser}
+    {#if name}
       <div class="profile-name">{name}</div>
-      <div class="profile-email">{email}</div>
-      <div class="profile-github">{github}</div>
-      {#if !$alreadyFollowed}
-        <button class="follow-button" on:click={followButtonClick}
-          >Follow</button
-        >
+    {/if}
+    {#if email}
+      <div class="profile-email">Email: {email}</div>
+    {/if}
+    {#if github}
+      {#if shortGithub}
+        <div class="profile-github">Github: {shortGithub}</div>
       {:else}
-        <button class="follow-button" on:click={followButtonClick}
-          >Unfollow</button
-        >
+        <div class="profile-github">Github: {github}</div>
       {/if}
-    {:else if !isEditModeValue}
-      <div class="profile-name">{name}</div>
-      <div class="profile-email">{email}</div>
-      <div class="profile-github">{github}</div>
-
+    {/if}
+    {#if host}
+      <div class="profile-host">Host: {host}</div>
+    {/if}
+    {#if isCurrentUser && target=="all_users"}
+      <button class="self-button">Yourself</button>
+    {:else if !isCurrentUser}
+      {#if !$alreadyFollowed}
+        <button class="follow-button" on:click={followButtonClick}>Follow</button>
+      {:else}
+        <button class="follow-button" on:click={followButtonClick}>Unfollow</button>
+      {/if}
+    {:else if !isEditModeValue && target!="all_users"}
       <div class="flex justify-center">
         <button
           class="edit-button"
@@ -237,9 +268,11 @@
     border-radius: 0.5rem;
     padding: 1rem;
     text-align: center;
-    max-width: 18.75rem;
+    width: 350px;
     margin: auto;
     color: black;
+    /*height: 300px;
+    width: 280px;*/
   }
 
   .profile-image {
@@ -255,20 +288,31 @@
 
   .profile-info {
     margin-bottom: 0.5rem;
+    overflow: hidden; /* Prevents content from overflowing */
+
+    margin-left: 20px; /* Adjust as needed */
+    margin-right: 20px; /* Adjust as needed */
   }
 
   .profile-name {
     font-size: 1.2em;
     font-weight: bold;
+    margin-bottom: 5px;
   }
-
   .profile-email {
     color: #555;
     font-size: 1em;
+    margin-bottom: 3px;
   }
   .profile-github {
     color: #555;
     font-size: 1em;
+    margin-bottom: 3px;
+  }
+  .profile-host {
+    color: #555;
+    font-size: 1em;
+    margin-bottom: 3px;
   }
 
   .profile-input {
@@ -281,6 +325,7 @@
     transition: border-color 0.3s ease;
   }
 
+  .self-button,
   .follow-button,
   .edit-button,
   .save-button,
@@ -295,6 +340,16 @@
     font-size: 0.9em;
     background-color: teal; /* Twitter-like follow button color */
     color: white;
+  }
+
+  .self-button,
+  .follow-button,
+  .edit-button {
+    margin-top: 17px;
+  }
+
+  .self-button {
+    background-color: rgb(119, 119, 119);
   }
 
   .follow-button:hover,
