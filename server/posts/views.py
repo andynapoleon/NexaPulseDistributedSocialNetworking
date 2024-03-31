@@ -589,6 +589,12 @@ class SharedPost(APIView):
         author = Author.objects.get(id=author_id)
         author_serializer = AuthorSerializer(author, context={'base_url': base_url})
         author = author_serializer.data
+        
+        # get the original author
+        original_author = post.authorId
+        original_author_serializer = AuthorSerializer(original_author, context={'base_url': base_url})
+        original_author = original_author_serializer.data
+
         print("AUTHOR", author)
 
         print("I ENTERED HERE")
@@ -621,11 +627,7 @@ class SharedPost(APIView):
             if serializer.is_valid():
                 serializer.save()
                 # get all nodes
-                if (shared_post["contentType"] == "image/png;base64" or shared_post["contentType"] == "image/jpeg;base64"):
-                    shared_post["id"] = f"{base_url}authors/{author_id}/posts/{serializer.data['id']}/image"
-                else:
-                    shared_post["id"] = f"{base_url}authors/{author_id}/posts/{serializer.data['id']}"
-                
+                shared_post["id"] = serializer.data["id"]
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
                 shared_post["author"] = author
@@ -678,6 +680,7 @@ class SharedPost(APIView):
                             print("Sending to social-dist")
                             url = n.host + f"/authors/{str(id)}/inbox" 
                             shared_post["shared_user"] = shared_post["author"] # sharing author
+                            shared_post["author"] = original_author
                             shared_post["shared_body"] = shared_post["content"]
                             shared_post["copy_of_original_id"] = original_post
                             shared_post["origin"] = shared_post["originalContent"]
