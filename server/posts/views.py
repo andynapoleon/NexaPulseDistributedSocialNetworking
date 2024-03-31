@@ -683,7 +683,7 @@ class SharedPost(APIView):
                             shared_post["shared_user"] = shared_post["author"] # sharing author
                             shared_post["author"] = original_author
                             shared_post["shared_body"] = shared_post["content"]
-                            shared_post["copy_of_original_id"] = original_post
+                            shared_post["copy_of_original_id"] = original_post.split("/")[-1]
                             shared_post["origin"] = shared_post["originalContent"]
                             
                             print("Shared post", shared_post)
