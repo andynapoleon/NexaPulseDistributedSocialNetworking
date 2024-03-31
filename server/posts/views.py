@@ -612,6 +612,7 @@ class SharedPost(APIView):
             shared_post["visibility"] = "PUBLIC"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
+            shared_post["comments"] = None
             if shared_post['contentType'] == 'application/base64':
                 shared_post['contentType'] = 'text/plain'
             if shared_post['originalContent'] == '':
