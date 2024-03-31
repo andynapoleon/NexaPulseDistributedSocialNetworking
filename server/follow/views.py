@@ -85,8 +85,8 @@ class FollowView(APIView):
                     "summary": str(actor.data["displayName"])
                     + " wants to follow "
                     + str(object.data["displayName"]),
-                    "actor": actor.data,
-                    "object": object.data,
+                    "actor": actor_data,
+                    "object": object_data,
                 }
 
                 if "enjoyers404" in host:
