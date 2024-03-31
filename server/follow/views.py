@@ -238,6 +238,7 @@ class FollowView(APIView):
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
         print("DELETING THIS SHIT")
+
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
@@ -262,11 +263,6 @@ class FollowView(APIView):
         node = serializer.data
         host = node["host"]
         print("MADE IT HERE")
-        if "social-dist" in host:
-            print("MADE IT HERE TOOO")
-            request_url = f"{host}/authors/{userId1}/inbox"
-        else:
-            request_url = f"{host}/api/authors/{userId1}/inbox"
         # request_url = f"{host}/api/authors/{userId1}/inbox/"
         try:
             actor = Author.objects.get(id=request.data["userId1"])
@@ -281,7 +277,17 @@ class FollowView(APIView):
                 "actor": actor.data,
                 "object": object.data,
             }
+
+            if "social-dist" in host:
+                print("MADE IT HERE TOOO")
+                request_url = f"{host}/authors/{userId1}/inbox"
+            elif "enjoyers404" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+                data_to_send["type"] = "Deny Follow"
+            else:
+                request_url = f"{host}/api/authors/{userId1}/inbox"
             print("DATA_TO_SEND", data_to_send)
+
             print("MADE IT HERE")
             response = requests.post(
                 request_url,
