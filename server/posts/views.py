@@ -586,7 +586,7 @@ class SharedPost(APIView):
 
         base_url = request.build_absolute_uri('/')
         author = Author.objects.get(id=author_id)
-        author_serializer = AuthorSerializer(author, many=True, context={'base_url': base_url})
+        author_serializer = AuthorSerializer(author, context={'base_url': base_url})
         author = author_serializer.data
         print("AUTHOR", author)
 
