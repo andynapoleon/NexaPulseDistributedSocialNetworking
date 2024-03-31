@@ -97,15 +97,17 @@
           "Content-Type": "application/json"
         };
 
-        if (!node.host.includes("enjoyers404")) {
+        if (!node.host.includes("enjoyers404")) { // for now, only social-dist has basic auth
           headers.Authorization = encodedAuthorization;
         }
+
+        console.log("HEADERS", headers);
         
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
           headers: headers,
         });
-        
+
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
