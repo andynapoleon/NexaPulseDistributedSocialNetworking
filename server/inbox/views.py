@@ -282,7 +282,7 @@ class InboxView(APIView):
         elif request_type.lower() == "follow":
             print("IMHERERHEHRHERHEHRHEHR")
             print("HERE")
-            print("REQUEST DATA", request.data["actor"], request.data["actor"])
+            print("REQUEST DATA", request.data["actor"], request.data["object"])
             actor = request.data.get("actor")
             object = request.data.get("object")
 
