@@ -599,7 +599,7 @@ class SharedPost(APIView):
 
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
-            serializer = PostSerializer(post)
+            serializer = PostSerializer(post, context={'base_url': base_url})
             shared_post = serializer.data
             original_post = shared_post["id"]
             # time now
@@ -720,7 +720,7 @@ class ImagePost(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            print("POST", post_id)
+            print("IMAGE POST", post_id)
             # if the image post contains an image
             if post.image_ref != None:
                 base_url = request.build_absolute_uri("/")
