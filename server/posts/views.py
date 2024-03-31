@@ -422,7 +422,7 @@ class AuthorPosts(APIView):
                 }
 
                 # get all nodes
-                node = Node.objects.all()
+                node = Node.objects.all().filter(isActive=True)
                 print("NODES", node)
                 remoteAuthors = []
                 follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)

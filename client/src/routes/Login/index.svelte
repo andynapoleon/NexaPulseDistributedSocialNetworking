@@ -93,13 +93,19 @@
       const encodedAuthorization = "Basic " + btoa(authorization);
       // Send a request to the node to get the authors
       if (node.host.includes("social-dist") || node.host.includes("enjoyers404")) {
+        let headers = {
+          "Content-Type": "application/json"
+        };
+
+        if (!node.host.includes("enjoyers404")) {
+          headers.Authorization = encodedAuthorization;
+        }
+        
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: encodedAuthorization,
-          },
+          headers: headers,
         });
+        
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
