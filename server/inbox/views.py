@@ -265,6 +265,19 @@ class InboxView(APIView):
                 {"message": "Post sent to inbox!"}, status=status.HTTP_201_CREATED
             )
 
+        elif request_type.lower() == "approve follow": # Approve follow requests enjoyers404
+            follow = Follows.objects.create(
+                follower_id=request.data["actor"]["id"].split("/")[-1],
+                followed_id=request.data["object"]["id"].split("/")[-1],
+                acceptedRequest=True,
+            )
+            follow.acceptedRequest = True
+            follow.save()
+            inbox.follow_requests.add(follow)
+            return Response(
+                {"message": "Follow request approved!"}, status=status.HTTP_201_CREATED
+            )
+        
         # Follow requests
         elif request_type.lower() == "follow":
             print("IMHERERHEHRHERHEHRHEHR")
