@@ -579,6 +579,7 @@ class SharedPost(APIView):
     def post(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print("POST", post)
         except Post.DoesNotExist:
             return Response(
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
@@ -592,8 +593,9 @@ class SharedPost(APIView):
 
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
-            serializer = ServerPostSerializer(post)
+            serializer = PostSerializer(post)
             shared_post = serializer.data
+            original_post = shared_post["id"]
             # time now
             shared_post["published"] = str(datetime.now(timezone.utc).isoformat())
             shared_post["isShared"] = True
@@ -673,10 +675,7 @@ class SharedPost(APIView):
                             url = n.host + f"/authors/{str(id)}/inbox" 
                             shared_post["shared_user"] = shared_post["author"] # sharing author
                             shared_post["shared_body"] = shared_post["content"]
-                            if shared_post["image_ref"] and shared_post["image_ref"] != 'None':
-                                shared_post["copy_of_original_id"] = shared_post["image_ref"]
-                            else:
-                                shared_post["copy_of_original_id"] = ""
+                            shared_post["copy_of_original_id"] = original_post
                             shared_post["origin"] = shared_post["originalContent"]
                             
                             print("Shared post", shared_post)
