@@ -52,7 +52,7 @@ class FollowView(APIView):
             node = serializer.data
             host = node["host"]
             print("FOLLOWING HOST:", host)
-            
+
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
@@ -71,11 +71,12 @@ class FollowView(APIView):
 
                     # TODO: Remove this later when their server process this properly
                     auth = None
+                    # comment the things below
                     actor_data.pop("profileImage", None)
                     actor_data["profileImage"] = None
                     object_data.pop("profileImage", None)
                     object_data["profileImage"] = None
-                    
+
                 else:
                     request_url = f"{host}/api/authors/{userId1}/inbox"
                     auth = (node["username"], node["password"])
@@ -91,7 +92,7 @@ class FollowView(APIView):
 
                 if "enjoyers404" in host:
                     data_to_send["type"] = "Approve Follow"
-                
+
                 print("DATA TO SEND", data_to_send)
                 requestObj = Follows.objects.filter(
                     follower_id=userId1, followed_id=userId2
@@ -182,6 +183,7 @@ class FollowView(APIView):
                     request_url = f"{host}/authors/{userId2}/inbox"
                     # TODO: Remove this later when their server process this properly
                     auth = None
+                    # comment below out
                     print("AUTHOR actor", actor_data["profileImage"])
                     actor_data.pop("profileImage", None)
                     actor_data["profileImage"] = None
@@ -271,7 +273,7 @@ class FollowView(APIView):
         except:
             print("Successfully Deleted")
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
-    
+
         print("MADE IT HERE")
         serializer = NodeSerializer(queryset)
         node = serializer.data
@@ -294,6 +296,7 @@ class FollowView(APIView):
                 request_url = f"{host}/authors/{userId1}/inbox"
                 # TODO: Remove this later when their server process this properly
                 auth = None
+                # comment below out
                 actor_data.pop("profileImage", None)
                 actor_data["profileImage"] = None
                 object_data.pop("profileImage", None)
