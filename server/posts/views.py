@@ -495,6 +495,8 @@ class AuthorPosts(APIView):
 
                         if "social-dist" in n.host:
                             url = n.host + f"/authors/{str(id)}/inbox"
+                        elif "enjoyers404" in n.host:
+                            url = n.host + f"/authors/{str(id)}/inbox"
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
 
@@ -502,6 +504,11 @@ class AuthorPosts(APIView):
                             url,
                             json=remoteData,
                             auth=(n.username, n.password),
+                            headers={
+                                "username": node["username"],
+                                "password": node["password"],
+                                "url": SERVER,
+                            },
                             params={"request_host": SERVER},
                         )
                         print("sfhd", response)
