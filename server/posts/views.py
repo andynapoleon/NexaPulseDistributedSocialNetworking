@@ -502,11 +502,6 @@ class AuthorPosts(APIView):
                             url,
                             json=remoteData,
                             auth=(n.username, n.password),
-                            headers={
-                                "username": node["username"],
-                                "password": node["password"],
-                                "url": SERVER,
-                            },
                             params={"request_host": SERVER},
                         )
                         print("sfhd", response)
