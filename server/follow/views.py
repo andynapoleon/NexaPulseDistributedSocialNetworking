@@ -104,6 +104,11 @@ class FollowView(APIView):
                 response = requests.post(
                     request_url,
                     json=data_to_send,
+                    headers={
+                        "username": node["username"],
+                        "password": node["password"],
+                        "url": SERVER,
+                    },
                     auth=auth,
                     params={"request_host": SERVER},
                 )
@@ -206,6 +211,11 @@ class FollowView(APIView):
                 response = requests.post(
                     request_url,
                     json=data_to_send,
+                    headers={
+                        "username": node["username"],
+                        "password": node["password"],
+                        "url": SERVER,
+                    },
                     auth=auth,
                     params={"request_host": sender_host},
                 )
@@ -324,6 +334,11 @@ class FollowView(APIView):
             response = requests.post(
                 request_url,
                 json=data_to_send,
+                headers={
+                    "username": node["username"],
+                    "password": node["password"],
+                    "url": SERVER,
+                },
                 auth=auth,
                 params={"request_host": SERVER},
             )
