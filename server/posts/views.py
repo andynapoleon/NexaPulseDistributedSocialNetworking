@@ -502,6 +502,7 @@ class AuthorPosts(APIView):
                         print("URL ERER", url)
                         print("E_USERNAME", n.username)
                         print("E_PASSWORD", n.password)
+                        print("SERVER", SERVER)
                         response = requests.post(
                             url,
                             json=remoteData,
