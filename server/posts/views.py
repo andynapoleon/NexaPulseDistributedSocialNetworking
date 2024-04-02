@@ -545,6 +545,7 @@ class PublicPosts(APIView):
         queryset = queryset.order_by("-published")
         base_url = request.build_absolute_uri("/")
         serializer = PostSerializer(queryset, many=True, context={"base_url": base_url})
+        print("ALL THE POSTS FETCHED: ", serializer.data)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
