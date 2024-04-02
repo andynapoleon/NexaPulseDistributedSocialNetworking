@@ -538,8 +538,7 @@ class PublicPosts(APIView):
 
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
-        queryset = Post.objects.all()
-        # .filter(visibility="PUBLIC")
+        queryset = Post.objects.all().filter(visibility="PUBLIC", isShared=False)
         print("QUERYSET HERE", queryset)
         queryset = queryset.exclude(contentType__startswith="image/")
         print("QUERYSET HERE 2", queryset)

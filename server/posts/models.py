@@ -28,7 +28,9 @@ class Post(models.Model):
 
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
-    comments = models.ForeignKey("comments.Comment", on_delete=models.CASCADE, null=True, blank=True)
+    comments = models.ForeignKey(
+        "comments.Comment", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     # title of a post
     title = models.CharField(max_length=255, default="")
@@ -42,7 +44,7 @@ class Post(models.Model):
 
     # Format datetime object
     formatted_time = time_obj.strftime("%B %d, %Y %I:%M:%S %p")
-    #published = formatted_time
+    # published = formatted_time
     published = models.DateTimeField(auto_now_add=True)
 
     source = models.CharField(max_length=255, default="", null=True, blank=True)
