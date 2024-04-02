@@ -499,7 +499,9 @@ class AuthorPosts(APIView):
                             url = n.host + f"/authors/{str(id)}/inbox"
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
-
+                        print("URL ERER", url)
+                        print("E_USERNAME", n.username)
+                        print("E_PASSWORD", n.password)
                         response = requests.post(
                             url,
                             json=remoteData,
