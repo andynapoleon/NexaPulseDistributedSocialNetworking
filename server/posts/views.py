@@ -85,9 +85,7 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
             uuid.UUID(author_id)
             print(author_id, type(author_id))
             # Filter posts by author ID
-            queryset = Post.objects.filter(
-                authorId=author_id, visibility="PUBLIC", isShared=False
-            )
+            queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
             queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
