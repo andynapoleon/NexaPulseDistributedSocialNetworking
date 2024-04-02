@@ -101,6 +101,9 @@ class FollowView(APIView):
                     requestObj.acceptedRequest = True
                 requestObj.save()
                 print("REQUEST URL", request_url)
+                print("E_USERNAME", node["username"])
+                print("E_PASSWORD", node["password"])
+                print("SERVER", SERVER)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
