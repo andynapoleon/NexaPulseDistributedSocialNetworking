@@ -85,7 +85,9 @@ class ProfilePostForStranger(generics.ListCreateAPIView):
             uuid.UUID(author_id)
             print(author_id, type(author_id))
             # Filter posts by author ID
-            queryset = Post.objects.filter(authorId=author_id, visibility="PUBLIC")
+            queryset = Post.objects.filter(
+                authorId=author_id, visibility="PUBLIC", isShared=False
+            )
             queryset = queryset.exclude(contentType__startswith="image/")
 
             # Order by published date
@@ -538,7 +540,7 @@ class PublicPosts(APIView):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC", isShared=False)
         queryset = queryset.exclude(contentType__startswith="image/")
-
+        print("QUERYSET HERE", queryset)
         # Order by published date
         queryset = queryset.order_by("-published")
         base_url = request.build_absolute_uri("/")
