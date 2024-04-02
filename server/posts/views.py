@@ -539,8 +539,9 @@ class PublicPosts(APIView):
     def get(self, request):
         # Filter posts by authorId and visibility='PUBLIC'
         queryset = Post.objects.filter(visibility="PUBLIC")
-        queryset = queryset.exclude(contentType__startswith="image/")
         print("QUERYSET HERE", queryset)
+        queryset = queryset.exclude(contentType__startswith="image/")
+        print("QUERYSET HERE 2", queryset)
         # Order by published date
         queryset = queryset.order_by("-published")
         base_url = request.build_absolute_uri("/")
