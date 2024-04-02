@@ -82,7 +82,7 @@
 
   onMount(async () => {
     await fetchFollowRequests(); // Initial fetch
-    fetchInterval = setInterval(fetchFollowRequests, 20000); // Fetch follow requests every 10 seconds
+    fetchInterval = setInterval(fetchFollowRequests, 10000); // Fetch follow requests every 10 seconds
   });
 
   onDestroy(() => {

@@ -47,7 +47,7 @@
   function pollForPosts() {
     fetchInterval = setInterval(() => {
       fetchPosts();
-    }, 20000);
+    }, 10000);
   }
 
   onMount(async () => {
