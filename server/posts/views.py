@@ -495,10 +495,13 @@ class AuthorPosts(APIView):
 
                         if "social-dist" in n.host:
                             url = n.host + f"/authors/{str(id)}/inbox"
+                            auth = (n.username, n.password)
                         elif "enjoyers404" in n.host:
                             url = n.host + f"/authors/{str(id)}/inbox"
+                            auth = None
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
+                            auth = (n.username, n.password)
                         print("URL ERER", url)
                         print("E_USERNAME", n.username)
                         print("E_PASSWORD", n.password)
@@ -506,7 +509,7 @@ class AuthorPosts(APIView):
                         response = requests.post(
                             url,
                             json=remoteData,
-                            auth=(n.username, n.password),
+                            auth=auth,
                             headers={
                                 "username": n.username,
                                 "password": n.password,
