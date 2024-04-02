@@ -189,7 +189,7 @@ class FollowView(APIView):
                     # TODO: Remove this later when their server process this properly
                     auth = None
                     # comment below out
-                    # print("AUTHOR actor", actor_data["profileImage"])
+                    print("AUTHOR actor", actor_data["profileImage"])
                     # actor_data.pop("profileImage", None)
                     # actor_data["profileImage"] = None
                     # print("AUTHOR actor", actor_data["profileImage"])
