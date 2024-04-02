@@ -135,7 +135,12 @@ class PostById(APIView):
                 serializer = PostSerializer(post)
                 return Response(serializer.data)
             else:
-                print("I AM HERE", post.authorId.id, author_id, str(post.authorId.id) == str(author_id))
+                print(
+                    "I AM HERE",
+                    post.authorId.id,
+                    author_id,
+                    str(post.authorId.id) == str(author_id),
+                )
                 # Check if the user is friends with the author
                 follower = Follows.objects.filter(
                     follower_id=author_id,
@@ -158,7 +163,7 @@ class PostById(APIView):
 
 class PostDetail(APIView):
     authentication_classes = [BasicOrTokenAuthentication]
-    
+
     def get_serializer_class(self):
         return PostSerializer
 
@@ -179,7 +184,7 @@ class PostDetail(APIView):
 
             request_data = request.data.copy()
             request_data["authorId"] = author_id
-            
+
             # print("Current request_data image:", request_data["image"])
             if request_data["image"]:
                 print("YES YES YES")
@@ -201,11 +206,11 @@ class PostDetail(APIView):
                     if response:
                         request_data["image_ref"] = id
                         print("After making | Current image_ref:", id)
-            
+
             # # serializer accepts CommonMark content
             # if request_data["contentType"] == "text/markdown":
             #     request_data["content"] = markdownify(request_data["content"])
-            
+
             post_serializer = PostSerializer(post, data=request_data, partial=True)
             print("AUTHOR ID", author_id)
             if post_serializer.is_valid():
@@ -231,38 +236,43 @@ class PostDetail(APIView):
                     request_data["isShared"] = False
                     request_data["author"] = author
                     request_data["comments"] = []
-                    request_data["published"] = str(datetime.now(timezone.utc).isoformat())
-                    request_data["origin"] = SERVER + f"authors/{author_id}/posts/{str(post_serializer.data['id'])}"
+                    request_data["published"] = str(
+                        datetime.now(timezone.utc).isoformat()
+                    )
+                    request_data["origin"] = (
+                        SERVER
+                        + f"authors/{author_id}/posts/{str(post_serializer.data['id'])}"
+                    )
                     request_data["visibility"] = post_serializer.data["visibility"]
                     request_data["contentType"] = post_serializer.data["contentType"]
                     request_data.pop("image", None)
-                    
+
                     print("REQUEST DATA", request_data)
-                    
+
                     # remoteData = {
-                        # "type": "post",
-                        # "id": str(serializer.data["id"]),
-                        # "authorId": author_id,
-                        # "title": serializer.data["title"],
-                        # "content": serializer.data["content"],
-                        # "contentType": serializer.data["contentType"],
-                        # "visibility": serializer.data["visibility"],
-                        # "source": SERVER,
-                        # "description": serializer.data["content"],
-                        # "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
-                        # "image_ref": str(serializer.data["image_ref"]),
-                        # "sharedBy": None,
-                        # "isShared": False,
-                        # "author": author,
-                        # "comments": [],
-                        # "published": str('current_time') # now
+                    # "type": "post",
+                    # "id": str(serializer.data["id"]),
+                    # "authorId": author_id,
+                    # "title": serializer.data["title"],
+                    # "content": serializer.data["content"],
+                    # "contentType": serializer.data["contentType"],
+                    # "visibility": serializer.data["visibility"],
+                    # "source": SERVER,
+                    # "description": serializer.data["content"],
+                    # "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
+                    # "image_ref": str(serializer.data["image_ref"]),
+                    # "sharedBy": None,
+                    # "isShared": False,
+                    # "author": author,
+                    # "comments": [],
+                    # "published": str('current_time') # now
                     # }
                     if author["host"] == SERVER:
                         # make a request to all nodes api/authors/<str:author_id>/inbox/
                         print("I AM HERE")
                         for n in node:
                             if "social-dist" in n.host:
-                                url = n.host + f"/authors/{author_id}/inbox" 
+                                url = n.host + f"/authors/{author_id}/inbox"
                             else:
                                 url = n.host + f"/api/authors/{author_id}/inbox"
 
@@ -364,14 +374,14 @@ class AuthorPosts(APIView):
         return Response(serializer.data)
 
     def post(self, request, author_id):
-        
+
         request_data = request.data.copy()
         print("DATA", request_data)
-        # DATA {'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13', 
-        # 'type': 'post', 
-        # 'title': 'sss', 
-        # 'content': 'ssss', 
-        # 'contentType': 'text/plain', 
+        # DATA {'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
+        # 'type': 'post',
+        # 'title': 'sss',
+        # 'content': 'ssss',
+        # 'contentType': 'text/plain',
         # 'visibility': 'PUBLIC', 'image': ''}
         request_data["authorId"] = author_id
         if request_data["image"]:
@@ -412,20 +422,23 @@ class AuthorPosts(APIView):
                     "visibility": serializer.data["visibility"],
                     "source": SERVER,
                     "description": serializer.data["content"],
-                    "origin": SERVER + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
+                    "origin": SERVER
+                    + f"authors/{author_id}/posts/{str(serializer.data['id'])}",
                     "image_ref": str(serializer.data["image_ref"]),
                     "sharedBy": None,
                     "isShared": False,
                     "author": author,
                     "comments": [],
-                    "published": str(current_time) # now
+                    "published": str(current_time),  # now
                 }
 
                 # get all nodes
                 node = Node.objects.all().filter(isActive=True)
                 print("NODES", node)
                 remoteAuthors = []
-                follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
+                follows = Follows.objects.filter(
+                    followed=author_id, acceptedRequest=True
+                )
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -440,10 +453,14 @@ class AuthorPosts(APIView):
                         for follow in follows:
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
-                            following_author = Author.objects.get(id=following_author_id)
-                            if following_author.host == n.host + "/" or following_author.host == n.host:
+                            following_author = Author.objects.get(
+                                id=following_author_id
+                            )
+                            if (
+                                following_author.host == n.host + "/"
+                                or following_author.host == n.host
+                            ):
                                 remoteAuthors.append(following_author)
-                        
 
                     elif request.data.get("visibility") == "FRIENDS":
 
@@ -451,13 +468,21 @@ class AuthorPosts(APIView):
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
                             # check if I'm following that author
-                            friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
+                            friend = Follows.objects.get(
+                                follower=author_id,
+                                followed=following_author_id,
+                                acceptedRequest=True,
+                            )
                             print("FRIEND", friend)
                             if friend:
-                                following_author = Author.objects.get(id=following_author_id)
-                                if following_author.host == n.host + "/" or following_author.host == n.host:
+                                following_author = Author.objects.get(
+                                    id=following_author_id
+                                )
+                                if (
+                                    following_author.host == n.host + "/"
+                                    or following_author.host == n.host
+                                ):
                                     remoteAuthors.append(following_author)
-                            
 
                     print("REMOTE AUTHORS", remoteAuthors)
                     for remoteAuthor in remoteAuthors:
@@ -469,7 +494,7 @@ class AuthorPosts(APIView):
                             id = remoteAuthor.id
 
                         if "social-dist" in n.host:
-                            url = n.host + f"/authors/{str(id)}/inbox" 
+                            url = n.host + f"/authors/{str(id)}/inbox"
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
 
@@ -477,6 +502,11 @@ class AuthorPosts(APIView):
                             url,
                             json=remoteData,
                             auth=(n.username, n.password),
+                            headers={
+                                "username": node["username"],
+                                "password": node["password"],
+                                "url": SERVER,
+                            },
                             params={"request_host": SERVER},
                         )
                         print("sfhd", response)
@@ -583,21 +613,23 @@ class SharedPost(APIView):
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        base_url = request.build_absolute_uri('/')
+        base_url = request.build_absolute_uri("/")
         author = Author.objects.get(id=author_id)
-        author_serializer = AuthorSerializer(author, context={'base_url': base_url})
+        author_serializer = AuthorSerializer(author, context={"base_url": base_url})
         author = author_serializer.data
-        
+
         # get the original author
         original_author = post.authorId
-        original_author_serializer = AuthorSerializer(original_author, context={'base_url': base_url})
+        original_author_serializer = AuthorSerializer(
+            original_author, context={"base_url": base_url}
+        )
         original_author = original_author_serializer.data
 
         print("AUTHOR", author)
 
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
-            serializer = PostSerializer(post, context={'base_url': base_url})
+            serializer = PostSerializer(post, context={"base_url": base_url})
             shared_post = serializer.data
             original_post = shared_post["id"]
             # time now
@@ -611,17 +643,19 @@ class SharedPost(APIView):
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
             shared_post["comments"] = None
-            if shared_post['contentType'] == 'application/base64':
-                shared_post['contentType'] = 'text/plain'
-            if shared_post['originalContent'] == '':
-                shared_post['originalContent'] = "<blank>"
+            if shared_post["contentType"] == "application/base64":
+                shared_post["contentType"] = "text/plain"
+            if shared_post["originalContent"] == "":
+                shared_post["originalContent"] = "<blank>"
 
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
             else:
                 shared_post["image_ref"] = None
             print("SHARED POST", shared_post)
-            serializer = SharedPostSerializer(data=shared_post, context={'base_url': base_url})
+            serializer = SharedPostSerializer(
+                data=shared_post, context={"base_url": base_url}
+            )
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
@@ -633,7 +667,9 @@ class SharedPost(APIView):
                 node = Node.objects.all().filter(isActive=True)
 
                 remoteAuthors = []
-                follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
+                follows = Follows.objects.filter(
+                    followed=author_id, acceptedRequest=True
+                )
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
                 for n in node:
                     # send the post to the inbox of every other author
@@ -642,21 +678,35 @@ class SharedPost(APIView):
                         for follow in follows:
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
-                            following_author = Author.objects.get(id=following_author_id)
-                            if following_author.host == n.host + "/" or following_author.host == n.host:
+                            following_author = Author.objects.get(
+                                id=following_author_id
+                            )
+                            if (
+                                following_author.host == n.host + "/"
+                                or following_author.host == n.host
+                            ):
                                 remoteAuthors.append(following_author)
 
                     elif shared_post["visibility"] == "FRIENDS":
-                        
+
                         for follow in follows:
                             following_author_id = follow.follower_id
                             print("FOLLOWING AUTHOR ID", following_author_id)
                             # check if I'm following that author
-                            friend = Follows.objects.get(follower=author_id, followed=following_author_id, acceptedRequest=True)
+                            friend = Follows.objects.get(
+                                follower=author_id,
+                                followed=following_author_id,
+                                acceptedRequest=True,
+                            )
                             print("FRIEND", friend)
                             if friend:
-                                following_author = Author.objects.get(id=following_author_id)
-                                if following_author.host == n.host + "/" or following_author.host == n.host:
+                                following_author = Author.objects.get(
+                                    id=following_author_id
+                                )
+                                if (
+                                    following_author.host == n.host + "/"
+                                    or following_author.host == n.host
+                                ):
                                     remoteAuthors.append(following_author)
 
                     for remoteAuthor in remoteAuthors:
@@ -673,18 +723,22 @@ class SharedPost(APIView):
                             id = remoteAuthor["user_id"]
                         except TypeError:
                             id = remoteAuthor.id
-                        
+
                         id = str(id).split("/")[-1]
                         if "social-dist" in n.host:
                             print("Sending to social-dist")
-                            url = n.host + f"/authors/{str(id)}/inbox" 
+                            url = n.host + f"/authors/{str(id)}/inbox"
                             shared_post["id"] = shared_post["id"].split("/")[-1]
-                            shared_post["shared_user"] = shared_post["author"] # sharing author
+                            shared_post["shared_user"] = shared_post[
+                                "author"
+                            ]  # sharing author
                             shared_post["author"] = original_author
                             shared_post["shared_body"] = shared_post["content"]
-                            shared_post["copy_of_original_id"] = original_post.split("/")[-1]
+                            shared_post["copy_of_original_id"] = original_post.split(
+                                "/"
+                            )[-1]
                             shared_post["origin"] = shared_post["originalContent"]
-                            
+
                             print("Shared post", shared_post)
 
                         else:
@@ -703,7 +757,7 @@ class SharedPost(APIView):
                             print("Shared post not sent to", url)
                             print("Response", response.status_code)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            
+
             print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
