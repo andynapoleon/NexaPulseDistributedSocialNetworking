@@ -92,18 +92,22 @@
       console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
       // Send a request to the node to get the authors
-      if (node.host.includes("social-dist") || node.host.includes("enjoyers404")) {
+      if (
+        node.host.includes("social-dist") ||
+        node.host.includes("enjoyers404")
+      ) {
         console.log("NODE HOST", node.host);
         let headers = {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         };
 
-        if (!node.host.includes("enjoyers404")) { // for now, only social-dist has basic auth
+        if (!node.host.includes("enjoyers404")) {
+          // for now, only social-dist has basic auth
           headers.Authorization = encodedAuthorization;
         }
 
         console.log("HEADERS", headers);
-        
+
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
           headers: headers,
@@ -116,6 +120,9 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
+              username: "remote",
+              password: "123456",
+              url: "https://nexapulse1-7fbca99d2d7b.herokuapp.com/",
             },
             body: JSON.stringify(authorData), // Pass fetched data to the second request
           });

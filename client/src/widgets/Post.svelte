@@ -365,7 +365,7 @@
     fetchInterval = setInterval(() => {
       fetchLikes();
       fetchComments();
-    }, 5000);
+    }, 10000);
   }
 
   // Fetch the image associated with the post when the component is mounted
