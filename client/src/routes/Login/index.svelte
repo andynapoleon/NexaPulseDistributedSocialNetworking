@@ -99,6 +99,9 @@
         console.log("NODE HOST", node.host);
         let headers = {
           "Content-Type": "application/json",
+          username: node.username,
+          password: node.password,
+          url: server + "/",
         };
 
         if (!node.host.includes("enjoyers404")) {
@@ -120,9 +123,6 @@
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              username: "remote",
-              password: "123456",
-              url: "https://nexapulse1-7fbca99d2d7b.herokuapp.com/",
             },
             body: JSON.stringify(authorData), // Pass fetched data to the second request
           });
