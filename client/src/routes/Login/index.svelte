@@ -103,14 +103,13 @@
           // password: node.password,
           // url: server + "/",
         };
-        console.log("HEADERS 1", headers);
 
         if (!node.host.includes("enjoyers404")) {
           // for now, only social-dist has basic auth
           headers.Authorization = encodedAuthorization;
         }
 
-        console.log("HEADERS 2", headers);
+        console.log("HEADERS", headers);
 
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
@@ -149,6 +148,7 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          console.log("AUTHOR DATA", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
