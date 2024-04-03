@@ -753,6 +753,8 @@ class SharedPost(APIView):
 
                             print("Shared post", shared_post)
 
+                            auth = (n.username, n.password)
+
                         elif "enjoyers404" in n.host:
                             print("Sending to enjoyers404")
                             url = n.host + f"/authors/{str(id)}/inbox"
@@ -768,14 +770,17 @@ class SharedPost(APIView):
                             shared_post["count"] = 0
 
                             print("Shared post", shared_post)
+                            # TODO: Remove this later when their server process this properly
+                            auth = None
 
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
+                            auth = (n.username, n.password)
 
                         response = requests.post(
                             url,
                             json=shared_post,
-                            auth=(n.username, n.password),
+                            auth=auth,
                             params={"request_host": SERVER},
                         )
 
