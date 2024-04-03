@@ -671,6 +671,7 @@ class SharedPost(APIView):
             if serializer.is_valid():
                 serializer.save()
                 # get all nodes
+                shared_post_id = serializer.data["id"]
                 shared_post["id"] = serializer.data["id"]
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
@@ -756,7 +757,17 @@ class SharedPost(APIView):
                             print("Sending to enjoyers404")
                             url = n.host + f"/authors/{str(id)}/inbox"
                             # reformat
-                            shared_post["id"] = None
+                            shared_post["id"] = shared_post_id
+                            shared_post["source"] = SERVER
+                            shared_post["origin"] = SERVER
+                            shared_post["content"] = shared_post["originalContent"]
+                            sharing_author = Author.objects.get(id=shared_post["authorId"])
+                            # serialize the author
+                            author_serializer = AuthorSerializer(sharing_author, context={"base_url": base_url})
+                            shared_post["author"] = author_serializer.data
+                            shared_post["count"] = 0
+
+                            print("Shared post", shared_post)
 
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
