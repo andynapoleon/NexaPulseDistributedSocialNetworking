@@ -116,6 +116,7 @@ class InboxView(APIView):
             # print("POST REQUEST", request.data)
             post_author_id = request.data["author"]["id"].split("/")[-1]
             request_data = self.convert_json(request.data)
+            
             # {'type': 'post',
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
