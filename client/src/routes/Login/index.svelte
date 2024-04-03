@@ -103,13 +103,14 @@
           // password: node.password,
           // url: server + "/",
         };
+        console.log("HEADERS 1", headers);
 
         if (!node.host.includes("enjoyers404")) {
           // for now, only social-dist has basic auth
           headers.Authorization = encodedAuthorization;
         }
 
-        console.log("HEADERS", headers);
+        console.log("HEADERS 2", headers);
 
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
