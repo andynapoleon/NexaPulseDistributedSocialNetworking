@@ -52,6 +52,7 @@ class SharedPostSerializer(serializers.ModelSerializer):
         context = self.context
         base_url = context.get("base_url")
         if base_url is not None:
+            print(instance)
             author_id = instance.authorId
             post_id = instance.id
             if (data["contentType"] == "image/png;base64" or data["contentType"] == "image/jpeg;base64"):
