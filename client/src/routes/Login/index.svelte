@@ -99,9 +99,9 @@
         console.log("NODE HOST", node.host);
         let headers = {
           "Content-Type": "application/json",
-          username: node.username,
-          password: node.password,
-          url: server + "/",
+          // username: node.username,
+          // password: node.password,
+          // url: server + "/",
         };
 
         if (!node.host.includes("enjoyers404")) {
