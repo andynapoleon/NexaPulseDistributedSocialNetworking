@@ -263,6 +263,7 @@ class FollowView(APIView):
         print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
+        
         try:
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
