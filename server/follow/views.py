@@ -72,10 +72,10 @@ class FollowView(APIView):
                     # TODO: Remove this later when their server process this properly
                     auth = None
                     # comment the things below
-                    actor_data.pop("profileImage", None)
-                    actor_data["profileImage"] = None
-                    object_data.pop("profileImage", None)
-                    object_data["profileImage"] = None
+                    # actor_data.pop("profileImage", None)
+                    # actor_data["profileImage"] = None
+                    # object_data.pop("profileImage", None)
+                    # object_data["profileImage"] = None
 
                 else:
                     request_url = f"{host}/api/authors/{userId1}/inbox"
@@ -311,10 +311,10 @@ class FollowView(APIView):
                 # TODO: Remove this later when their server process this properly
                 auth = None
                 # comment below out
-                actor_data.pop("profileImage", None)
-                actor_data["profileImage"] = None
-                object_data.pop("profileImage", None)
-                object_data["profileImage"] = None
+                # actor_data.pop("profileImage", None)
+                # actor_data["profileImage"] = None
+                # object_data.pop("profileImage", None)
+                # object_data["profileImage"] = None
 
             else:
                 request_url = f"{host}/api/authors/{userId1}/inbox"

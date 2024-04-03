@@ -751,6 +751,10 @@ class SharedPost(APIView):
 
                             print("Shared post", shared_post)
 
+                        elif "enjoyers404" in n.host:
+                            print("Sending to enjoyers404")
+                            url = n.host + f"/authors/{str(id)}/inbox"
+
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
 
