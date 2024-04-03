@@ -642,6 +642,7 @@ class SharedPost(APIView):
             serializer = PostSerializer(post, context={"base_url": base_url})
             shared_post = serializer.data
             original_post = shared_post["id"]
+            print("Original post", original_post)
             # time now
             shared_post["published"] = str(datetime.now(timezone.utc).isoformat())
             shared_post["isShared"] = True
@@ -754,6 +755,8 @@ class SharedPost(APIView):
                         elif "enjoyers404" in n.host:
                             print("Sending to enjoyers404")
                             url = n.host + f"/authors/{str(id)}/inbox"
+                            # reformat
+                            shared_post["id"] = None
 
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
