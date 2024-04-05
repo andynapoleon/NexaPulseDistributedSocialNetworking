@@ -1,10 +1,12 @@
 <script>
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import Post from "./Post.svelte";
   import SharedPost from "./SharedPost.svelte";
   import { server } from "../stores/stores.js";
   import { posts } from "../stores/stores.js";
   import { authToken } from "../stores/stores.js";
+
+  let fetchInterval;
 
   // Function to fetch posts from the backend
   async function fetchPosts() {
@@ -15,7 +17,7 @@
           Authorization: `Bearer ${$authToken}`,
         },
       });
-      const authToken1 = response.headers.get('Authorization');
+      const authToken1 = response.headers.get("Authorization");
       console.log(`Auth token: ${authToken1}`);
       if (response.ok) {
         const data = await response.json();
@@ -32,6 +34,14 @@
   // Fetch posts when the component is mounted
   onMount(() => {
     fetchPosts();
+
+    // Set up interval to periodically fetch new posts
+    fetchInterval = setInterval(fetchPosts, 5000);
+  });
+
+  onDestroy(() => {
+    // Clean up fetch interval when component is destroyed
+    clearInterval(fetchInterval);
   });
 
   function handleChange(event) {

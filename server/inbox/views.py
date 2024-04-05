@@ -48,6 +48,7 @@ class InboxView(APIView):
             "contentType": input_json["contentType"],
             "visibility": input_json["visibility"],
             "source": input_json["source"],
+            "originalContent": "",
             "image_ref": None,
             "sharedBy": None,
             "isShared": False,
@@ -58,7 +59,8 @@ class InboxView(APIView):
             output_json["image_ref"] = None
 
         try:
-            output_json["sharedBy"] = input_json["sharedBy"]
+            output_json["originalContent"] = input_json["originalContent"]
+            output_json["sharedBy"] = input_json["sharedBy"]["id"].split("/")[-1]
             output_json["isShared"] = input_json["isShared"]
         except:
             output_json["sharedBy"] = None
@@ -111,7 +113,7 @@ class InboxView(APIView):
 
         # Post
         if request_type.lower() == "post":
-            print("POST REQUEST", request.data)
+            # print("POST REQUEST", request.data)
             post_author_id = request.data["author"]["id"].split("/")[-1]
             request_data = self.convert_json(request.data)
             # {'type': 'post',
@@ -137,8 +139,7 @@ class InboxView(APIView):
                 if (image_ref and image_ref != "None") or request_data[
                     "contentType"
                 ] == "application/base64":
-                    # fetch remote authors/${authorId}/posts/${postId}/image/",
-                    if request_data["contentType"] == "application/base64":
+                    if request_data["contentType"] == "application/base64" or "social-dist" in sender_host:
                         url_image = f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
                     else:
                         url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
@@ -194,10 +195,10 @@ class InboxView(APIView):
                 # return the response
                 return Response(response.json(), status=response.status_code)
 
-            else:
+            else:   
                 author = Author.objects.get(id=request_data["authorId"])
                 request_data["authorId"] = author
-                print("AUTHOR", type(request_data["authorId"]))
+                print("AUTHOR", request_data["authorId"])
                 if request_data["sharedBy"] != None:
                     request_data["sharedBy"] = Author.objects.get(
                         id=request_data["sharedBy"]
@@ -207,10 +208,8 @@ class InboxView(APIView):
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if (image_ref != None and image_ref != "None") or request_data[
-                    "contentType"
-                ] == "application/base64":
-                    if request_data["contentType"] == "application/base64":
+                if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
+                    if request_data["contentType"] == "application/base64" or "social-dist" in sender_host:
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
@@ -228,7 +227,7 @@ class InboxView(APIView):
                         auth=(node.username, node.password),
                         params={"request_host": SERVER},
                     )
-                    print("IMAGE RESPONSE", response)
+                    print("IMAGE RESPONSE", response.json())
                     response = response.json()
                     # pop image_id
                     try:
@@ -247,6 +246,7 @@ class InboxView(APIView):
                     # create a image post instance
                     print("ID", id)
                     if request_data["isShared"]:
+
                         image_ref = Post.objects.create(**response)
                     elif request_data["contentType"] == "application/base64":
                         image_ref = Post.objects.create(**response)
@@ -256,6 +256,8 @@ class InboxView(APIView):
                         id=id, image_ref=image_ref, **request_data
                     )
                 else:
+                    print("SHARED BY", request_data["sharedBy"])
+                    print("REQUEST DATA", request_data)
                     new_post = Post.objects.create(id=id, **request_data)
                 inbox.posts.add(new_post)
 
