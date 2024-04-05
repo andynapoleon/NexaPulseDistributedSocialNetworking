@@ -71,7 +71,6 @@ class FollowView(APIView):
 
                     # TODO: Remove this later when their server process this properly
                     auth = None
-                    
 
                 else:
                     request_url = f"{host}/api/authors/{userId1}/inbox"
@@ -173,6 +172,8 @@ class FollowView(APIView):
             node = serializer.data
             host = node["host"]
             try:
+                print(request.data["userId1"])
+                print(request.data["userId2"])
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
@@ -189,7 +190,7 @@ class FollowView(APIView):
                     auth = None
                     # comment below out
                     print("AUTHOR actor", actor_data["profileImage"])
-                    
+
                 else:
                     request_url = f"{host}/api/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
@@ -270,7 +271,7 @@ class FollowView(APIView):
         print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
-        
+
         try:
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
