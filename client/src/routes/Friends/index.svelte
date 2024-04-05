@@ -1,7 +1,7 @@
 <script>
   import { Link } from "svelte-routing";
   import FriendWidget from "./friendWidget.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     authToken,
     isLoginPage,
@@ -89,6 +89,23 @@
     currentList = allFriends;
   }
 
+  let fetchInterval;
+
+  function pollForPosts() {
+      fetchInterval = setInterval(() => {
+        fetchData();
+      }, 10000);
+    }
+
+  onMount(async () => {
+    fetchData();
+    pollForPosts();
+  });
+
+  onDestroy(() => {
+    clearInterval(fetchInterval);
+  });
+
   //
   //sample = {
   //  "user_id": 1,
@@ -96,7 +113,6 @@
   //  "profileImageUrl": 1,
   //  "email": 1,
   //
-  onMount(fetchData);
 
   mode.set(1);
 </script>
