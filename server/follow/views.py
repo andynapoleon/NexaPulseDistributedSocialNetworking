@@ -307,6 +307,10 @@ class FollowView(APIView):
                 # TODO: Remove this later when their server process this properly
                 auth = None
 
+            elif "for-andy" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
+
             else:
                 request_url = f"{host}/api/authors/{userId1}/inbox"
                 auth = (node["username"], node["password"])
@@ -320,7 +324,7 @@ class FollowView(APIView):
                 "object": object_data,
             }
 
-            if "enjoyers404" in host:
+            if "enjoyers404" or "for-andy" in host:
                 data_to_send["type"] = "Deny Follow"
 
             print("DATA_TO_SEND", data_to_send)
