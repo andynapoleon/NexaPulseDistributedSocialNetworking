@@ -28,7 +28,7 @@ class CustomUserManager(BaseUserManager):
 
 class Author(AbstractBaseUser):  # PermissionsMixin
     type = models.CharField(max_length=500, default="author", editable=False)
-    id = models.UUIDField(
+    id = models.CharField(
         max_length=500, primary_key=True, default=uuid.uuid4, editable=False
     )
     email = models.EmailField(max_length=500, unique=True, default="")
