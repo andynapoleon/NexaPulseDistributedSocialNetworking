@@ -74,7 +74,7 @@ class FollowView(APIView):
 
                 elif "for-andy" in host:
                     request_url = f"{host}/authors/{userId1}/inbox"
-
+                    auth = (node["username"], node["password"])
                 else:
                     request_url = f"{host}/api/authors/{userId1}/inbox"
                     auth = (node["username"], node["password"])
