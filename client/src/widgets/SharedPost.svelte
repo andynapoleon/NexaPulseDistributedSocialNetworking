@@ -13,7 +13,8 @@
   const dispatch = createEventDispatcher();
 
   let userName = "";
-  let postTime = post.published;
+  let time = new Date(post.published)
+  let postTime = time.toLocaleString();
   let content = post.content;
   let title = post.title;
   let authorId = $currentUser.userId;

@@ -35,16 +35,6 @@ class Post(models.Model):
     # title of a post
     title = models.CharField(max_length=255, default="")
 
-    # ISO 8601 TIMESTAMP
-    # Given time string
-    time_str = "2024-03-24T00:00:35.657052Z"
-
-    # Convert string to datetime object
-    time_obj = datetime.fromisoformat(time_str[:-1])
-
-    # Format datetime object
-    formatted_time = time_obj.strftime("%B %d, %Y %I:%M:%S %p")
-    # published = formatted_time
     published = models.DateTimeField(auto_now_add=True)
 
     source = models.CharField(max_length=255, default="", null=True, blank=True)
