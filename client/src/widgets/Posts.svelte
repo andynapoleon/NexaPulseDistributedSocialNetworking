@@ -36,7 +36,7 @@
     fetchPosts();
 
     // Set up interval to periodically fetch new posts
-    fetchInterval = setInterval(fetchPosts, 5000);
+    fetchInterval = setInterval(fetchPosts, 10000);
   });
 
   onDestroy(() => {

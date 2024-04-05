@@ -116,6 +116,7 @@ class InboxView(APIView):
             # print("POST REQUEST", request.data)
             post_author_id = request.data["author"]["id"].split("/")[-1]
             request_data = self.convert_json(request.data)
+            
             # {'type': 'post',
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
@@ -123,7 +124,6 @@ class InboxView(APIView):
             # 'contentType': 'text/plain', 'visibility': 'PUBLIC',
             # 'source': 'http://127.0.0.1:8000/',
             # 'image_ref': 'None', 'sharedBy': None, 'isShared': False}
-
             # 'contentType': application/base64
 
             image_ref = request_data.get("image_ref", None)
@@ -139,7 +139,10 @@ class InboxView(APIView):
                 if (image_ref and image_ref != "None") or request_data[
                     "contentType"
                 ] == "application/base64":
-                    if request_data["contentType"] == "application/base64" or "social-dist" in sender_host:
+                    if (
+                        request_data["contentType"] == "application/base64"
+                        or "social-dist" in sender_host
+                    ):
                         url_image = f"{sender_host}authors/{post_author_id}/posts/{post_id}/image"
                     else:
                         url_image = f"{sender_host}api/authors/{author_id}/posts/{post_id}/image/"
@@ -195,7 +198,7 @@ class InboxView(APIView):
                 # return the response
                 return Response(response.json(), status=response.status_code)
 
-            else:   
+            else:
                 author = Author.objects.get(id=request_data["authorId"])
                 request_data["authorId"] = author
                 print("AUTHOR", request_data["authorId"])
@@ -208,8 +211,13 @@ class InboxView(APIView):
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
-                    if request_data["contentType"] == "application/base64" or "social-dist" in sender_host:
+                if (image_ref != None and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
+                    if (
+                        request_data["contentType"] == "application/base64"
+                        or "social-dist" in sender_host
+                    ):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
@@ -265,11 +273,26 @@ class InboxView(APIView):
                 {"message": "Post sent to inbox!"}, status=status.HTTP_201_CREATED
             )
 
+        elif (
+            request_type.lower() == "approve follow"
+        ):  # Approve follow requests enjoyers404
+            follow = Follows.objects.create(
+                follower_id=request.data["actor"]["id"].split("/")[-1],
+                followed_id=request.data["object"]["id"].split("/")[-1],
+                acceptedRequest=True,
+            )
+            follow.acceptedRequest = True
+            follow.save()
+            inbox.follow_requests.add(follow)
+            return Response(
+                {"message": "Follow request approved!"}, status=status.HTTP_201_CREATED
+            )
+
         # Follow requests
         elif request_type.lower() == "follow":
             print("IMHERERHEHRHERHEHRHEHR")
             print("HERE")
-            print("REQUEST DATA", request.data["actor"], request.data["actor"])
+            print("REQUEST DATA", request.data["actor"], request.data["object"])
             actor = request.data.get("actor")
             object = request.data.get("object")
 
@@ -286,7 +309,7 @@ class InboxView(APIView):
             if follow.exists():
                 follow.delete()
                 return Response(
-                    {"message": "Follow request sent to inbox!"},
+                    {"message": "Follow request sent to inbox! Unfollowed!"},
                     status=status.HTTP_204_NO_CONTENT,
                 )
             print("ACTOR HOST: ", actor["host"])

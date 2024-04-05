@@ -36,6 +36,7 @@ class FollowView(APIView):
         query_set = Author.objects.get(id=userId1)
         serializer = AuthorSerializer(query_set)
         following_author = serializer.data
+
         # remote
         if following_author["host"] != SERVER:
             print("REMOTE!!!!!!!")
@@ -51,32 +52,43 @@ class FollowView(APIView):
             node = serializer.data
             host = node["host"]
             print("FOLLOWING HOST:", host)
-            if "social-dist" in host:
-                request_url = f"{host}/authors/{userId1}/inbox"
-            else:
-                request_url = f"{host}/api/authors/{userId1}/inbox"
-            print(request_url)
+
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
                 object = AuthorSerializer(object)
+                actor_data = actor.data
+                object_data = object.data
+
+                if "social-dist" in host:
+                    print("MADE IT HERE TOOO")
+                    request_url = f"{host}/authors/{userId1}/inbox"
+                    auth = (node["username"], node["password"])
+
+                elif "enjoyers404" in host:
+                    request_url = f"{host}/authors/{userId1}/inbox"
+
+                    # TODO: Remove this later when their server process this properly
+                    auth = None
+                    
+
+                else:
+                    request_url = f"{host}/api/authors/{userId1}/inbox"
+                    auth = (node["username"], node["password"])
+
                 data_to_send = {
                     "type": "Follow",
                     "summary": str(actor.data["displayName"])
                     + " wants to follow "
                     + str(object.data["displayName"]),
-                    "actor": actor.data,
-                    "object": object.data,
+                    "actor": actor_data,
+                    "object": object_data,
                 }
-                # data_to_send = {
-                #     "type": "Follow",
-                #     "summary": str(actor.data["displayName"])
-                #     + " wants to follow "
-                #     + str(object.data["displayName"]),
-                #     "actor": "fdasfdas",
-                #     "object": "fadsfdsf",
-                # }
+
+                if "enjoyers404" in host:
+                    data_to_send["type"] = "Approve Follow"
+
                 print("DATA TO SEND", data_to_send)
                 requestObj = Follows.objects.filter(
                     follower_id=userId1, followed_id=userId2
@@ -85,10 +97,18 @@ class FollowView(APIView):
                     requestObj.acceptedRequest = True
                 requestObj.save()
                 print("REQUEST URL", request_url)
+                print("E_USERNAME", node["username"])
+                print("E_PASSWORD", node["password"])
+                print("SERVER", SERVER)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
-                    auth=(node["username"], node["password"]),
+                    headers={
+                        "username": node["username"],
+                        "password": node["password"],
+                        "url": SERVER,
+                    },
+                    auth=auth,
                     params={"request_host": SERVER},
                 )
                 print("status code response", response.status_code)
@@ -152,27 +172,46 @@ class FollowView(APIView):
             serializer = NodeSerializer(queryset)
             node = serializer.data
             host = node["host"]
-            if "social-dist" in host:
-                request_url = f"{host}/authors/{userId2}/inbox"
-            else:
-                request_url = f"{host}/api/authors/{userId2}/inbox"
             try:
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
                 object = AuthorSerializer(object)
+                actor_data = actor.data
+                object_data = object.data
+
+                if "social-dist" in host:
+                    request_url = f"{host}/authors/{userId2}/inbox"
+                    auth = (node["username"], node["password"])
+                if "enjoyers404" in host:
+                    request_url = f"{host}/authors/{userId2}/inbox"
+                    # TODO: Remove this later when their server process this properly
+                    auth = None
+                    # comment below out
+                    print("AUTHOR actor", actor_data["profileImage"])
+                    
+                else:
+                    request_url = f"{host}/api/authors/{userId2}/inbox"
+                    auth = (node["username"], node["password"])
+
                 data_to_send = {
                     "type": "Follow",
                     "summary": str(actor.data["displayName"])
                     + " wants to follow "
                     + str(object.data["displayName"]),
-                    "actor": actor.data,
-                    "object": object.data,
+                    "actor": actor_data,
+                    "object": object_data,
                 }
+                print("DATA TO SEND", data_to_send)
                 response = requests.post(
                     request_url,
                     json=data_to_send,
-                    auth=(node["username"], node["password"]),
+                    headers={
+                        "username": node["username"],
+                        "password": node["password"],
+                        "url": SERVER,
+                    },
+                    auth=auth,
                     params={"request_host": sender_host},
                 )
                 print("status code response", response.status_code)
@@ -217,6 +256,7 @@ class FollowView(APIView):
             followed_id=user_being_follow_id, follower_id=user_id
         ).delete()
         print("DELETING THIS SHIT")
+
         # remote
         query_set = Author.objects.get(id=user_id)
         serializer = AuthorSerializer(query_set)
@@ -230,42 +270,67 @@ class FollowView(APIView):
         print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
+        
         try:
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
             print("TRYING IN HERE")
             queryset = Node.objects.get(host=following_author["host"])
         except:
+            print("Successfully Deleted")
             return Response({"success": "Deleted"}, status=status.HTTP_204_NO_CONTENT)
+
+        print("MADE IT HERE")
         serializer = NodeSerializer(queryset)
         node = serializer.data
         host = node["host"]
-        print("MADE IT HERE")
-        if "social-dist" in host:
-            print("MADE IT HERE TOOO")
-            request_url = f"{host}/authors/{userId1}/inbox"
-        else:
-            request_url = f"{host}/api/authors/{userId1}/inbox"
         # request_url = f"{host}/api/authors/{userId1}/inbox/"
         try:
             actor = Author.objects.get(id=request.data["userId1"])
             actor = AuthorSerializer(actor)
             object = Author.objects.get(id=request.data["userId2"])
             object = AuthorSerializer(object)
+            actor_data = actor.data
+            object_data = object.data
+
+            if "social-dist" in host:
+                print("MADE IT HERE TOOO")
+                request_url = f"{host}/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
+
+            elif "enjoyers404" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+                # TODO: Remove this later when their server process this properly
+                auth = None
+
+            else:
+                request_url = f"{host}/api/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
+
             data_to_send = {
                 "type": "Follow",
                 "summary": str(actor.data["displayName"])
                 + " wants to follow "
                 + str(object.data["displayName"]),
-                "actor": actor.data,
-                "object": object.data,
+                "actor": actor_data,
+                "object": object_data,
             }
+
+            if "enjoyers404" in host:
+                data_to_send["type"] = "Deny Follow"
+
             print("DATA_TO_SEND", data_to_send)
+
             print("MADE IT HERE")
             response = requests.post(
                 request_url,
                 json=data_to_send,
-                auth=(node["username"], node["password"]),
+                headers={
+                    "username": node["username"],
+                    "password": node["password"],
+                    "url": SERVER,
+                },
+                auth=auth,
                 params={"request_host": SERVER},
             )
             print("status code response", response.status_code)
