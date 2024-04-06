@@ -10,6 +10,17 @@
   let currentSelection = localStorage.getItem("currentSelection") || "/home";
   console.log("Current Selection HERE:", currentSelection);
 
+  // Function to handle the beforeunload event
+  function handleBeforeUnload() {
+    localStorage.setItem("currentSelection", currentSelection);
+  }
+
+  // Call handleBeforeUnload when the component is about to be destroyed
+  onDestroy(() => {
+    handleBeforeUnload();
+    window.removeEventListener("resize", updateSidebarClass);
+  });
+
   // Logout function
   function handleLogout() {
     $authToken = "";
