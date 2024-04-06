@@ -27,7 +27,7 @@ class AuthorList(generics.ListCreateAPIView):
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        queryset = Author.objects.all().filter(host=SERVER)
+        queryset = Author.objects.all() 
         return queryset
 
     def list(self, request, *args, **kwargs):
