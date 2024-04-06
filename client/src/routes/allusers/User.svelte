@@ -6,10 +6,12 @@
   import { fetchWithRefresh, extractUUID } from "../../utils/apiUtils.js";
   import ProfileWidget from "../profile/ProfileWidget.svelte";
   import { Link, navigate } from "svelte-routing";
-  import { use } from "marked"
+  import { use } from "marked";
 
   export let user;
-  user.id = extractUUID(user.id);
+  if (user.id.includes("/")) {
+    user.id = extractUUID(user.id);
+  }
   const currentUserId = $currentUser.userId;
   const userId = user.id;
   const alreadyFollowed = writable(false);
@@ -37,13 +39,12 @@
   });
 
   function navigateToProfile(event) {
-    console.log("trigger")
-    if (!event.target.classList.contains('follow-button')) {
+    console.log("trigger");
+    if (!event.target.classList.contains("follow-button")) {
       // Prevent the default behavior of the event (don't navigate)
       navigate(`/profile/${userId}`);
     }
   }
-
 </script>
 
 <!--<div class="user">
@@ -62,16 +63,16 @@
 </div>-->
 
 <div>
-    <button class="button-profile-widget" on:click={navigateToProfile}>
-      <ProfileWidget
-        profileImage={user.profileImage}
-        name={user.displayName}
-        email={user.email}
-        github={user.github}
-        userId={user.id}
-        host={user.host}
-      />
-    </button>
+  <button class="button-profile-widget" on:click={navigateToProfile}>
+    <ProfileWidget
+      profileImage={user.profileImage}
+      name={user.displayName}
+      email={user.email}
+      github={user.github}
+      userId={user.id}
+      host={user.host}
+    />
+  </button>
 </div>
 
 <style>
