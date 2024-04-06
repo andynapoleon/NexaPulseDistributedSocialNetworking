@@ -109,7 +109,6 @@ class InboxView(APIView):
         inbox, _ = Inbox.objects.get_or_create(authorId=author)
         request_type = request.data.get("type", "").lower()
         sender_host = request.query_params.get("request_host", None)
-        print(request_type)
 
         # Post
         if request_type.lower() == "post":
@@ -212,10 +211,9 @@ class InboxView(APIView):
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
-                    if (
-                        request_data["contentType"] == "application/base64"
+                    if (request_data["contentType"] == "application/base64" 
                         or "social-dist" in sender_host
-                    ):
+                        or "enjoyers404" in sender_host):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
@@ -244,6 +242,7 @@ class InboxView(APIView):
                         response["authorId"] = author_post
                         response.pop("comments")
                         response.pop("author")
+
                         print("IMAGE ID", image_id)
                     except:
                         response["authorId"] = Author.objects.get(id=post_author_id)
@@ -256,6 +255,11 @@ class InboxView(APIView):
                         image_ref = Post.objects.create(**response)
                     elif request_data["contentType"] == "application/base64":
                         image_ref = Post.objects.create(**response)
+                    elif ("enjoyers404" in sender_host):
+                        response["ContentType"] = "image/jpeg;base64"
+                        # remove image/jpeg;base64 prefix from content
+                        response["content"] = response["content"].split(",")[1]
+                        
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
                     new_post = Post.objects.create(
