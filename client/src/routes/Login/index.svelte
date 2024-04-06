@@ -119,6 +119,7 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          console.log("AUTHOR DATA", authorData);
           let authorDataToSend = [];
           authorData.forEach((author) => {
             if (!author.host.endsWith("/")) {
@@ -128,6 +129,7 @@
               authorDataToSend.push(author);
             }
           });
+          console.log("AUTHOR DATA TO SEND", authorDataToSend);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
@@ -157,7 +159,6 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          console.log("AUTHOR DATA", authorData);
           let authorDataToSend = [];
           authorData.forEach((author) => {
             if (!author.host.endsWith("/")) {
@@ -167,6 +168,7 @@
               authorDataToSend.push(author);
             }
           });
+          console.log("AUTHOR DATA", authorDataToSend);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
