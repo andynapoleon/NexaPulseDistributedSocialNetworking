@@ -14,6 +14,7 @@
   function handleLogout() {
     $authToken = "";
     $isLoginPage = true;
+    localStorage.setItem("currentSelection", "/home");
     navigate("/");
   }
 
