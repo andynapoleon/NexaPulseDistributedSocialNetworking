@@ -89,22 +89,22 @@
     currentList = allFriends;
   }
 
-  let fetchInterval;
+  // let fetchInterval;
 
-  function pollForPosts() {
-      fetchInterval = setInterval(() => {
-        fetchData();
-      }, 10000);
-    }
+  // function pollForPosts() {
+  //     fetchInterval = setInterval(() => {
+  //       fetchData();
+  //     }, 10000);
+  //   }
 
   onMount(async () => {
     fetchData();
-    pollForPosts();
+    // pollForPosts();
   });
 
-  onDestroy(() => {
-    clearInterval(fetchInterval);
-  });
+  // onDestroy(() => {
+  //   clearInterval(fetchInterval);
+  // });
 
   //
   //sample = {
@@ -115,6 +115,29 @@
   //
 
   mode.set(1);
+
+  const rowSize = writable(1); // Initialize with a default value
+  function returnRowIndex() {
+    if (window.innerWidth > 2200) {
+      rowSize.set(5);
+    } else if (window.innerWidth > 1800) {
+      // = 700/0.7
+      rowSize.set(4);
+    } else if (window.innerWidth > 1400) {
+      // = 450/0.7
+      rowSize.set(3);
+    } else if (window.innerWidth > 1000) {
+      rowSize.set(2);
+    } else {
+      rowSize.set(1);
+    }
+    console.log("rowsize:", rowSize);
+  }
+
+  onMount(() => {
+    returnRowIndex();
+    window.addEventListener("resize", returnRowIndex);
+  });
 </script>
 
 <main>
@@ -135,16 +158,18 @@
         on:click={() => switchMode(3)}>Follower</button
       >
     </div>
-    {#each Array(Math.ceil(currentList.length / 5)) as _, rowIndex}
+    {#each Array(Math.ceil(currentList.length / $rowSize)) as _, rowIndex}
       <div class="profile-layout">
-        {#each Array(Math.min(5, currentList.length - rowIndex * 5)) as _, colIndex}
-          <Link to="/profile/{currentList[rowIndex * 5 + colIndex].user_id}">
+        {#each Array(Math.min($rowSize, currentList.length - rowIndex * $rowSize)) as _, colIndex}
+          <Link
+            to="/profile/{currentList[rowIndex * $rowSize + colIndex].user_id}"
+          >
             <div class="profile-widget">
               <FriendWidget
-                profileImage={currentList[rowIndex * 5 + colIndex]
+                profileImage={currentList[rowIndex * $rowSize + colIndex]
                   .profileImage}
-                name={currentList[rowIndex * 5 + colIndex].full_name}
-                email={currentList[rowIndex * 5 + colIndex].email}
+                name={currentList[rowIndex * $rowSize + colIndex].full_name}
+                email={currentList[rowIndex * $rowSize + colIndex].email}
               />
             </div>
           </Link>

@@ -3,7 +3,7 @@
   import { fetchWithRefresh } from "../utils/apiUtils";
   import { get } from "svelte/store";
   import { posts } from "../stores/stores.js";
-  import { onDestroy, onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import SharedPopUp from "./SharedPopUp.svelte";
   import { createEventDispatcher } from "svelte";
   import { navigate } from "svelte-routing";
@@ -359,14 +359,39 @@
     }
   }
 
-  let fetchInterval;
+  let containerClass;
+  // Update UI for container for post
+  function updateContainerClass() {
+    var list = document.querySelectorAll("aside");
+    // console.log("sideBar width:", list[0].offsetWidth);
+    if (window.innerWidth > 1000) {
+      // = 700/0.7
+      containerClass = "post-big";
+    } else if (window.innerWidth > 643) {
+      // = 450/0.7
+      containerClass = "post-mid";
+    } else {
+      containerClass = "post-small";
+    }
+  }
 
+  let fetchInterval;
   function pollForLikesAndComments() {
     fetchInterval = setInterval(() => {
       fetchLikes();
       fetchComments();
     }, 10000);
+    console.log("post containerClass:", containerClass);
   }
+
+  onMount(() => {
+    updateContainerClass();
+    window.addEventListener("resize", updateContainerClass);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener("resize", updateContainerClass);
+  });
 
   // Fetch the image associated with the post when the component is mounted
   onMount(async () => {
@@ -380,10 +405,9 @@
   fetchLikes();
 </script>
 
-<div class="post">
+<div class={containerClass}>
   <div class="post-header">
     <i>Posted by {userName} {postTime}</i>
-    <strong>Posted by {userName} {postTime}</strong>
   </div>
   <div class="post-title">
     {#if isEditing}
@@ -449,14 +473,35 @@
 </div>
 
 <style>
-  .post {
+  .post-big {
     border: 1px solid #e1e1e1;
     border-radius: 8px;
     padding: 16px;
     margin-bottom: 3%;
     color: black;
-    width: 100%;
     font-size: large;
+
+    width: 600px;
+  }
+  .post-mid {
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 3%;
+    color: black;
+    font-size: large;
+
+    width: 70%;
+  }
+  .post-small {
+    border: 1px solid #e1e1e1;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 3%;
+    color: black;
+    font-size: large;
+
+    width: 450px;
   }
   .post-header {
     display: flex;

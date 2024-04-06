@@ -3,11 +3,11 @@
   import { onMount, onDestroy } from "svelte";
   import * as Icon from "flowbite-svelte-icons";
 
-  import { writable } from 'svelte/store'; // Import writable store
+  import { writable } from "svelte/store"; // Import writable store
   import { link, navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
-  let currentSelection;
+  let currentSelection = "/home";
 
   // Logout function
   function handleLogout() {
@@ -24,25 +24,74 @@
     // /friends/...
     // /all_users
     // /notifications/...
+    handleHomeClass();
+    handleAllUsersClass();
+    handleForyouClass();
+    handleFriendsClass();
+    handleNotificationClass();
   }
 
-  function returnCSSElementClass(current) {
-    console.log("currentSelection", currentSelection)
-    console.log("currentLabel", current)
-    if (current != currentSelection){
-      return "menu-item"
+  const homeSelected = writable("selected-menu-item");
+  function handleHomeClass() {
+    if (currentSelection.includes("/home")) {
+      homeSelected.set("selected-menu-item");
     } else {
-      console.log('selcted')
-      return "selected-menu-item"
+      console.log("selcted!!!");
+      homeSelected.set("menu-item");
+    }
+  }
+
+  const foryouSelected = writable("menu-item");
+  function handleForyouClass() {
+    if (currentSelection.includes("/foryou")) {
+      foryouSelected.set("selected-menu-item");
+    } else {
+      console.log("selcted!!!");
+      foryouSelected.set("menu-item");
+    }
+  }
+
+  const friendsSelected = writable("menu-item");
+  function handleFriendsClass() {
+    if (currentSelection.includes("/friends")) {
+      friendsSelected.set("selected-menu-item");
+    } else {
+      console.log("selcted!!!");
+      friendsSelected.set("menu-item");
+    }
+  }
+
+  const allUsersSelected = writable("menu-item");
+  function handleAllUsersClass() {
+    if (currentSelection.includes("/all")) {
+      allUsersSelected.set("selected-menu-item");
+    } else {
+      console.log("selcted!!!");
+      allUsersSelected.set("menu-item");
+    }
+  }
+
+  const notificationsSelected = writable("menu-item");
+  function handleNotificationClass() {
+    if (currentSelection.includes("/notifications")) {
+      notificationsSelected.set("selected-menu-item");
+    } else {
+      console.log("noti selcted!!!");
+      notificationsSelected.set("menu-item");
     }
   }
 
   let sidebarClass = ""; // Initialize the sidebar class variable
 
   function updateSidebarClass() {
-    if (window.innerWidth > 1700) {
+    var list = document.querySelectorAll("aside");
+    // console.log("sideBar width:", list[0].offsetWidth)
+
+    if (window.innerWidth > 1695) {
+      // = 200/0.118
       sidebarClass = "bigSidebar";
     } else if (window.innerWidth > 1017) {
+      //1017
       sidebarClass = "midSidebar";
     } else {
       sidebarClass = "smallSidebar";
@@ -54,19 +103,17 @@
   onMount(() => {
     // Initial call
 
-    updateSidebarClass()
-    window.addEventListener('resize', updateSidebarClass);
-    window.addEventListener('click', returnCSSElementClass);
+    updateSidebarClass();
+    window.addEventListener("resize", updateSidebarClass);
+    window.addEventListener("click", handleNotificationClass);
   });
 
   onDestroy(() => {
     window.removeEventListener("resize", updateSidebarClass);
   });
 
-
-  // console.log('Window Width:', window.innerWidth);
-  // console.log('Window Height:', window.innerHeight);
-
+  console.log("Window Width:", screen.width);
+  console.log("Window Height:", window.innerHeight);
 </script>
 
 <aside class={sidebarClass}>
@@ -75,45 +122,61 @@
       {#each items as item}
         <div class="container">
           {#if item.label === "Home"}
-            <button class={returnCSSElementClass("/home")} on:click={() => onClickHandler(`${item.href}`)}>
+            <button
+              class={$homeSelected}
+              on:click={() => onClickHandler(`${item.href}`)}
+            >
               <Icon.HomeSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
           {:else if item.label === "For You"}
-            <button class={returnCSSElementClass("/foryou")} on:click={() => onClickHandler(`${item.href}`)}>
+            <button
+              class={$foryouSelected}
+              on:click={() => onClickHandler(`${item.href}`)}
+            >
               <Icon.PhoneSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
           {:else if item.label === "Friends"}
-
-            <button class={returnCSSElementClass("/friends")} on:click={() => onClickHandler(`${item.href}`)}>
-              <Icon.ProfileCardOutline class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+            <button
+              class={$friendsSelected}
+              on:click={() => onClickHandler(`${item.href}`)}
+            >
+              <Icon.ProfileCardSolid
+                class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]"
+              />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
           {:else if item.label === "Everyone"}
-            <button class={returnCSSElementClass("/all_users")} on:click={() => onClickHandler(`${item.href}`)}>
+            <button
+              class={$allUsersSelected}
+              on:click={() => onClickHandler(`${item.href}`)}
+            >
               <Icon.UsersSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
           {:else if item.label === "Requests"}
-
-            <button class={returnCSSElementClass("/notifications")} on:click={() => onClickHandler(`${item.href}`)}>
-              <Icon.BellActiveSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
+            <button
+              class={$notificationsSelected}
+              on:click={() => onClickHandler(`${item.href}`)}
+            >
+              <Icon.BellActiveSolid
+                class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]"
+              />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
               {/if}
             </button>
-
           {:else if item.label === "Log Out"}
-            <button class={returnCSSElementClass("/logout")} on:click={handleLogout}>
+            <button class="menu-item" on:click={handleLogout}>
               <Icon.LockOpenSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />
               {#if sidebarClass === "bigSidebar"}
                 <span>{item.label}</span>
