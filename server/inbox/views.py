@@ -263,6 +263,10 @@ class InboxView(APIView):
                         id=id, image_ref=image_ref, **request_data
                     )
                 
+                elif ("enjoyers404" in sender_host) and ("image/jpeg;base64" in request_data["content"]):
+                    request_data["contentType"] = "image/jpeg;base64"
+                    request_data["content"] = request_data["content"].split(",")[1]
+                    new_post = Post.objects.create(id=id, **request_data)
                 else:
                     print("SHARED BY", request_data["sharedBy"])
                     print("REQUEST DATA INBOX", request_data)
