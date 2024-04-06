@@ -150,8 +150,7 @@
     padding: 16px;
     margin-bottom: 3%;
     color: black;
-    width: 200%;
-    margin-right: 50%;
+    width: 100%;
     font-size: large;
   }
   .content {
