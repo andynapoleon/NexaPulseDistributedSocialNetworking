@@ -30,9 +30,6 @@
       },
     });
     const res_json = await res.json();
-    res_json.items.forEach((author) => {
-      console.log(author.id);
-    });
     const allAuthors = [];
 
     // // TODO:loop through other nodes to get remote authors
@@ -88,6 +85,9 @@
     // Fetch all users
     allUsers = await getAllUsers();
     // Update loading state
+    allUsers.items.forEach((author) => {
+      console.log(author.id);
+    });
     loading = false;
     console.log("allUsers:", allUsers);
   });
