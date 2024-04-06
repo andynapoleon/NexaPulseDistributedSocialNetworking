@@ -133,7 +133,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorData), // Pass fetched data to the second request
+            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
@@ -158,12 +158,21 @@
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
           console.log("AUTHOR DATA", authorData);
+          let authorDataToSend = [];
+          authorData.forEach((author) => {
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (author.host === node.host) {
+              authorDataToSend.push(author);
+            }
+          });
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorData), // Pass fetched data to the second request
+            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
