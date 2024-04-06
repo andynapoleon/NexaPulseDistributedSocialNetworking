@@ -119,14 +119,19 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          const authorDataToSend = authorData.filter(author => author.host === node.host);
+          authorData.items = authorData.items.filter((author) => {
+              if (!author.host.endsWith("/")) {
+                  author.host += "/";
+              }
+              return author.host === node.host;
+          });
 
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
@@ -150,15 +155,20 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          const authorDataToSend = authorData.filter(author => author.host === node.host);
+          authorData.items = authorData.items.filter((author) => {
+              if (!author.host.endsWith("/")) {
+                  author.host += "/";
+              }
+              return author.host === node.host;
+          });
 
-          console.log("AUTHOR DATA", authorDataToSend);
+          console.log("AUTHOR DATA", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
