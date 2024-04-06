@@ -9,9 +9,7 @@
   import { use } from "marked";
 
   export let user;
-  if (user.id.includes("/")) {
-    user.id = extractUUID(user.id);
-  }
+  user.id = extractUUID(user.id);
   const currentUserId = $currentUser.userId;
   const userId = user.id;
   const alreadyFollowed = writable(false);
