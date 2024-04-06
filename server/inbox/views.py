@@ -211,9 +211,11 @@ class InboxView(APIView):
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
-                    if (request_data["contentType"] == "application/base64" 
-                        or "social-dist" in sender_host
-                        or "enjoyers404" in sender_host):
+                    if "enjoyers404" in sender_host:
+                        pass
+
+                    elif (request_data["contentType"] == "application/base64" 
+                        or "social-dist" in sender_host):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
@@ -255,17 +257,18 @@ class InboxView(APIView):
                         image_ref = Post.objects.create(**response)
                     elif request_data["contentType"] == "application/base64":
                         image_ref = Post.objects.create(**response)
-                    elif ("enjoyers404" in sender_host):
-                        response["ContentType"] = "image/jpeg;base64"
-                        # remove image/jpeg;base64 prefix from content
-                        response["content"] = response["content"].split(",")[1]
-                        image_ref = Post.objects.create(id=image_id, **response)
-
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
                     new_post = Post.objects.create(
                         id=id, image_ref=image_ref, **request_data
                     )
+                
+                elif ("enjoyers404" in sender_host) and ("image/jpeg;base64" in request_data["content"]):
+                    request_data["ContentType"] = "image/jpeg;base64"
+                    # remove image/jpeg;base64 prefix from content
+                    request_data["content"] = request_data["content"].split(",")[1]
+                    new_post = Post.objects.create(id=id, **request_data)
+                
                 else:
                     print("SHARED BY", request_data["sharedBy"])
                     print("REQUEST DATA INBOX", request_data)
