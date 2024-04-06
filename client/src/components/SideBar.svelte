@@ -12,14 +12,8 @@
 
   // Function to handle the beforeunload event
   function handleBeforeUnload() {
-    localStorage.setItem("currentSelection", currentSelection);
+    localStorage.setItem("currentSelection", "/home");
   }
-
-  // Call handleBeforeUnload when the component is about to be destroyed
-  onDestroy(() => {
-    handleBeforeUnload();
-    window.removeEventListener("resize", updateSidebarClass);
-  });
 
   // Logout function
   function handleLogout() {
@@ -128,6 +122,7 @@
   });
 
   onDestroy(() => {
+    handleBeforeUnload();
     window.removeEventListener("resize", updateSidebarClass);
   });
 
