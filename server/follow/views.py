@@ -88,7 +88,7 @@ class FollowView(APIView):
                     "object": object_data,
                 }
 
-                if "enjoyers404" or "for-andy" in host:
+                if "enjoyers404" in host or "for-andy" in host:
                     data_to_send["type"] = "Approve Follow"
 
                 print("DATA TO SEND", data_to_send)
@@ -327,7 +327,7 @@ class FollowView(APIView):
                 "object": object_data,
             }
 
-            if "enjoyers404" or "for-andy" in host:
+            if "enjoyers404" in host or "for-andy" in host:
                 data_to_send["type"] = "Deny Follow"
 
             print("DATA_TO_SEND", data_to_send)
