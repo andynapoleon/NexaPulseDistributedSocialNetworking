@@ -13,7 +13,7 @@
   const dispatch = createEventDispatcher();
 
   let userName = "";
-  let time = new Date(post.published)
+  let time = new Date(post.published);
   let postTime = time.toLocaleString();
   let content = post.content;
   let title = post.title;
@@ -284,14 +284,16 @@
   let containerClass;
   // Update UI for container for post
   function updateContainerClass() {
-    var list = document.querySelectorAll('aside');
-    console.log("sideBar width:", list[0].offsetWidth)
+    var list = document.querySelectorAll("aside");
+    // console.log("sideBar width:", list[0].offsetWidth)
 
-    console.log("post containerClass:", containerClass)
+    // console.log("post containerClass:", containerClass)
 
-    if (window.innerWidth > 1000) { // = 700/0.7
+    if (window.innerWidth > 1000) {
+      // = 700/0.7
       containerClass = "post-big";
-    } else if (window.innerWidth > 643){ // = 450/0.7
+    } else if (window.innerWidth > 643) {
+      // = 450/0.7
       containerClass = "post-mid";
     } else {
       containerClass = "post-small";
@@ -300,11 +302,11 @@
 
   onMount(() => {
     updateContainerClass();
-    window.addEventListener('resize', updateContainerClass);
+    window.addEventListener("resize", updateContainerClass);
   });
 
   onDestroy(() => {
-    window.removeEventListener('resize', updateContainerClass);
+    window.removeEventListener("resize", updateContainerClass);
   });
 
   // Fetch the image associated with the post when the component is mounted

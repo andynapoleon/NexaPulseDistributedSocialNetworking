@@ -363,7 +363,7 @@
   // Update UI for container for post
   function updateContainerClass() {
     var list = document.querySelectorAll("aside");
-    console.log("sideBar width:", list[0].offsetWidth);
+    // console.log("sideBar width:", list[0].offsetWidth);
     if (window.innerWidth > 1000) {
       // = 700/0.7
       containerClass = "post-big";
