@@ -133,7 +133,7 @@
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorData), // Pass fetched data to the second request
+            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
