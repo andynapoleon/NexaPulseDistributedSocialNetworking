@@ -184,6 +184,7 @@ class FollowView(APIView):
                 actor_data = actor.data
                 object_data = object.data
 
+                print("HOST HERE ", host)
                 if "social-dist" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
