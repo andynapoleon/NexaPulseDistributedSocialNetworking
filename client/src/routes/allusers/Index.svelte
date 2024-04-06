@@ -86,6 +86,7 @@
     allUsers = await getAllUsers();
     // Update loading state
     allUsers.items.forEach((author) => {
+      author.id = author.id;
       console.log(author.id);
     });
     loading = false;
@@ -101,7 +102,7 @@
       {#if loading}
         <p>Loading...</p>
       {:else}
-        <!-- {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
+        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
           <div class="profile-layout">
             {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
               <div class="profile-widget">
@@ -109,10 +110,10 @@
               </div>
             {/each}
           </div>
-        {/each} -->
-        {#each allUsers.items as user}
-          <User {user} />
         {/each}
+        <!-- {#each allUsers.items as user}
+          <User {user} />
+        {/each} -->
       {/if}
     </div>
   </div>
