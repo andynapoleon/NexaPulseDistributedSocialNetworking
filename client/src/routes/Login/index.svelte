@@ -161,7 +161,7 @@
             }
             return author.host === node.host;
           });
-          console.log("AUTHOR DATA", authorData);
+          console.log("AUTHOR DATA HIHI", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
