@@ -8,6 +8,7 @@
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
   let currentSelection = localStorage.getItem("currentSelection") || "/home";
+  console.log("Current Selection HERE:", currentSelection);
 
   // Logout function
   function handleLogout() {
@@ -20,6 +21,7 @@
     navigate(link);
     currentSelection = link;
     localStorage.setItem("currentSelection", currentSelection);
+    console.log("Current Selection:", localStorage.getItem("currentSelection"));
     // /home
     // /foryou
     // /friends/...
