@@ -126,7 +126,6 @@ class InboxView(APIView):
             # 'contentType': application/base64
 
             image_ref = request_data.get("image_ref", None)
-            print("IMAGE REF", image_ref)
             post_id = request_data["id"]
 
             print("POST ID", post_id)
@@ -211,16 +210,12 @@ class InboxView(APIView):
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if ((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64"):
-                    print("request_data", request_data)
+                    print("I'm here")
                     if (request_data["contentType"] == "application/base64" 
                         or "social-dist" in sender_host
                         ):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
-                        )
-                    if "enjoyers404" in sender_host:
-                        url_image = (
-                            f"{sender_host}api/authors/{author_id}/posts/{id}/image"
                         )
                     else:
                         url_image = (
