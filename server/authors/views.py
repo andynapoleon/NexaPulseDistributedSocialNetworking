@@ -46,6 +46,9 @@ class AuthorList(generics.ListCreateAPIView):
             "type": "authors",
             "items": data_with_type,
         }
+        print()
+        print("RESPONSE", response)
+        print()
 
         return Response(response, status=status.HTTP_200_OK)
 

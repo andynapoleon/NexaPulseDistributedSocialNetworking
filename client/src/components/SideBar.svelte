@@ -7,18 +7,22 @@
   import { link, navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
-  let currentSelection = "/home";
+  let currentSelection = localStorage.getItem("currentSelection") || "/home";
+  console.log("Current Selection HERE:", currentSelection);
 
   // Logout function
   function handleLogout() {
     $authToken = "";
     $isLoginPage = true;
+    localStorage.setItem("currentSelection", "/home");
     navigate("/");
   }
 
   function onClickHandler(link) {
     navigate(link);
     currentSelection = link;
+    localStorage.setItem("currentSelection", currentSelection);
+    console.log("Current Selection:", localStorage.getItem("currentSelection"));
     // /home
     // /foryou
     // /friends/...
@@ -102,13 +106,18 @@
   // Call toggleLabelVisibility on mount and remove listener on destroy
   onMount(() => {
     // Initial call
-
+    handleHomeClass();
+    handleAllUsersClass();
+    handleForyouClass();
+    handleFriendsClass();
+    handleNotificationClass();
     updateSidebarClass();
     window.addEventListener("resize", updateSidebarClass);
     window.addEventListener("click", handleNotificationClass);
   });
 
   onDestroy(() => {
+    localStorage.setItem("currentSelection", "/home");
     window.removeEventListener("resize", updateSidebarClass);
   });
 
