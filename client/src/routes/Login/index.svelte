@@ -27,6 +27,7 @@
   });
 
   async function handleLogin() {
+    console.log("LOGIN");
     // Handle Login
     const loginEndpoint = server + "/api/token/";
     console.log(loginEndpoint);
@@ -118,7 +119,7 @@
 
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
           authorData.items = authorData.items.filter((author) => {
               if (!author.host.endsWith("/")) {
                   author.host += "/";
@@ -154,7 +155,7 @@
         );
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
           authorData.items = authorData.items.filter((author) => {
               if (!author.host.endsWith("/")) {
                   author.host += "/";
