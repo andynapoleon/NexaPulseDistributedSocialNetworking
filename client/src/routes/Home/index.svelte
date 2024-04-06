@@ -154,19 +154,19 @@
   }
 </script>
 
-<main class="posts">
-  <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
-  <br />
-  <CreatePost {streamType} on:submit={handleSubmit} />
-  <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
-  <br />
-  <Posts />
+<main>
+  <div class="sidebar" />
+  <div class="navbar" />
+  <div class="main-content">
+    <h1 class="text-[#0f6460] font-bold text-xl">Let's Create A Post!</h1>
+    <br />
+    <CreatePost {streamType} on:submit={handleSubmit} />
+    <h1 class="text-[#0f6460] font-bold text-xl">Explore New Posts</h1>
+    <br />
+    <Posts />
+  </div>
 </main>
 
 <style>
-  .posts {
-    padding-top: 7%;
-    padding-left: 20%;
-    padding-right: 7%;
-  }
+  @import "homeStyle.css";
 </style>

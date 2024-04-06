@@ -4,7 +4,7 @@
   import { get } from "svelte/store";
   import { fetchWithRefresh } from "../utils/apiUtils.js";
   import { posts } from "../stores/stores.js";
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount, onDestroy } from "svelte";
 
   let postTitle = "";
   let postContent = "";
@@ -87,9 +87,33 @@
     input.value = '';
     visibility = "Public";
   }
+
+  let containerClass;
+  // Update UI for container for posts
+  function updateContainerClass() {
+    var list = document.querySelectorAll('aside');
+    //console.log("sideBar width:", list[0].offsetWidth)
+
+    if (window.innerWidth > 1000) { // = 700/0.7
+      containerClass = "create-post-big";
+    } else if (window.innerWidth > 643){ // = 450/0.7
+      containerClass = "create-post-mid";
+    } else {
+      containerClass = "create-post-small";
+    }
+  }
+
+  onMount(() => {
+    updateContainerClass();
+    window.addEventListener('resize', updateContainerClass);
+  });
+
+  onDestroy(() => {
+    window.removeEventListener('resize', updateContainerClass);
+  });
 </script>
 
-<div class="create-post">
+<div class={containerClass}>
   <input
     type="text"
     class="post-title"
@@ -122,11 +146,29 @@
 </div>
 
 <style>
-  .create-post {
+  .create-post-big {
     display: flex;
     flex-direction: column;
-    justify-content: right;
+    justify-content: center;
     margin-bottom: 20px;
+    
+    width: 600px;
+  }
+  .create-post-mid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 20px;
+    
+    width: 70%;
+  }
+  .create-post-small {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-bottom: 20px;
+    
+    width: 450px;
   }
   .post-title,
   .post-content,
@@ -151,7 +193,7 @@
     border: 1px solid #ccc;
     padding: 8px;
     border-radius: 4px;
-    width: 7%;
+    width: 80px;
     font-size: 16px;
     margin-bottom: 0;
     margin-top: 0;
@@ -165,7 +207,7 @@
     border: 1px solid #ccc;
     padding: 8px;
     border-radius: 4px;
-    width: 10%;
+    width: 80px;
     font-size: 16px;
     margin-bottom: 0;
     margin-top: 0;
@@ -178,8 +220,8 @@
     background-color: teal;
     color: white;
     font-weight: bold;
-    width: 7%;
-    margin-left: 93%;
+    width: 80px;
+    margin-left: 90%;
   }
   .remove-file-button {
     padding: 7px 12px;
@@ -195,7 +237,7 @@
     cursor: pointer; /* Show pointer cursor when hovering over the button */
   }
   .select-container {
-  display: flex;
+    display: flex;
   }
 
   .select-container select {
