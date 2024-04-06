@@ -68,7 +68,7 @@
           userId: item.follower.split("/").pop(),
           profileImage: profileImage,
           userName: userName,
-          postTime: "1h ago",
+          postTime: "",
         };
         follows.push(followRequest);
       } catch (error) {
