@@ -400,7 +400,7 @@
 
 <div class={containerClass}>
   <div class="post-header">
-    <strong>Posted by {userName} {postTime}</strong>
+    <i>Posted by {userName} {postTime}</i>
   </div>
   <div class="post-title">
     {#if isEditing}
