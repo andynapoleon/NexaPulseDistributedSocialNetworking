@@ -259,7 +259,8 @@ class InboxView(APIView):
                         response["ContentType"] = "image/jpeg;base64"
                         # remove image/jpeg;base64 prefix from content
                         response["content"] = response["content"].split(",")[1]
-                        
+                        image_ref = Post.objects.create(id=image_id, **response)
+
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
                     new_post = Post.objects.create(
