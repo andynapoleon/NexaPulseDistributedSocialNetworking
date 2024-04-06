@@ -1,7 +1,8 @@
 <script lang="ts">
   export let items = []; // expects an array of items for the sidebar
-  import { onMount, onDestroy } from 'svelte';
+  import { onMount, onDestroy } from "svelte";
   import * as Icon from "flowbite-svelte-icons";
+
   import { writable } from 'svelte/store'; // Import writable store
   import { link, navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
@@ -97,19 +98,20 @@
     } else {
       sidebarClass = "smallSidebar";
     }
-    console.log("change to ->", sidebarClass)
+    console.log("change to ->", sidebarClass);
   }
 
   // Call toggleLabelVisibility on mount and remove listener on destroy
   onMount(() => {
     // Initial call
+
     updateSidebarClass()
     window.addEventListener('resize', updateSidebarClass);
     window.addEventListener('click', handleNotificationClass)
   });
 
   onDestroy(() => {
-    window.removeEventListener('resize', updateSidebarClass);
+    window.removeEventListener("resize", updateSidebarClass);
   });
 
   console.log('Window Width:', screen.width);
@@ -157,6 +159,7 @@
                 <span>{item.label}</span>
               {/if}
             </button>
+
           {:else if item.label === "Log Out"}
             <button class="menu-item" on:click={handleLogout}>
               <Icon.LockOpenSolid class="pt-3 w-[2em] h-[2em] text-[#C2C2C2]" />

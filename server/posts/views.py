@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from .models import Post
-from .serializers import PostSerializer, ServerPostSerializer
+from .serializers import PostSerializer, ServerPostSerializer, SharedPostSerializer
 from follow.models import Follows
 from asgiref.sync import sync_to_async
 from django.utils import timezone
@@ -579,19 +579,29 @@ class SharedPost(APIView):
     def post(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
+            print("POST", post)
         except Post.DoesNotExist:
             return Response(
                 {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
+        base_url = request.build_absolute_uri('/')
         author = Author.objects.get(id=author_id)
-        author_serializer = AuthorSerializer(author)
+        author_serializer = AuthorSerializer(author, context={'base_url': base_url})
         author = author_serializer.data
+        
+        # get the original author
+        original_author = post.authorId
+        original_author_serializer = AuthorSerializer(original_author, context={'base_url': base_url})
+        original_author = original_author_serializer.data
+
+        print("AUTHOR", author)
 
         print("I ENTERED HERE")
         if post.visibility == "PUBLIC" and author_id != str(post.authorId.id):
-            serializer = ServerPostSerializer(post)
+            serializer = PostSerializer(post, context={'base_url': base_url})
             shared_post = serializer.data
+            original_post = shared_post["id"]
             # time now
             shared_post["published"] = str(datetime.now(timezone.utc).isoformat())
             shared_post["isShared"] = True
@@ -602,22 +612,28 @@ class SharedPost(APIView):
             shared_post["visibility"] = "PUBLIC"
             shared_post["originalContent"] = shared_post["content"]
             shared_post["content"] = request.data["content"]
+            shared_post["comments"] = None
+            if shared_post['contentType'] == 'application/base64':
+                shared_post['contentType'] = 'text/plain'
+            if shared_post['originalContent'] == '':
+                shared_post['originalContent'] = "<blank>"
+
             if post.image_ref:
                 shared_post["image_ref"] = post.image_ref.id
             else:
                 shared_post["image_ref"] = None
-            serializer = ServerPostSerializer(data=shared_post)
+            print("SHARED POST", shared_post)
+            serializer = SharedPostSerializer(data=shared_post, context={'base_url': base_url})
             print("VALID?: ", serializer.is_valid())
             if serializer.is_valid():
                 serializer.save()
                 # get all nodes
-                publish = shared_post.pop("published")
                 shared_post["id"] = serializer.data["id"]
                 shared_post["sharedBy"] = str(shared_post["sharedBy"])
                 shared_post["image_ref"] = str(shared_post["image_ref"])
                 shared_post["author"] = author
-                node = Node.objects.all()
-                print(shared_post)
+                node = Node.objects.all().filter(isActive=True)
+
                 remoteAuthors = []
                 follows = Follows.objects.filter(followed=author_id, acceptedRequest=True)
                 # make a request to all nodes api/authors/<str:author_id>/inbox/
@@ -647,6 +663,12 @@ class SharedPost(APIView):
 
                     for remoteAuthor in remoteAuthors:
                         print("REMOTE AUTHOR", remoteAuthor)
+
+                        # do not resend the post to the original author
+                        if remoteAuthor.host == author["host"]:
+                            print("Do not resend the post to the original author")
+                            continue
+
                         try:
                             id = remoteAuthor["id"]
                         except KeyError:
@@ -655,7 +677,20 @@ class SharedPost(APIView):
                             id = remoteAuthor.id
                         
                         id = str(id).split("/")[-1]
-                        url = n.host + f"/api/authors/{str(id)}/inbox"
+                        if "social-dist" in n.host:
+                            print("Sending to social-dist")
+                            url = n.host + f"/authors/{str(id)}/inbox" 
+                            shared_post["id"] = shared_post["id"].split("/")[-1]
+                            shared_post["shared_user"] = shared_post["author"] # sharing author
+                            shared_post["author"] = original_author
+                            shared_post["shared_body"] = shared_post["content"]
+                            shared_post["copy_of_original_id"] = original_post.split("/")[-1]
+                            shared_post["origin"] = shared_post["originalContent"]
+                            
+                            print("Shared post", shared_post)
+
+                        else:
+                            url = n.host + f"/api/authors/{str(id)}/inbox"
 
                         response = requests.post(
                             url,
@@ -663,7 +698,15 @@ class SharedPost(APIView):
                             auth=(n.username, n.password),
                             params={"request_host": SERVER},
                         )
+
+                        if response.status_code == 201:
+                            print("Shared post sent to", url)
+                        else:
+                            print("Shared post not sent to", url)
+                            print("Response", response.status_code)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response(
@@ -679,7 +722,7 @@ class ImagePost(APIView):
     def get(self, request, author_id, post_id):
         try:
             post = Post.objects.get(id=post_id)
-            print("POST", post_id)
+            print("IMAGE POST", post_id)
             # if the image post contains an image
             if post.image_ref != None:
                 base_url = request.build_absolute_uri("/")

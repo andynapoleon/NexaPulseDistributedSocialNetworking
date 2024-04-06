@@ -1,7 +1,7 @@
 <script>
   export let id;
   import Notis from "./notis.svelte";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import { server, authToken, currentUser } from "../../stores/stores.js";
   import { get } from "svelte/store";
   import { fetchWithRefresh } from "../../utils/apiUtils.js";
@@ -41,13 +41,12 @@
     }
   }
 
-  onMount(async () => {
-    const followRequestsEndpoint =
-      server + `/api/follow/all/${get(currentUser).userId}`;
+  async function fetchFollowRequests() {
+    const followRequestsEndpoint = `${server}/api/follow/all/${get(currentUser).userId}`;
     const response = await fetchWithRefresh(followRequestsEndpoint, {
       method: "GET",
       headers: {
-        Authorization: `Bearer ${get(authToken)}`, // Include the token in the request headers
+        Authorization: `Bearer ${get(authToken)}`,
       },
     });
     if (!response.ok) {
@@ -55,35 +54,39 @@
     }
 
     const data = await response.json();
+    await processFollowRequests(data); // Update followRequests data
+    isLoading = false;
+  }
 
-    // Define an async function to execute asynchronous operations sequentially
-    async function processFollowRequests(data) {
-      const follows = [];
-      for (const item of data) {
-        try {
-          const { userName, profileImage } = await fetchAuthor(item.follower);
-          const followRequest = {
-            id: item.follower.split("/").pop(),
-            userId: item.follower.split("/").pop(),
-            profileImage: profileImage,
-            userName: userName,
-            postTime: "1h ago",
-          };
-          follows.push(followRequest);
-        } catch (error) {
-          console.error("Error fetching author:", error);
-        }
+  async function processFollowRequests(data) {
+    const follows = [];
+    for (const item of data) {
+      try {
+        const { userName, profileImage } = await fetchAuthor(item.follower);
+        const followRequest = {
+          id: item.follower.split("/").pop(),
+          userId: item.follower.split("/").pop(),
+          profileImage: profileImage,
+          userName: userName,
+          postTime: "1h ago",
+        };
+        follows.push(followRequest);
+      } catch (error) {
+        console.error("Error fetching author:", error);
       }
-      followRequests = follows;
     }
+    followRequests = follows;
+  }
 
-    // Call the async function and handle the result
-    processFollowRequests(data).then((followRequests) => {
-      // Now you have the followRequests array ready to use
-      console.log(followRequests);
-    });
+  let fetchInterval;
 
-    isLoading = false; // Update loading state
+  onMount(async () => {
+    await fetchFollowRequests(); // Initial fetch
+    fetchInterval = setInterval(fetchFollowRequests, 5000); // Fetch follow requests every 10 seconds
+  });
+
+  onDestroy(() => {
+    clearInterval(fetchInterval);
   });
 </script>
 

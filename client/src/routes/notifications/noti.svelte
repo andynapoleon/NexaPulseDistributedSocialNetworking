@@ -10,7 +10,7 @@
   export let userId; // The user ID passed into the component
   export let userName = "HOHO HAHA";
   export let postTime = "1 min ago";
-  export let content = "wanted to follow you.";
+  // export let content = "wanted to follow you.";
 
   const currentUserId = $currentUser.userId;
 
@@ -118,9 +118,9 @@
       <div class="right-column">
         <div class="post-header">
           {#if alreadyFriended}
-            <div class="already-accepted">{userName} {content}</div>
+            <div class="already-accepted">{userName} wanted to follow you.</div>
           {:else}
-            <strong>{userName} {content}</strong>
+            <strong>{userName} wanted to follow you.</strong>
           {/if}
           <span>{postTime}</span>
         </div>

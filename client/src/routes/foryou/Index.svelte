@@ -1,7 +1,7 @@
 <script>
   import CreatePost from "../../widgets/CreatePost.svelte";
   import Posts from "../../widgets/FollowingPosts.svelte";
-  import { onMount } from "svelte";
+  import { onMount, onDestroy } from "svelte";
   import {
     authToken,
     isLoginPage,
@@ -41,6 +41,22 @@
       fetchPosts();
     }
   }
+
+  let fetchInterval;
+
+  function pollForPosts() {
+    fetchInterval = setInterval(() => {
+      fetchPosts();
+    }, 5000);
+  }
+
+  onMount(async () => {
+    pollForPosts();
+  });
+
+  onDestroy(() => {
+    clearInterval(fetchInterval);
+  });
 
   onMount(() => {
     $isLoginPage = false;
