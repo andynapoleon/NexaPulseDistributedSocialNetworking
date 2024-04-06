@@ -97,10 +97,10 @@
   //     }, 10000);
   //   }
 
-  // onMount(async () => {
-  //   fetchData();
-  //   pollForPosts();
-  // });
+  onMount(async () => {
+    fetchData();
+    // pollForPosts();
+  });
 
   // onDestroy(() => {
   //   clearInterval(fetchInterval);
