@@ -119,6 +119,15 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorDataToSend = [];
+          authorData.forEach((author) => {
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (author.host === node.host) {
+              authorDataToSend.push(author);
+            }
+          });
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
