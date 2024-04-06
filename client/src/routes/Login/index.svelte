@@ -119,17 +119,16 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          console.log("AUTHOR DATA", authorData);
-          const authorDataToSend = authorData.filter(
+          console.log("AUTHOR DATA ITEMS", authorData);
+          authorData.items = authorData.items.filter(
             (author) => author.host === node.host
           );
-          console.log("AUTHOR DATA TO SEND", authorDataToSend);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
@@ -153,16 +152,16 @@
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          const authorDataToSend = authorData.filter(
+          authorData.items = authorData.items.filter(
             (author) => author.host === node.host
           );
-          console.log("AUTHOR DATA", authorDataToSend);
+          console.log("AUTHOR DATA", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(authorDataToSend), // Pass fetched data to the second request
+            body: JSON.stringify(authorData), // Pass fetched data to the second request
           });
           if (getResponse.ok) {
             console.log("Remote authors successfully fetched.");
