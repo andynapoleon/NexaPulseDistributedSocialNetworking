@@ -186,6 +186,7 @@ class FollowView(APIView):
 
                 print("HOST HERE ", host)
                 if "social-dist" in host:
+                    print("SOCIAL_DIST")
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
                 if "enjoyers404" in host:
@@ -194,8 +195,8 @@ class FollowView(APIView):
                     auth = None
                     # comment below out
                     print("AUTHOR actor", actor_data["profileImage"])
-
                 else:
+                    print("not SOCIAL_DIST")
                     request_url = f"{host}/api/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
 
