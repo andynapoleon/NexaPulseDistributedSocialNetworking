@@ -211,8 +211,8 @@ class InboxView(APIView):
 
                 print("REQUEST_DATA", request_data)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if ((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64"):
-                    print("I'm here")
+                if ((((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64")) 
+                    and "enjoyers404" not in sender_host):
                     if (request_data["contentType"] == "application/base64" 
                         or "social-dist" in sender_host
                         ):
@@ -263,10 +263,16 @@ class InboxView(APIView):
                         id=id, image_ref=image_ref, **request_data
                     )
                 
-                elif ("enjoyers404" in sender_host) and ("image/jpeg;base64" in request_data["content"]):
-                    request_data["contentType"] = "image/jpeg;base64"
-                    request_data["content"] = request_data["content"].split(",")[1]
-                    new_post = Post.objects.create(id=id, **request_data)
+                elif ("enjoyers404" in sender_host):
+                    if ("image/jpeg;base64" == request_data["content"][:17]):
+                        request_data["contentType"] = "image/jpeg;base64"
+                        request_data["content"] = request_data["content"].split(",")[1]
+                        new_post = Post.objects.create(id=id, **request_data)
+                    elif image_ref:
+                        image_post = Post.objects.get(id=image_ref)
+                        new_post = Post.objects.create(id=id, image_ref=image_post, **request_data)
+                    else:
+                        new_post = Post.objects.create(id=id, **request_data)
                 else:
                     print("SHARED BY", request_data["sharedBy"])
                     print("REQUEST DATA INBOX", request_data)
