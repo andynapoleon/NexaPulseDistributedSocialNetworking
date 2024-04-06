@@ -105,7 +105,11 @@
   // Call toggleLabelVisibility on mount and remove listener on destroy
   onMount(() => {
     // Initial call
-
+    handleHomeClass();
+    handleAllUsersClass();
+    handleForyouClass();
+    handleFriendsClass();
+    handleNotificationClass();
     updateSidebarClass();
     window.addEventListener("resize", updateSidebarClass);
     window.addEventListener("click", handleNotificationClass);
