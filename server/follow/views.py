@@ -189,7 +189,7 @@ class FollowView(APIView):
                     print("SOCIAL_DIST")
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
-                if "enjoyers404" in host:
+                elif "enjoyers404" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     # TODO: Remove this later when their server process this properly
                     auth = None
