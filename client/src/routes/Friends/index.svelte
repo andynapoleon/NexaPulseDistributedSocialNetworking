@@ -89,22 +89,22 @@
     currentList = allFriends;
   }
 
-  let fetchInterval;
+  // let fetchInterval;
 
-  function pollForPosts() {
-      fetchInterval = setInterval(() => {
-        fetchData();
-      }, 10000);
-    }
+  // function pollForPosts() {
+  //     fetchInterval = setInterval(() => {
+  //       fetchData();
+  //     }, 10000);
+  //   }
 
-  onMount(async () => {
-    fetchData();
-    pollForPosts();
-  });
+  // onMount(async () => {
+  //   fetchData();
+  //   pollForPosts();
+  // });
 
-  onDestroy(() => {
-    clearInterval(fetchInterval);
-  });
+  // onDestroy(() => {
+  //   clearInterval(fetchInterval);
+  // });
 
   //
   //sample = {
@@ -118,23 +118,25 @@
 
   const rowSize = writable(1); // Initialize with a default value
   function returnRowIndex() {
-    if (window.innerWidth > 2200){
+    if (window.innerWidth > 2200) {
       rowSize.set(5);
-    } else if(window.innerWidth > 1800) { // = 700/0.7
+    } else if (window.innerWidth > 1800) {
+      // = 700/0.7
       rowSize.set(4);
-    } else if (window.innerWidth > 1400){ // = 450/0.7
+    } else if (window.innerWidth > 1400) {
+      // = 450/0.7
       rowSize.set(3);
-    } else if (window.innerWidth > 1000){
+    } else if (window.innerWidth > 1000) {
       rowSize.set(2);
     } else {
       rowSize.set(1);
     }
-    console.log("rowsize:", rowSize)
+    console.log("rowsize:", rowSize);
   }
 
   onMount(() => {
     returnRowIndex();
-    window.addEventListener('resize', returnRowIndex);
+    window.addEventListener("resize", returnRowIndex);
   });
 </script>
 
@@ -159,7 +161,9 @@
     {#each Array(Math.ceil(currentList.length / $rowSize)) as _, rowIndex}
       <div class="profile-layout">
         {#each Array(Math.min($rowSize, currentList.length - rowIndex * $rowSize)) as _, colIndex}
-          <Link to="/profile/{currentList[rowIndex * $rowSize + colIndex].user_id}">
+          <Link
+            to="/profile/{currentList[rowIndex * $rowSize + colIndex].user_id}"
+          >
             <div class="profile-widget">
               <FriendWidget
                 profileImage={currentList[rowIndex * $rowSize + colIndex]
