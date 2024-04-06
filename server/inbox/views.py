@@ -99,7 +99,7 @@ class InboxView(APIView):
         """
         Adds something to the inbox of the specified Author on a server.
         """
-        print("REQUEST DATA", request.data)
+        # print("REQUEST DATA", request.data)
         print("AUTHOR ID", author_id)
         author = Author.objects.get(id=author_id)
         author.is_active = True
@@ -208,6 +208,8 @@ class InboxView(APIView):
                 print("ID", id)
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
+
+                print("REQUEST_DATA", request_data)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if ((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64"):
                     print("I'm here")
