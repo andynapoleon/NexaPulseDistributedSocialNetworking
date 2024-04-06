@@ -90,15 +90,19 @@
   });
 </script>
 
-<main class="main" {id}>
-  <div class="profile-layout">
-    <div class="profile-widget"></div>
-    <div class="posts">
-      {#if isLoading}
-        <p>Loading...</p>
-      {:else}
-        <Notis {followRequests} />
-      {/if}
+<main>
+  <div class="sidebar" />
+  <div class="navbar" />
+  <div class="main-content" {id}>
+    <div class="profile-layout">
+      <div class="profile-widget"></div>
+      <div class="posts">
+        {#if isLoading}
+          <p>Loading...</p>
+        {:else}
+          <Notis {followRequests} />
+        {/if}
+      </div>
     </div>
   </div>
 </main>
