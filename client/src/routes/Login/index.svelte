@@ -159,6 +159,7 @@
           const authorData = await sendAuthorResponse.json(); // Extract JSON data
           let authorDataToSend = [];
           authorData.forEach((author) => {
+            console.log("AUTHOR", author);
             if (!author.host.endsWith("/")) {
               author.host += "/";
             }
