@@ -121,12 +121,17 @@
         if (sendAuthorResponse.ok) {
           let authorData = await sendAuthorResponse.json(); // Extract JSON data
           authorData.items = authorData.items.filter((author) => {
-              if (!author.host.endsWith("/")) {
-                  author.host += "/";
-              }
-              return author.host === node.host;
+            console.log("AUTHOR HOST ", author.host);
+            console.log("NODE HOST ", node.host);
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (!node.host.endsWith("/")) {
+              node.host += "/";
+            }
+            return author.host === node.host;
           });
-
+          console.log("AUTHOR DATA HIHI", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
@@ -157,13 +162,17 @@
         if (sendAuthorResponse.ok) {
           let authorData = await sendAuthorResponse.json(); // Extract JSON data
           authorData.items = authorData.items.filter((author) => {
-              if (!author.host.endsWith("/")) {
-                  author.host += "/";
-              }
-              return author.host === node.host;
+            console.log("AUTHOR HOST ", author.host);
+            console.log("NODE HOST ", node.host);
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (!node.host.endsWith("/")) {
+              node.host += "/";
+            }
+            return author.host === node.host;
           });
-
-          console.log("AUTHOR DATA", authorData);
+          console.log("AUTHOR DATA HIHI", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
