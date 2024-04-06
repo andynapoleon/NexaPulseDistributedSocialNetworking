@@ -7,7 +7,7 @@
   import { link, navigate } from "svelte-routing"; // Assuming you're using svelte-routing for navigation
   import { authToken, isLoginPage, currentUser } from "../stores/stores.js"; // Import currentUser from stores
 
-  let currentSelection = "/home";
+  let currentSelection = localStorage.getItem("currentSelection") || "/home";
 
   // Logout function
   function handleLogout() {
@@ -19,6 +19,7 @@
   function onClickHandler(link) {
     navigate(link);
     currentSelection = link;
+    localStorage.setItem("currentSelection", currentSelection);
     // /home
     // /foryou
     // /friends/...
