@@ -3,8 +3,7 @@
   import { authToken, server, currentUser } from "../../stores/stores.js";
   import User from "./User.svelte";
   import { Link, navigate } from "svelte-routing";
-  import { writable } from 'svelte/store';
-
+  import { writable } from "svelte/store";
 
   // Define reactive variables
   let loading = true;
@@ -60,23 +59,25 @@
 
   const rowSize = writable(1); // Initialize with a default value
   function returnRowIndex() {
-    if (window.innerWidth > 2200){
+    if (window.innerWidth > 2200) {
       rowSize.set(5);
-    } else if(window.innerWidth > 1800) { // = 700/0.7
+    } else if (window.innerWidth > 1800) {
+      // = 700/0.7
       rowSize.set(4);
-    } else if (window.innerWidth > 1400){ // = 450/0.7
+    } else if (window.innerWidth > 1400) {
+      // = 450/0.7
       rowSize.set(3);
-    } else if (window.innerWidth > 1000){
+    } else if (window.innerWidth > 1000) {
       rowSize.set(2);
     } else {
       rowSize.set(1);
     }
-    console.log("rowsize:", rowSize)
+    console.log("rowsize:", rowSize);
   }
 
   onMount(() => {
     returnRowIndex();
-    window.addEventListener('resize', returnRowIndex);
+    window.addEventListener("resize", returnRowIndex);
   });
 
   // Fetch all users when the component is mounted
@@ -85,7 +86,7 @@
     allUsers = await getAllUsers();
     // Update loading state
     loading = false;
-    console.log("allUsers:", allUsers)
+    console.log("allUsers:", allUsers);
   });
 </script>
 
@@ -97,7 +98,7 @@
       {#if loading}
         <p>Loading...</p>
       {:else}
-        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
+        <!-- {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
           <div class="profile-layout">
             {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
               <Link to="/profile/{allUsers.items[rowIndex * $rowSize + colIndex].user_id}">
@@ -107,11 +108,10 @@
               </Link>
             {/each}
           </div>
-        {/each}
-
-        <!--{#each allUsers.items as user}
+        {/each} -->
+        {#each allUsers.items as user}
           <User {user} />
-        {/each}-->
+        {/each}
       {/if}
     </div>
   </div>
