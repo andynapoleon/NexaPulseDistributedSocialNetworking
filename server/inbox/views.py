@@ -210,14 +210,17 @@ class InboxView(APIView):
                 image_ref = request_data.pop("image_ref", None)
                 print("image ref", image_ref)
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if (image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64":
-                    if "enjoyers404" in sender_host:
-                        pass
-
-                    elif (request_data["contentType"] == "application/base64" 
-                        or "social-dist" in sender_host):
+                if ((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64"):
+                    print("request_data", request_data)
+                    if (request_data["contentType"] == "application/base64" 
+                        or "social-dist" in sender_host
+                        ):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
+                        )
+                    if "enjoyers404" in sender_host:
+                        url_image = (
+                            f"{sender_host}api/authors/{author_id}/posts/{id}/image"
                         )
                     else:
                         url_image = (
@@ -262,12 +265,6 @@ class InboxView(APIView):
                     new_post = Post.objects.create(
                         id=id, image_ref=image_ref, **request_data
                     )
-                
-                elif ("enjoyers404" in sender_host) and ("image/jpeg;base64" in request_data["content"]):
-                    request_data["ContentType"] = "image/jpeg;base64"
-                    # remove image/jpeg;base64 prefix from content
-                    request_data["content"] = request_data["content"].split(",")[1]
-                    new_post = Post.objects.create(id=id, **request_data)
                 
                 else:
                     print("SHARED BY", request_data["sharedBy"])
