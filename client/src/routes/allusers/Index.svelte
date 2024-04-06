@@ -98,20 +98,18 @@
       {#if loading}
         <p>Loading...</p>
       {:else}
-        <!-- {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
+        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
           <div class="profile-layout">
             {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
-              <Link to="/profile/{allUsers.items[rowIndex * $rowSize + colIndex].user_id}">
-                <div class="profile-widget">
-                  <User user={allUsers.items[rowIndex * $rowSize + colIndex]} />
-                </div>
-              </Link>
+              <div class="profile-widget">
+                <User user={allUsers.items[rowIndex * $rowSize + colIndex]} />
+              </div>
             {/each}
           </div>
-        {/each} -->
-        {#each allUsers.items as user}
-          <User {user} />
         {/each}
+        <!-- {#each allUsers.items as user}
+          <User {user} />
+        {/each} -->
       {/if}
     </div>
   </div>
