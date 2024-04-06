@@ -151,6 +151,7 @@
     margin-bottom: 3%;
     color: black;
     width: 200%;
+    margin-left: 30%;
     font-size: large;
   }
   .content {
