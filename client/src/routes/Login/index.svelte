@@ -118,11 +118,14 @@
 
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
           console.log("AUTHOR DATA ITEMS", typeof authorData.items);
-          // authorData.items = authorData.items.filter(
-          //   (author) => author.host === node.host
-          // );
+          authorData.items = authorData.items.filter((author) => {
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            return author.host === node.host;
+          });
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
@@ -151,10 +154,13 @@
         );
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
-          // authorData.items = authorData.items.filter(
-          //   (author) => author.host === node.host
-          // );
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
+          authorData.items = authorData.items.filter((author) => {
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            return author.host === node.host;
+          });
           console.log("AUTHOR DATA", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
