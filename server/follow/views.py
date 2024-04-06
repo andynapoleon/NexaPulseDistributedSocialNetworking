@@ -71,8 +71,10 @@ class FollowView(APIView):
 
                     # TODO: Remove this later when their server process this properly
                     auth = None
-                    
 
+                elif "for-andy" in host:
+                    request_url = f"{host}/authors/{userId1}/inbox"
+                    auth = (node["username"], node["password"])
                 else:
                     request_url = f"{host}/api/authors/{userId1}/inbox"
                     auth = (node["username"], node["password"])
@@ -86,7 +88,7 @@ class FollowView(APIView):
                     "object": object_data,
                 }
 
-                if "enjoyers404" in host:
+                if "enjoyers404" in host or "for-andy" in host:
                     data_to_send["type"] = "Approve Follow"
 
                 print("DATA TO SEND", data_to_send)
@@ -173,6 +175,8 @@ class FollowView(APIView):
             node = serializer.data
             host = node["host"]
             try:
+                print(request.data["userId1"])
+                print(request.data["userId2"])
                 actor = Author.objects.get(id=request.data["userId1"])
                 actor = AuthorSerializer(actor)
                 object = Author.objects.get(id=request.data["userId2"])
@@ -180,17 +184,19 @@ class FollowView(APIView):
                 actor_data = actor.data
                 object_data = object.data
 
+                print("HOST HERE ", host)
                 if "social-dist" in host:
+                    print("SOCIAL_DIST")
                     request_url = f"{host}/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
-                if "enjoyers404" in host:
+                elif "enjoyers404" in host:
                     request_url = f"{host}/authors/{userId2}/inbox"
                     # TODO: Remove this later when their server process this properly
                     auth = None
                     # comment below out
                     print("AUTHOR actor", actor_data["profileImage"])
-                    
                 else:
+                    print("not SOCIAL_DIST")
                     request_url = f"{host}/api/authors/{userId2}/inbox"
                     auth = (node["username"], node["password"])
 
@@ -270,7 +276,7 @@ class FollowView(APIView):
         print("FOLLOWING AUTHOR HERE!", following_author)
         userId1 = request.data.get("userId1")
         userId2 = request.data.get("userId2")
-        
+
         try:
             if following_author["host"][-1] == "/":
                 following_author["host"] = following_author["host"][0:-1]
@@ -293,6 +299,7 @@ class FollowView(APIView):
             actor_data = actor.data
             object_data = object.data
 
+            print("HOST HERE ", host)
             if "social-dist" in host:
                 print("MADE IT HERE TOOO")
                 request_url = f"{host}/authors/{userId1}/inbox"
@@ -302,6 +309,10 @@ class FollowView(APIView):
                 request_url = f"{host}/authors/{userId1}/inbox"
                 # TODO: Remove this later when their server process this properly
                 auth = None
+
+            elif "for-andy" in host:
+                request_url = f"{host}/authors/{userId1}/inbox"
+                auth = (node["username"], node["password"])
 
             else:
                 request_url = f"{host}/api/authors/{userId1}/inbox"
@@ -316,7 +327,7 @@ class FollowView(APIView):
                 "object": object_data,
             }
 
-            if "enjoyers404" in host:
+            if "enjoyers404" in host or "for-andy" in host:
                 data_to_send["type"] = "Deny Follow"
 
             print("DATA_TO_SEND", data_to_send)
