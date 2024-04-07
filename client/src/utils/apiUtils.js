@@ -41,12 +41,8 @@ export async function fetchWithRefresh(url, options) {
 }
 
 export function extractUUID(url) {
-  const regex =
-    /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
-  const match = url.match(regex);
-  if (match && match.length > 0) {
-    return match[0];
-  } else {
-    return null; // UUID not found
-  }
+  const parsedUrl = new URL(url);
+  const pathSegments = parsedUrl.pathname.split("/");
+  const uuid = pathSegments[pathSegments.length - 1]; // Assuming UUID is the last segment in the path
+  return uuid;
 }

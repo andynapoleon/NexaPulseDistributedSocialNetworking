@@ -62,13 +62,23 @@ class PostLikeViewSet(viewsets.ModelViewSet):
             for n in node:
                 if "social-dist" in n.host:
                     url = n.host + f"/authors/{request.data['author']}/inbox"
+                    auth = (n.username, n.password)
+                elif "enjoyers404" in n.host:
+                    url = n.host + f"/authors/{request.data['author']}/inbox"
+                    auth = None
                 else:
                     url = n.host + f"/api/authors/{request.data['author']}/inbox"
+                    auth = (n.username, n.password)
                 print("URL", url)
                 response = requests.post(
                     url,
                     json=remoteData,
-                    auth=(n.username, n.password),
+                    auth=auth,
+                    headers={
+                        "username": n.username,
+                        "password": n.password,
+                        "url": SERVER
+                    },
                     params={"request_host": SERVER},
                 )
                 print("status code", response.status_code)

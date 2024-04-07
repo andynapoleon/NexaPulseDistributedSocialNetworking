@@ -24,11 +24,15 @@ class Post(models.Model):
     # FRIENDS should've already been sent the post so they don't need this
 
     # id of the post
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.CharField(
+        primary_key=True, default=uuid.uuid4, max_length=128, editable=False
+    )
 
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
-    comments = models.ForeignKey("comments.Comment", on_delete=models.CASCADE, null=True, blank=True)
+    comments = models.ForeignKey(
+        "comments.Comment", on_delete=models.CASCADE, null=True, blank=True
+    )
 
     # title of a post
     title = models.CharField(max_length=255, default="")

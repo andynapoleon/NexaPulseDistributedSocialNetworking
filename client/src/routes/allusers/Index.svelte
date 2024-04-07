@@ -3,10 +3,12 @@
   import { authToken, server, currentUser } from "../../stores/stores.js";
   import User from "./User.svelte";
   import { Link, navigate } from "svelte-routing";
+  import { writable } from "svelte/store";
 
   // Define reactive variables
   let loading = true;
   let allUsers = [];
+  let allAuthors = [];
 
   // Get all users
   async function getAllUsers() {
@@ -21,7 +23,7 @@
     const nodes = await res_nodes.json();
 
     // get local authors from the server
-    const res = await fetch(server + "/api/authors/", {
+    const res = await fetch(server + "/api/authors", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -56,45 +58,73 @@
     return res_json;
   }
 
+  const rowSize = writable(1); // Initialize with a default value
+  function returnRowIndex() {
+    if (window.innerWidth > 2200) {
+      rowSize.set(5);
+    } else if (window.innerWidth > 1800) {
+      // = 700/0.7
+      rowSize.set(4);
+    } else if (window.innerWidth > 1400) {
+      // = 450/0.7
+      rowSize.set(3);
+    } else if (window.innerWidth > 1000) {
+      rowSize.set(2);
+    } else {
+      rowSize.set(1);
+    }
+    console.log("rowsize:", rowSize);
+  }
+
+  onMount(() => {
+    returnRowIndex();
+    window.addEventListener("resize", returnRowIndex);
+  });
+
   // Fetch all users when the component is mounted
   onMount(async () => {
     // Fetch all users
     allUsers = await getAllUsers();
     // Update loading state
+    allUsers.items.forEach((author) => {
+      allAuthors.push(author.id);
+    });
+    for (let i = 0; i < allUsers.length; i++) {
+      console.log("HI", allUsers.items[i].id);
+      console.log("HE", allAuthors[i]);
+      allUsers.items[i].id = allAuthors[i];
+    }
     loading = false;
-    console.log("allUsers:", allUsers)
+    console.log("allAuthors:", allAuthors);
+    console.log("allUsers:", allUsers.items);
   });
 </script>
 
-<div class="all-users">
-  {#if loading}
-    <p>Loading...</p>
-  {:else}
-    <!--{#each Array(Math.ceil(allUsers.items.length / 5)) as _, rowIndex}
-      <div class="profile-layout">
-        {#each Array(Math.min(5, allUsers.items.length - rowIndex * 5)) as _, colIndex}
-          <Link to="/profile/{allUsers.items[rowIndex * 5 + colIndex].user_id}">
-            <div class="profile-widget">
-              <User user={allUsers.items[rowIndex * 5 + colIndex]} />
-            </div>
-          </Link>
+<main>
+  <div class="sidebar" />
+  <div class="navbar" />
+  <div class="main-content">
+    <div class="all-users">
+      {#if loading}
+        <p>Loading...</p>
+      {:else}
+        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
+          <div class="profile-layout">
+            {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
+              <div class="profile-widget">
+                <User user={allUsers.items[rowIndex * $rowSize + colIndex]} />
+              </div>
+            {/each}
+          </div>
         {/each}
-      </div>
-    {/each}-->
-
-    {#each allUsers.items as user}
-      <User {user} />
-    {/each}
-  {/if}
-</div>
+        <!-- {#each allUsers.items as user}
+          <User {user} />
+        {/each} -->
+      {/if}
+    </div>
+  </div>
+</main>
 
 <style>
-  .all-users {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    color: black;
-    padding-left: 25%;
-    padding-top: 10%;
-  }
+  @import "allusersStyle.css";
 </style>

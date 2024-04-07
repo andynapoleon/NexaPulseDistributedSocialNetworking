@@ -27,6 +27,7 @@
   });
 
   async function handleLogin() {
+    console.log("LOGIN");
     // Handle Login
     const loginEndpoint = server + "/api/token/";
     console.log(loginEndpoint);
@@ -75,6 +76,7 @@
 
     const nodes = await res_nodes.json();
     for (let node of nodes.items) {
+      console.log("NODE", node);
       let authorData = {
         id: $currentUser.userId,
         displayName: $currentUser.name,
@@ -91,17 +93,45 @@
       console.log(node.password);
       const encodedAuthorization = "Basic " + btoa(authorization);
       // Send a request to the node to get the authors
-      if (node.host.includes("social-dist")) {
+      if (
+        node.host.includes("social-dist") ||
+        node.host.includes("enjoyers404")
+      ) {
+        console.log("NODE HOST", node.host);
+        let headers = {
+          "Content-Type": "application/json",
+          // username: node.username,
+          // password: node.password,
+          // url: server + "/",
+        };
+
+        if (!node.host.includes("enjoyers404")) {
+          // for now, only social-dist has basic auth
+          headers.Authorization = encodedAuthorization;
+        }
+
+        console.log("HEADERS", headers);
+
         const sendAuthorResponse = await fetch(node.host + `/authors/`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: encodedAuthorization,
-          },
+          headers: headers,
         });
+
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
+          authorData.items = authorData.items.filter((author) => {
+            console.log("AUTHOR HOST ", author.host);
+            console.log("NODE HOST ", node.host);
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (!node.host.endsWith("/")) {
+              node.host += "/";
+            }
+            return author.host === node.host;
+          });
+          console.log("AUTHOR DATA HIHI", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {
@@ -130,7 +160,19 @@
         );
         // Send fetched remote authors to the backend to store locally
         if (sendAuthorResponse.ok) {
-          const authorData = await sendAuthorResponse.json(); // Extract JSON data
+          let authorData = await sendAuthorResponse.json(); // Extract JSON data
+          authorData.items = authorData.items.filter((author) => {
+            console.log("AUTHOR HOST ", author.host);
+            console.log("NODE HOST ", node.host);
+            if (!author.host.endsWith("/")) {
+              author.host += "/";
+            }
+            if (!node.host.endsWith("/")) {
+              node.host += "/";
+            }
+            return author.host === node.host;
+          });
+          console.log("AUTHOR DATA HIHI", authorData);
           const getResponse = await fetch(server + `/api/authors/remote/`, {
             method: "POST",
             headers: {

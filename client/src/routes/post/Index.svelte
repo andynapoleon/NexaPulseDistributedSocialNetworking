@@ -146,7 +146,7 @@
     {:else}
       <SharedPost {post} on:changed={handleChange} />
     {/if}
-    <h2>Comments:</h2>
+    <h4>Comments:</h4>
     {#if comments.length > 0}
       <ul class="comment-list">
         {#each comments as comment}
@@ -188,7 +188,7 @@
   }
 
   p,
-  h2 {
+  h4 {
     color: black;
   }
 

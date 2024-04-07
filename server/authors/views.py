@@ -22,12 +22,12 @@ class AuthorList(generics.ListCreateAPIView):
     serializer_class = (
         AuthorSerializer  # Assuming AuthorSerializer is your serializer class
     )
-    authentication_classes = [
+    authentication_classes = [  
         BasicOrTokenAuthentication
     ]  # Apply BasicAuthentication only for AuthorList view
 
     def get_queryset(self):
-        queryset = Author.objects.all()
+        queryset = Author.objects.all() 
         return queryset
 
     def list(self, request, *args, **kwargs):
@@ -46,6 +46,9 @@ class AuthorList(generics.ListCreateAPIView):
             "type": "authors",
             "items": data_with_type,
         }
+        print()
+        print("RESPONSE", response)
+        print()
 
         return Response(response, status=status.HTTP_200_OK)
 
