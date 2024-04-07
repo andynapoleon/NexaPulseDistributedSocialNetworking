@@ -493,7 +493,7 @@ class AuthorPosts(APIView):
                         except TypeError:
                             id = remoteAuthor.id
 
-                        if "social-dist" in n.host:
+                        if "social-dist" in n.host or "for-andy" in n.host:
                             url = n.host + f"/authors/{str(id)}/inbox"
                             auth = (n.username, n.password)
                         elif "enjoyers404" in n.host:
@@ -763,9 +763,13 @@ class SharedPost(APIView):
                             shared_post["source"] = SERVER
                             shared_post["origin"] = SERVER
                             shared_post["content"] = shared_post["originalContent"]
-                            sharing_author = Author.objects.get(id=shared_post["authorId"])
+                            sharing_author = Author.objects.get(
+                                id=shared_post["authorId"]
+                            )
                             # serialize the author
-                            author_serializer = AuthorSerializer(sharing_author, context={"base_url": base_url})
+                            author_serializer = AuthorSerializer(
+                                sharing_author, context={"base_url": base_url}
+                            )
                             shared_post["author"] = author_serializer.data
                             shared_post["count"] = 0
 
