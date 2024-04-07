@@ -8,6 +8,7 @@
   // Define reactive variables
   let loading = true;
   let allUsers = [];
+  let allAuthors = [];
 
   // Get all users
   async function getAllUsers() {
@@ -22,7 +23,7 @@
     const nodes = await res_nodes.json();
 
     // get local authors from the server
-    const res = await fetch(server + "/api/authors/", {
+    const res = await fetch(server + "/api/authors", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -85,8 +86,17 @@
     // Fetch all users
     allUsers = await getAllUsers();
     // Update loading state
+    allUsers.items.forEach((author) => {
+      allAuthors.push(author.id);
+    });
+    for (let i = 0; i < allUsers.length; i++) {
+      console.log("HI", allUsers.items[i].id);
+      console.log("HE", allAuthors[i]);
+      allUsers.items[i].id = allAuthors[i];
+    }
     loading = false;
-    console.log("allUsers:", allUsers);
+    console.log("allAuthors:", allAuthors);
+    console.log("allUsers:", allUsers.items);
   });
 </script>
 
