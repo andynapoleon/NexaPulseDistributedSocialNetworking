@@ -785,6 +785,11 @@ class SharedPost(APIView):
                             url,
                             json=shared_post,
                             auth=auth,
+                            headers={
+                                "username": n.username,
+                                "password": n.password,
+                                "url": SERVER,
+                            },
                             params={"request_host": SERVER},
                         )
 
