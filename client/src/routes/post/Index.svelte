@@ -188,7 +188,7 @@
   }
 
   p,
-  h2 {
+  h4 {
     color: black;
   }
 
