@@ -292,7 +292,8 @@ class InboxView(APIView):
                     except:
                         response["authorId"] = Author.objects.get(id=post_author_id)
                         response.pop("comments")
-                        # response.pop("author")
+                        response.pop("author")
+                        response.pop("origin")
                         print("HYPERTEXT RESPONSE", response)
                         print("Receiving only base64 image content")
 
