@@ -16,6 +16,9 @@
   let shortGithub;
   let shortHost;
   // If github link is too long, create a shorter version of it for preview
+  if (github === null) {
+    github = ""
+  }
   if (github.length > 25){
       shortGithub = github.slice(0, 25) + "..."
     } else {
