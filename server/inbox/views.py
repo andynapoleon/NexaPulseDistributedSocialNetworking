@@ -246,7 +246,7 @@ class InboxView(APIView):
                         auth = (node.username, node.password)
                     elif "enjoyers404" in sender_host:
                         url_image = (
-                            f"{sender_host}authors/{post_author_id}/posts/{image_ref}/image"
+                            f"{sender_host}/authors/{post_author_id}/posts/{image_ref}/image"
                         )
                         auth = None
                     else:
