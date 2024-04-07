@@ -220,7 +220,7 @@ class InboxView(APIView):
                 print("REQUEST_DATA", request_data)
 
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
-                if ("enjoyers404" in sender_host):
+                if ("enjoyers404" in sender_host) and not request_data["isShared"]:
                     if image_ref:
                         image_post = Post.objects.get(id=image_ref)
                         image_post.contentType = "image/jpeg;base64"
@@ -232,24 +232,38 @@ class InboxView(APIView):
                         new_post = Post.objects.create(id=id, **request_data)
 
                 elif (((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64")):
+                    node = Node.objects.all().filter(host=sender_host).first()
+                    if not node:
+                        node = Node.objects.all().filter(host=sender_host[0:-1]).first()
+                    print("NODE:", node.username, node.password)
+
                     if (request_data["contentType"] == "application/base64" 
                         or "social-dist" in sender_host
                         ):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
+                        auth = (node.username, node.password)
+                    elif "enjoyers404" in sender_host:
+                        url_image = (
+                            f"{sender_host}authors/{post_author_id}/posts/{image_ref}/image"
+                        )
+                        auth = None
                     else:
                         url_image = (
                             f"{sender_host}api/authors/{author_id}/posts/{id}/image/"
                         )
+                        auth = (node.username, node.password)
                     print("URL IMAGE", url_image)
-                    node = Node.objects.all().filter(host=sender_host).first()
-                    if not node:
-                        node = Node.objects.all().filter(host=sender_host[0:-1]).first()
-                    print("NODE:", node.username, node.password)
+                    
                     response = requests.get(
                         url_image,
-                        auth=(node.username, node.password),
+                        auth=auth,
+                        headers={
+                            "username": node.username,
+                            "password": node.password,
+                            "url": SERVER,
+                        },
                         params={"request_host": SERVER},
                     )
                     print("IMAGE RESPONSE", response.json())
