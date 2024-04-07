@@ -273,6 +273,7 @@ class InboxView(APIView):
                     response = response.json()
                     # pop image_id
                     try:
+                        print("TRYU TOP PRINT RESPONSE HERE")
                         image_id = response.pop("id")
                         image_id = image_id.split("/")[-2]
                         author_post = response.pop("authorId")
@@ -287,10 +288,14 @@ class InboxView(APIView):
                             response["content"] = response["content"].split(",")[1]
                             response["contentType"] = "image/jpeg;base64"
                             response["visibility"] = request_data["visibility"].upper()
-
                         print("IMAGE ID", image_id)
                     except:
                         response["authorId"] = Author.objects.get(id=post_author_id)
+                        response.pop("comments")
+                        response.pop("author")
+                        print("HYPERTEXT RESPONSE", response)
+                        response.pop("count")
+                        response.pop("origin")
                         print("Receiving only base64 image content")
 
                     # create a image post instance
@@ -299,7 +304,8 @@ class InboxView(APIView):
 
                         image_ref = Post.objects.create(**response)
                     elif request_data["contentType"] == "application/base64":
-                        response.pop("comments")
+                        print("RESPONSE", response)
+                        # response.pop("comments")
                         image_ref = Post.objects.create(**response)
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
