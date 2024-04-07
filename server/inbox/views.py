@@ -198,7 +198,7 @@ class InboxView(APIView):
 
             else:
                 print("I'm testing here")
-                print("authorId", request_data["authorId"])
+                print("request data processed", request_data["authorId"])
                 author = Author.objects.get(id=request_data["authorId"])
 
                 request_data["authorId"] = author
