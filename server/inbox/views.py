@@ -375,6 +375,7 @@ class InboxView(APIView):
         # Likes on posts
         elif request_type.lower() == "post_like" or request_type.lower() == "like":
             print("I'm in inbox post like")
+            print("like data viet", request.data)
             if "/" in request.data["author"]["id"]:
                 request.data["author"]["id"] = extract_uuid(
                     request.data["author"]["id"]
