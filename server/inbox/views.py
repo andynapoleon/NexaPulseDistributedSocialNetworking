@@ -294,6 +294,7 @@ class InboxView(APIView):
                         response.pop("comments")
                         response.pop("author")
                         response.pop("origin")
+                        image_id = response.pop("id").split("/")[-1]
                         print("HYPERTEXT RESPONSE", response)
                         print("Receiving only base64 image content")
 
