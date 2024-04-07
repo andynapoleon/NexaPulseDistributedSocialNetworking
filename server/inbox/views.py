@@ -374,8 +374,11 @@ class InboxView(APIView):
 
         # Likes on posts
         elif request_type.lower() == "post_like" or request_type.lower() == "like":
+            # {'type': 'Like', 'summary': 'enjoyer liked your post', 'object': 'https://enjoyers404-cfbb8f9455f1.herokuapp.com/authors/113e6c89-db28-4472-ad34-010598eea155/posts/c4e0f3a1-ad00-4449-b22b-8d1f112b1f71', 'author': 'fe021e01-70c2-40c2-ac41-c7541ae64066', 'id': 'a55343d2-34fc-4332-b8e7-ca3d32c29233'}
             print("I'm in inbox post like")
             print("like data viet", request.data)
+            if type(request.data["author"]) == "str":
+                request.data["author"] = {"id": request.data["author"]}
             if "/" in request.data["author"]["id"]:
                 request.data["author"]["id"] = extract_uuid(
                     request.data["author"]["id"]
