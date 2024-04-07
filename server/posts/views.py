@@ -623,8 +623,8 @@ class SharedPost(APIView):
             shared_post["comments"] = None
             if shared_post["contentType"] == "application/base64":
                 shared_post["contentType"] = "text/plain"
-            elif original_post["contentType"] == "text/markdown":
-                shared_post["originalContent"] = markdownify(shared_post["content"])
+            # elif original_post["contentType"] == "text/markdown":
+            #     shared_post["originalContent"] = markdownify(shared_post["content"])
             if shared_post["originalContent"] == "":
                 shared_post["originalContent"] = "<blank>"
 
