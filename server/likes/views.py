@@ -74,7 +74,7 @@ class PostLikeViewSet(viewsets.ModelViewSet):
                     headers={
                         "username": n.username,
                         "password": n.password,
-                        url: SERVER
+                        "url": SERVER
                     },
                     params={"request_host": SERVER},
                 )
