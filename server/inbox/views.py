@@ -37,6 +37,7 @@ class InboxView(APIView):
     # permission_classes = [AllowAny]
 
     def convert_json(self, input_json):
+        print("INPUT JSON", input_json)
         output_json = {
             "type": input_json["type"],
             "id": input_json["id"].split("/")[-1],  # Extracting the UUID from the URL
@@ -60,8 +61,12 @@ class InboxView(APIView):
 
         try:
             output_json["originalContent"] = input_json["originalContent"]
-            output_json["sharedBy"] = input_json["sharedBy"]["id"].split("/")[-1]
             output_json["isShared"] = input_json["isShared"]
+            output_json["sharedBy"] = input_json["sharedBy"]["id"].split("/")[-1]
+        except TypeError:
+            output_json["originalContent"] = input_json["originalContent"]
+            output_json["isShared"] = input_json["isShared"]
+            output_json["sharedBy"] = input_json["sharedBy"].split("/")[-1]
         except:
             output_json["sharedBy"] = None
             output_json["isShared"] = False
