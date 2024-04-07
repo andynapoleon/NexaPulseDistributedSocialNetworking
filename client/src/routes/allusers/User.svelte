@@ -9,6 +9,7 @@
   import { use } from "marked";
 
   export let user;
+  console.log("USER OF THIS GUY", user);
   user.id = extractUUID(user.id);
   const currentUserId = $currentUser.userId;
   const userId = user.id;
