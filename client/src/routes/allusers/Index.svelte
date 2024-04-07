@@ -88,11 +88,15 @@
     // Update loading state
     allUsers.items.forEach((author) => {
       author.id = author.id;
-      console.log(author.id);
-      allAuthors.push(author);
+      allAuthors.push(author.id);
     });
+    for (let i = 0; i < allUsers.length; i++) {
+      console.log("HI", allUsers.items[i].id);
+      console.log("HE", allAuthors[i]);
+      allUsers.items[i].id = allAuthors[i];
+    }
     loading = false;
-    console.log("allAuthors:", allAuthors);
+    console.log("allAuthors:", allUsers.items);
   });
 </script>
 
@@ -104,11 +108,11 @@
       {#if loading}
         <p>Loading...</p>
       {:else}
-        {#each Array(Math.ceil(allAuthors.length / $rowSize)) as _, rowIndex}
+        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
           <div class="profile-layout">
-            {#each Array(Math.min($rowSize, allAuthors.length - rowIndex * $rowSize)) as _, colIndex}
+            {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
               <div class="profile-widget">
-                <User user={allAuthors[rowIndex * $rowSize + colIndex]} />
+                <User user={allUsers.items[rowIndex * $rowSize + colIndex]} />
               </div>
             {/each}
           </div>
