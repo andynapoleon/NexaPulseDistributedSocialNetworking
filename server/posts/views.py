@@ -321,38 +321,8 @@ class PostDetail(APIView):
                 # Delete the associated image post, if it exists
                 if regular_post.image_ref and not regular_post.isShared:
                     regular_post.image_ref.delete()
-
                 # Delete the regular post
                 regular_post.delete()
-
-                # get all nodes - for remote deleting
-                query_set = Author.objects.get(id=author_id)
-                serializer = AuthorSerializer(query_set)
-                author = serializer.data
-                if author["host"] == SERVER:
-                    node = Node.objects.all()
-                    for n in node:
-                        # send the post to the inbox of every other author
-                        # /api/authors?request_host=${encodeURIComponent(server)}
-                        url = n.host + f"/api/authors"
-                        print("URL", url)
-                        response = requests.get(
-                            url,
-                            auth=(n.username, n.password),
-                            params={"request_host": SERVER},
-                        )
-                        remoteAuthors = response.json().get("items", [])
-
-                        for remoteAuthor in remoteAuthors:
-                            print("REMOTE AUTHOR", remoteAuthor)
-                            url = n.host + f"/api/authors/{author_id}/posts/{post_id}/"
-                            response = requests.delete(
-                                url,
-                                auth=(n.username, n.password),
-                                params={"request_host": SERVER},
-                            )
-                            print(response.status_code)
-
                 return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 return Response(status=status.HTTP_403_FORBIDDEN)
@@ -769,6 +739,7 @@ class SharedPost(APIView):
                             )
                             shared_post["author"] = author_serializer.data
                             shared_post["count"] = 0
+                            
 
                             print("Shared post", shared_post)
                             # TODO: Remove this later when their server process this properly
