@@ -35,9 +35,9 @@ class Author(AbstractBaseUser):  # PermissionsMixin
     displayName = models.CharField(max_length=500, default="")
     url = models.URLField(editable=False, default="")
     # host = models.CharField(max_length=50, editable=False, default="")
-    github = models.CharField(max_length=500, blank=True, default="")
+    github = models.CharField(max_length=500, blank=True, default="", blank=True, null=True)
     profileImage = models.URLField(
-        max_length=500, default="https://i.imgur.com/V4RclNb.png"
+        max_length=500, default="https://i.imgur.com/V4RclNb.png", blank=True, null=True
     )
     lastUpdated = models.DateTimeField(auto_now=True)
     is_active = models.BooleanField(default=False)
