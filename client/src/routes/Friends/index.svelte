@@ -94,7 +94,7 @@
   // function pollForPosts() {
   //     fetchInterval = setInterval(() => {
   //       fetchData();
-  //     }, 5000);
+  //     }, 10000);
   //   }
 
   onMount(async () => {

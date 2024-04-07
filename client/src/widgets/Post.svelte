@@ -380,7 +380,7 @@
     fetchInterval = setInterval(() => {
       fetchLikes();
       fetchComments();
-    }, 5000);
+    }, 10000);
     console.log("post containerClass:", containerClass);
   }
 
