@@ -198,7 +198,9 @@ class InboxView(APIView):
 
             else:
                 print("I'm testing here")
-                author = get_object_or_404(Author, pk = request_data["authorId"])
+                print("authorId", request_data["authorId"])
+                author = Author.objects.get(id=request_data["authorId"])
+
                 request_data["authorId"] = author
                 print("AUTHOR", request_data["authorId"])
                 if request_data["sharedBy"] != None:
