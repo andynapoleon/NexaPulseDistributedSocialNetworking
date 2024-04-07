@@ -8,6 +8,7 @@
   // Define reactive variables
   let loading = true;
   let allUsers = [];
+  let allAuthors = [];
 
   // Get all users
   async function getAllUsers() {
@@ -88,9 +89,10 @@
     allUsers.items.forEach((author) => {
       author.id = author.id;
       console.log(author.id);
+      allAuthors.push(author);
     });
     loading = false;
-    console.log("allUsers:", allUsers.items);
+    console.log("allAuthors:", allAuthors);
   });
 </script>
 
@@ -102,11 +104,11 @@
       {#if loading}
         <p>Loading...</p>
       {:else}
-        {#each Array(Math.ceil(allUsers.items.length / $rowSize)) as _, rowIndex}
+        {#each Array(Math.ceil(allAuthors.length / $rowSize)) as _, rowIndex}
           <div class="profile-layout">
-            {#each Array(Math.min($rowSize, allUsers.items.length - rowIndex * $rowSize)) as _, colIndex}
+            {#each Array(Math.min($rowSize, allAuthors.length - rowIndex * $rowSize)) as _, colIndex}
               <div class="profile-widget">
-                <User user={allUsers.items[rowIndex * $rowSize + colIndex]} />
+                <User user={allAuthors[rowIndex * $rowSize + colIndex]} />
               </div>
             {/each}
           </div>
