@@ -195,6 +195,10 @@ class FollowView(APIView):
                     auth = None
                     # comment below out
                     print("AUTHOR actor", actor_data["profileImage"])
+                elif "for-andy" in host:
+                    print("for-andy")
+                    request_url = f"{host}/authors/{userId2}/inbox"
+                    auth = (node["username"], node["password"])
                 else:
                     print("not SOCIAL_DIST")
                     request_url = f"{host}/api/authors/{userId2}/inbox"

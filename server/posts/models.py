@@ -24,7 +24,9 @@ class Post(models.Model):
     # FRIENDS should've already been sent the post so they don't need this
 
     # id of the post
-    id = models.CharField(primary_key=True, default=uuid.uuid4, max_length=128, editable=False)
+    id = models.CharField(
+        primary_key=True, default=uuid.uuid4, max_length=128, editable=False
+    )
 
     authorId = models.ForeignKey(Author, on_delete=models.CASCADE)
 
