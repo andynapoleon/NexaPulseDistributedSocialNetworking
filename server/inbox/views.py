@@ -277,6 +277,11 @@ class InboxView(APIView):
                         response["authorId"] = author_post
                         response.pop("comments")
                         response.pop("author")
+                        if "data:image/jpeg;base64" in response["content"]:
+                            response["content"] = response["content"].split(",")[1]
+                            response["contentType"] = "image/jpeg;base64"
+                            response['visibility'] = request_data['visibility'].upper()
+                        
 
                         print("IMAGE ID", image_id)
                     except:
