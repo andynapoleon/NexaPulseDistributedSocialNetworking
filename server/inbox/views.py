@@ -198,7 +198,7 @@ class InboxView(APIView):
 
             else:
                 print("I'm testing here")
-                author = Author.objects.get(id=request_data["authorId"])
+                author = get_object_or_404(Author, pk = request_data["authorId"])
                 request_data["authorId"] = author
                 print("AUTHOR", request_data["authorId"])
                 if request_data["sharedBy"] != None:
@@ -214,10 +214,6 @@ class InboxView(APIView):
 
                 # fetch the image from the server from authors/<str:author_id>/posts/<str:post_id>/image/
                 if ("enjoyers404" in sender_host):
-                    # if ("image/jpeg;base64" == request_data["content"][:17]):
-                    #     request_data["contentType"] = "image/jpeg;base64"
-                    #     request_data["content"] = request_data["content"].split(",")[1]
-                    #     new_post = Post.objects.create(id=id, **request_data)
                     if image_ref:
                         image_post = Post.objects.get(id=image_ref)
                         image_post.contentType = "image/jpeg;base64"
