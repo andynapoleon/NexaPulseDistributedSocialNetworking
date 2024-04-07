@@ -121,7 +121,7 @@
   function pollForComments() {
     fetchInterval = setInterval(() => {
       fetchComments();
-    }, 10000);
+    }, 5000);
   }
 
   onMount(async () => {
