@@ -277,6 +277,9 @@ class InboxView(APIView):
                         response["authorId"] = author_post
                         response.pop("comments")
                         response.pop("author")
+                        print("RESPONSE", response)
+                        response.pop("count")
+                        response.pop("origin")
                         if "data:image/jpeg;base64" in response["content"]:
                             response["content"] = response["content"].split(",")[1]
                             response["contentType"] = "image/jpeg;base64"
