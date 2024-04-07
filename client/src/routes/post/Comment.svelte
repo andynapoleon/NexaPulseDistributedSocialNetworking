@@ -88,13 +88,6 @@
   
   <div class="comment">
     <div>{comment.comment}</div>
-    <div>Likes: {commentLikeCount}</div>
-    <!-- Add a like button for the comment -->
-    {#if isLiked}
-      <button class="like-button" on:click={toggleCommentLike}>Unlike</button>
-    {:else}
-      <button class="like-button" on:click={toggleCommentLike}>Like</button>
-    {/if}
   </div>
 
   <style>
