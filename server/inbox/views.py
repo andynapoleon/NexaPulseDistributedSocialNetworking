@@ -120,7 +120,7 @@ class InboxView(APIView):
             print("POST REQUEST", request.data)
             post_author_id = request.data["author"]["id"].split("/")[-1]
             request_data = self.convert_json(request.data)
-            
+
             # {'type': 'post',
             # 'id': '43fb5f55-b492-4a11-b234-7b6ba5985b0e',
             # 'authorId': 'd491ceed-9c96-401e-8258-8fbadeddec13',
@@ -227,27 +227,30 @@ class InboxView(APIView):
                         image_post.content = image_post.content.split(",")[1]
                         image_post.save()
                         print("IMAGE POST", image_post)
-                        new_post = Post.objects.create(id=id, image_ref=image_post, **request_data)
+                        new_post = Post.objects.create(
+                            id=id, image_ref=image_post, **request_data
+                        )
                     else:
                         new_post = Post.objects.create(id=id, **request_data)
 
-                elif (((image_ref != None and image_ref != "None") or request_data["contentType"] == "application/base64")):
+                elif (image_ref != None and image_ref != "None") or request_data[
+                    "contentType"
+                ] == "application/base64":
                     node = Node.objects.all().filter(host=sender_host).first()
                     if not node:
                         node = Node.objects.all().filter(host=sender_host[0:-1]).first()
                     print("NODE:", node.username, node.password)
 
-                    if (request_data["contentType"] == "application/base64" 
+                    if (
+                        request_data["contentType"] == "application/base64"
                         or "social-dist" in sender_host
-                        ):
+                    ):
                         url_image = (
                             f"{sender_host}authors/{post_author_id}/posts/{id}/image"
                         )
                         auth = (node.username, node.password)
                     elif "enjoyers404" in sender_host:
-                        url_image = (
-                            f"{sender_host}/authors/{post_author_id}/posts/{image_ref}/image"
-                        )
+                        url_image = f"{sender_host}/authors/{post_author_id}/posts/{image_ref}/image"
                         auth = None
                     else:
                         url_image = (
@@ -255,7 +258,7 @@ class InboxView(APIView):
                         )
                         auth = (node.username, node.password)
                     print("URL IMAGE", url_image)
-                    
+
                     response = requests.get(
                         url_image,
                         auth=auth,
@@ -270,6 +273,7 @@ class InboxView(APIView):
                     response = response.json()
                     # pop image_id
                     try:
+                        print("TRYU TOP PRINT RESPONSE HERE")
                         image_id = response.pop("id")
                         image_id = image_id.split("/")[-2]
                         author_post = response.pop("authorId")
@@ -283,12 +287,15 @@ class InboxView(APIView):
                         if "data:image/jpeg;base64" in response["content"]:
                             response["content"] = response["content"].split(",")[1]
                             response["contentType"] = "image/jpeg;base64"
-                            response['visibility'] = request_data['visibility'].upper()
-                        
-
+                            response["visibility"] = request_data["visibility"].upper()
                         print("IMAGE ID", image_id)
                     except:
                         response["authorId"] = Author.objects.get(id=post_author_id)
+                        response.pop("comments")
+                        response.pop("author")
+                        response.pop("origin")
+
+                        print("HYPERTEXT RESPONSE", response)
                         print("Receiving only base64 image content")
 
                     # create a image post instance
@@ -296,14 +303,19 @@ class InboxView(APIView):
                     if request_data["isShared"]:
 
                         image_ref = Post.objects.create(**response)
-                    elif request_data["contentType"] == "application/base64":
+                    elif (
+                        request_data["contentType"] == "application/base64"
+                        or "social-dist" in sender_host
+                    ):
+                        print("RESPONSE", response)
+                        # response.pop("comments")
                         image_ref = Post.objects.create(**response)
                     else:
                         image_ref = Post.objects.create(id=image_id, **response)
                     new_post = Post.objects.create(
                         id=id, image_ref=image_ref, **request_data
                     )
-                
+
                 else:
                     print("SHARED BY", request_data["sharedBy"])
                     print("REQUEST DATA INBOX", request_data)

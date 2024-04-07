@@ -472,7 +472,7 @@ class AuthorPosts(APIView):
                         else:
                             url = n.host + f"/api/authors/{str(id)}/inbox"
                             auth = (n.username, n.password)
-                        print("Remote data to send",remoteData)
+                        print("Remote data to send", remoteData)
                         response = requests.post(
                             url,
                             json=remoteData,
