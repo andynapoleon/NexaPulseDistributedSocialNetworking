@@ -87,7 +87,6 @@
     allUsers = await getAllUsers();
     // Update loading state
     allUsers.items.forEach((author) => {
-      author.id = author.id;
       allAuthors.push(author.id);
     });
     for (let i = 0; i < allUsers.length; i++) {
@@ -96,7 +95,8 @@
       allUsers.items[i].id = allAuthors[i];
     }
     loading = false;
-    console.log("allAuthors:", allUsers.items);
+    console.log("allAuthors:", allAuthors);
+    console.log("allUsers:", allUsers.items);
   });
 </script>
 
