@@ -91,14 +91,21 @@ class CommentDetail(generics.RetrieveAPIView):
                     auth=(n.username, n.password),
                     params={"request_host": SERVER},
                 )
-                if "social-dist" in n.host:
+                if "social-dist" in n.host or "enjoyers404" in n.host:
                     url = n.host + f"/authors/{author_id}/inbox"
+                    auth = None
                 else:
                     url = n.host + f"/api/authors/{author_id}/inbox"
+                    auth = (n.username, n.password)
                 response = requests.post(
                     url,
                     json=remoteData,
-                    auth=(n.username, n.password),
+                    auth=auth,
+                    headers={
+                        "username": n.username,
+                        "password": n.password,
+                        "url": SERVER,
+                    },
                     params={"request_host": SERVER},
                 )
                 print(response)
