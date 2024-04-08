@@ -167,7 +167,9 @@ class InboxView(APIView):
                             id=request_image["id"].split("/")[6]
                         )
                     except:
-                        local_image_post = Post.objects.get(id=request_image["id"])
+                        local_image_post = Post.objects.get(
+                            id=request_image["id"].split("/")[6]
+                        )
                     local_image_post.content = request_image["content"]
                     local_image_post.save()
 
@@ -295,6 +297,7 @@ class InboxView(APIView):
                         response.pop("comments", None)
                         response.pop("author", None)
                         response.pop("origin", None)
+                        response["id"] = response["id"].split("/")[-2]
 
                         print("HYPERTEXT RESPONSE", response)
                         print("Receiving only base64 image content")
