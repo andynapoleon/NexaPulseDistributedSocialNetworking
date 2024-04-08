@@ -167,9 +167,7 @@ class InboxView(APIView):
                             id=request_image["id"].split("/")[6]
                         )
                     except:
-                        local_image_post = Post.objects.get(
-                            id=request_image["id"].split("/")[6]
-                        )
+                        local_image_post = Post.objects.get(id=request_image["id"])
                     local_image_post.content = request_image["content"]
                     local_image_post.save()
 
