@@ -1,7 +1,7 @@
 import { writable, get, readable } from "svelte/store";
 
 export const mode = writable("light");
-export const server = "https://nexapulse1-7fbca99d2d7b.herokuapp.com";
+export const server = "https://nexapulse-25959148b934.herokuapp.com";
 // http://127.0.0.1:5000
 // https://nexapulse-25959148b934.herokuapp.com (viet)
 // https://nexapulse1-7fbca99d2d7b.herokuapp.com (andy)
