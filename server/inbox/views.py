@@ -272,13 +272,14 @@ class InboxView(APIView):
                     print("IMAGE RESPONSE", response.json())
                     response = response.json()
                     # pop image_id
-                    try:
+                    if "enjoyers404" in sender_host:
                         print("TRYU TOP PRINT RESPONSE HERE")
                         image_id = response.pop("id")
                         image_id = image_id.split("/")[-2]
                         author_post = response.pop("authorId")
                         author_post = Author.objects.get(id=author_post)
                         response["authorId"] = author_post
+
                         response.pop("comments")
                         response.pop("author")
                         print("RESPONSE", response)
@@ -289,11 +290,13 @@ class InboxView(APIView):
                             response["contentType"] = "image/jpeg;base64"
                             response["visibility"] = request_data["visibility"].upper()
                         print("IMAGE ID", image_id)
-                    except:
+                    else:
                         response["authorId"] = Author.objects.get(id=post_author_id)
                         response.pop("comments", None)
                         response.pop("author", None)
                         response.pop("origin", None)
+                        # if "social-dist" in sender_host:
+                        #     response.pop("id")
 
                         print("HYPERTEXT RESPONSE", response)
                         print("Receiving only base64 image content")
