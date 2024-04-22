@@ -10,7 +10,7 @@ Make a distributed social network!
 Video Demo
 ============
 
-(https://youtu.be/vIQlpqE3SDo)
+https://youtu.be/vIQlpqE3SDo
 
 Contributing
 ============
