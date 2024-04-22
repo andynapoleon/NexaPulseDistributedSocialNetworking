@@ -7,6 +7,11 @@ See [the web page](https://uofa-cmput404.github.io/general/project.html) for a d
 
 Make a distributed social network!
 
+Video Demo
+============
+
+    https://youtu.be/vIQlpqE3SDo
+
 Contributing
 ============
 
@@ -31,6 +36,3 @@ References:
 
     https://github.com/uofa-cmput404/404f23project-http-academy
 
-# Video Demo
-
-    https://youtu.be/vIQlpqE3SDo
