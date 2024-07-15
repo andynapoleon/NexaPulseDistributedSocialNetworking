@@ -16,7 +16,7 @@ https://youtu.be/vIQlpqE3SDo
 
 _Username_: jackscott@gmail.com
 
-_Password_: 123456
+_Password_: Pongpongpong
 
 Contributing
 ============
