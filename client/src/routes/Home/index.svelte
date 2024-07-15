@@ -33,80 +33,88 @@
             "Content-Type": "application/json",
           },
         }
-      ).then((response) => response.json())
-      .then((data) => {
-        // filter data by created_at and get the new activity since 
-        data.forEach((event) => console.log("Past: ", new Date(event.created_at)));
-        const lastUpdated = new Date(getCurrentUser().lastUpdated);
-        console.log("Last Updated: ", getCurrentUser().lastUpdated);
-        console.log("Threshold: ", lastUpdated);
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          // filter data by created_at and get the new activity since
+          data.forEach((event) =>
+            console.log("Past: ", new Date(event.created_at))
+          );
+          const lastUpdated = new Date(getCurrentUser().lastUpdated);
+          console.log("Last Updated: ", getCurrentUser().lastUpdated);
+          console.log("Threshold: ", lastUpdated);
 
-        const newActivity = data.filter((event) => new Date(event.created_at) > lastUpdated);
-        
-        console.log("github", newActivity);
+          const newActivity = data.filter(
+            (event) => new Date(event.created_at) > lastUpdated
+          );
 
-        // if there is new activity, create a new post for each activity
-        if (newActivity.length > 0) {
-          console.log("new activity", newActivity);
-          newActivity.forEach((event) => {
-            const postData = {
-              authorId: getCurrentUser().userId,
-              type: "post",
-              title: `New ${event.type} event on GitHub!`,
-              content: `${event.repo.name}: ${event.payload.commits && event.payload.commits.length > 0 ? event.payload.commits[0].message : ''}`,
-              contentType: "text/markdown",
-              visibility: "Public".toUpperCase(),
-              image: null,
-            };
-            fetchWithRefresh(
-              server + `/api/authors/${getCurrentUser().userId}/posts/`,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${get(authToken)}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(postData),
-              }
-            ).then((response) => {
-              if (response.ok) {
-                console.log("Post created successfully");
-              } else {
-                console.error("Failed to create post:", response.statusText);
-              }
+          console.log("github", newActivity);
+
+          // if there is new activity, create a new post for each activity
+          if (newActivity.length > 0) {
+            console.log("new activity", newActivity);
+            newActivity.forEach((event) => {
+              const postData = {
+                authorId: getCurrentUser().userId,
+                type: "post",
+                title: `New ${event.type} event on GitHub!`,
+                content: `${event.repo.name}: ${event.payload.commits && event.payload.commits.length > 0 ? event.payload.commits[0].message : ""}`,
+                contentType: "text/markdown",
+                visibility: "Public".toUpperCase(),
+                image: null,
+              };
+              fetchWithRefresh(
+                server + `/api/authors/${getCurrentUser().userId}/posts/`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${get(authToken)}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(postData),
+                }
+              ).then((response) => {
+                if (response.ok) {
+                  console.log("Post created successfully");
+                } else {
+                  console.error("Failed to create post:", response.statusText);
+                }
+              });
             });
-          });     
-          fetchPosts();
-          // get the latest event and update the lastUpdated field
-          const latestEvent = newActivity[0];
-          const updatedLastUpdated = latestEvent.created_at;
-          // update the lastUpdated field with API
-          fetch(
-            server + `/api/authors/${getCurrentUser().userId}/`,
-            {
+            fetchPosts();
+            // get the latest event and update the lastUpdated field
+            const latestEvent = newActivity[0];
+            const updatedLastUpdated = latestEvent.created_at;
+            // update the lastUpdated field with API
+            fetch(server + `/api/authors/${getCurrentUser().userId}/`, {
               method: "PUT",
               headers: {
                 Authorization: `Bearer ${get(authToken)}`,
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-                lastUpdated: updatedLastUpdated
+                lastUpdated: updatedLastUpdated,
               }),
-            }
-          ).then((response) => {
-            if (response.ok) {
-              console.log("lastUpdated field updated successfully");
-              // Update lastUpdated field in currentUser
-              currentUser.update(user => {
-                return { ...user, lastUpdated: updatedLastUpdated };
-              });
-              console.log("Updated lastUpdated: ", getCurrentUser().lastUpdated);
-            } else {
-              console.error("Failed to update lastUpdated field:", response.statusText);
-            }
-          });
-        } 
-      })
+            }).then((response) => {
+              if (response.ok) {
+                console.log("lastUpdated field updated successfully");
+                // Update lastUpdated field in currentUser
+                currentUser.update((user) => {
+                  return { ...user, lastUpdated: updatedLastUpdated };
+                });
+                console.log(
+                  "Updated lastUpdated: ",
+                  getCurrentUser().lastUpdated
+                );
+              } else {
+                console.error(
+                  "Failed to update lastUpdated field:",
+                  response.statusText
+                );
+              }
+            });
+          }
+        });
     }
   });
   function isValidGitHubLink(link) {
