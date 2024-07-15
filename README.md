@@ -13,8 +13,10 @@ Demo Video
 https://youtu.be/vIQlpqE3SDo
 
 **Sample Account**:
-Username: jackscott@gmail.com
-Password: 123456
+
+_Username_: jackscott@gmail.com
+
+_Password_: 123456
 
 Contributing
 ============
