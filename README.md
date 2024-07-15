@@ -7,7 +7,7 @@ See [the web page](https://uofa-cmput404.github.io/general/project.html) for a d
 
 Make a distributed social network!
 
-Video Demo
+Demo Video
 ============
 
 https://youtu.be/vIQlpqE3SDo
@@ -31,8 +31,3 @@ Contributors:
     Sheikh Safwan Hossain (sheikhsa)
     Viet Chu (vchu1)
     Bohan Yao (byao2)
-
-References:
-
-    https://github.com/uofa-cmput404/404f23project-http-academy
-
