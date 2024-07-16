@@ -14,9 +14,9 @@ https://youtu.be/vIQlpqE3SDo
 
 **Sample Account**:
 
-_Username_: jackscott@gmail.com
+_Username_: madara.uchiha@gmail.com
 
-_Password_: Pongpongpong
+_Password_: 123456
 
 Contributing
 ============
