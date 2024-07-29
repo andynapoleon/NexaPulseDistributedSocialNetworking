@@ -3,7 +3,7 @@
 
 A project built in CMPUT 404 - Web Applications and Architecture at the University of Alberta.
 
-Tech Stack: Svelte, Django, and Heroku!
+**Tech Stack**: Svelte, Django, and Heroku!
 
 See [the web page](https://uofa-cmput404.github.io/general/project.html) for a description of the project.
 
