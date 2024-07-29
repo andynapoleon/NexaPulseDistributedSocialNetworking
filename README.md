@@ -1,13 +1,13 @@
-CMPUT404-project-socialdistribution
+🌐 Distributed Social Networking Application 📱 
 ===================================
 
-CMPUT404-project-socialdistribution
+A project built in CMPUT 404 - Web Applications and Architecture at the University of Alberta.
 
 See [the web page](https://uofa-cmput404.github.io/general/project.html) for a description of the project.
 
 Make a distributed social network!
 
-Demo Video
+Project Demo Video
 ============
 
 https://youtu.be/vIQlpqE3SDo
