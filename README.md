@@ -7,7 +7,7 @@ See [the web page](https://uofa-cmput404.github.io/general/project.html) for a d
 
 Make a distributed social network!
 
-## Project Demo Video
+## 📽️ Project Demo Video
 ============
 
 https://youtu.be/vIQlpqE3SDo
@@ -18,12 +18,12 @@ _Username_: madara.uchiha@gmail.com
 
 _Password_: 123456
 
-## Contributing
+## 🤝 Contributing
 ============
 
 Send a pull request and be sure to update this file with your name.
 
-## Contributors / Licensing
+## 👥 Contributors / 📄 Licensing
 ========================
 
 Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
