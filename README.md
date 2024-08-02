@@ -1,4 +1,4 @@
-🌐 NexaPulse Distributed Social Networking Application 📱 
+🌐 NexaPulse Distributed Social Networking 📱 
 ===================================
 
 A project built in CMPUT 404 - Web Applications and Architecture at the University of Alberta.
