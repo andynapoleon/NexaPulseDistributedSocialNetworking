@@ -14,12 +14,6 @@ Make a distributed social network!
 
 https://youtu.be/vIQlpqE3SDo
 
-**Sample Account**:
-
-_Username_: madara.uchiha@gmail.com
-
-_Password_: 123456
-
 🤝 Contributing
 ============
 
